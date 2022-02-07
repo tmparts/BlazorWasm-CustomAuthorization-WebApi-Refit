@@ -1,0 +1,51 @@
+﻿@using LibMetaApp.Models
+@using Refit
+@using Microsoft.Extensions.Logging
+@using LibMetaApp
+@inject CustomAuthStateProvider authState
+@inject ISessionLocalStorage SessionLocalStorage
+@inject SessionMarkerLiteModel SessionMarker
+@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject ILogger<UserLogoutForm> Logger
+
+<h3>Выход</h3>
+<button class="btn btn-primary" onclick="@Logout">
+    @{
+        if (InRestProgress == true)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <text> Загрузка...</text>
+        }
+        else
+        {
+            <text>Подтверить выход из сессии</text>
+        }
+    }
+</button>
+@code {
+    private bool InRestProgress = false;
+    ResultRequestModel? res = null;
+
+    private async Task Logout()
+    {
+        InRestProgress = true;
+        await SessionLocalStorage.RemoveSessionAsync();
+        try
+        {
+            ApiResponse<ResultRequestModel> auth_result = await UsersAuthService.LogOutUser();
+            res = auth_result?.Content;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error - {nameof(Logout)}");
+        }
+
+        if (res?.IsSuccess == true)
+        {
+            SessionMarker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+            await SessionLocalStorage.SaveSessionAsync(SessionMarker);
+        }
+        InRestProgress = false;
+        authState.StateChanged();
+    }
+}

@@ -1,0 +1,56 @@
+{
+  "RootFolderName": "./storage-files",
+  "DatabaseConfig": {
+    "Connect": {
+      "SqLiteFileName": "designer_meta_app.db",
+      "ConnectionString": null
+    },
+    "SqlLogDebug": true,
+    "EnableSensitiveDataLoggingDebug": true
+  },
+  "CookiesConfig": {
+    "SessionCookieExpiresSeconds": 86400,
+    "LongSessionCookieExpiresSeconds": 172800,
+    "SessionCookieSslSecureOnly": false
+  },
+  "WebConfig": {
+    "ClientOrignsCORS": [ "https://localhost:7222", "http://localhost:6222" ],
+    "AllowedHosts": "*",
+    "IpPort": 5501,
+    "MaxConcurrentConnections": 100,
+    "MaxRequestBodySize": 30000000,
+    "KeepAliveTimeout": 120,
+    "MaxRequestHeadersTotalSize": 32768,
+    "MaxRequestLineSize": 8192
+  },
+  "SmtpConfig": {
+    "EmailNotificationRecipients": [
+      "ru.usa@mail.ru"
+    ],
+    "PublicName": "Public sender name",
+    "Email": "Email sender",
+    "Host": "",
+    "Port": 465,
+    "Login": "",
+    "Password": "",
+    "UseSsl": true
+  },
+  "RedisConfig": {
+    "ResolveDns": false,
+    "Password": "",
+    "User": "",
+    "KeepAlive": 0,
+    "HighPrioritySocketThreads": false,
+    "EndPoint": "localhost:6379",
+    "AbortOnConnectFail": false,
+    "ConnectTimeout": 10000,
+    "ConfigurationChannel": "",
+    "ConnectRetry": 0,
+    "ClientName": "",
+    "AsyncTimeout": 0,
+    "AllowAdmin": true,
+    "Ssl": false,
+    "SslHost": "",
+    "SyncTimeout": 0
+  }
+}

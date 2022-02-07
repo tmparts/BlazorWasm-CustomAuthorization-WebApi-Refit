@@ -1,0 +1,70 @@
+﻿@using LibMetaApp.Models
+@using Refit
+@using Microsoft.Extensions.Logging
+@using LibMetaApp
+@using Microsoft.Extensions.Options
+@inject CustomAuthStateProvider authState
+@inject ISessionLocalStorage SessionLocalStorage
+@inject SessionMarkerLiteModel SessionMarker
+@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject ILogger<UserRestoreForm> Logger
+@inject IOptions<ClientConfigModel> Config
+
+<h3>Восстановить доступ</h3>
+<EditForm Model="@user_restore_obj" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label" for="login">Login</label>
+        <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_restore_obj.Login" />
+        <div class="form-text" id="loginHelp">Enter your login</div>
+    </div>
+    <div class="mb-3">
+        и/или
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
+        <div class="form-text" id="emailHelp">Enter your email</div>
+    </div>
+    <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href="/authentication/registration">Регистрация!</a></div>
+    <button class="btn btn-primary" type="submit">
+        @{
+            if (InRestProgress == true)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <text> Загрузка...</text>
+            }
+            else
+            {
+                <text>Отправить</text>
+            }
+        }
+    </button>
+    @{
+        if (!string.IsNullOrWhiteSpace(user_restore_result?.Message))
+        {
+            <p></p>
+            <div class="alert alert-primary" role="alert">
+                @user_restore_result.Message
+            </div>
+        }
+    }
+</EditForm>
+@code {
+    private UserRestoreModel user_restore_obj = new();
+    ResultRequestModel? user_restore_result = null;
+    private bool InRestProgress = false;
+
+    private async Task HandleValidSubmit()
+    {
+        InRestProgress = true;
+        await SessionLocalStorage.RemoveSessionAsync();
+        ApiResponse<ResultRequestModel>? refit_rest = await UsersAuthService.RestoreUser(user_restore_obj);
+        user_restore_result = refit_rest?.Content;
+
+        InRestProgress = false;
+
+        authState.StateChanged();
+    }
+}

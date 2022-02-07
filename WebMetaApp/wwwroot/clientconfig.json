@@ -1,0 +1,6 @@
+{
+  "ApiHostName": "localhost",
+  "ApiHostPort": 5501,
+  "HttpSheme": "http",
+  "AllowedHosts": "*"
+}

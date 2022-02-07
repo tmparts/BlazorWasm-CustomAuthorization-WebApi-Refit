@@ -1,0 +1,86 @@
+﻿@using LibMetaApp.Models
+@using Refit
+@using Microsoft.Extensions.Logging
+@using Microsoft.AspNetCore.Components.Authorization
+@using LibMetaApp
+@using Microsoft.Extensions.Options
+@inject CustomAuthStateProvider authState
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISessionLocalStorage SessionLocalStorage
+@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject SessionMarkerLiteModel SessionMarker
+@inject ILogger<UserRegistrationForm> Logger
+@inject IOptions<ClientConfigModel> Config
+
+<h3>Регистрация</h3>
+<EditForm Model="@user_registration_obj" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label" for="login">Login</label>
+        <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_registration_obj.Login" />
+        <div class="form-text" id="loginHelp">Enter your login</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <InputText class="form-control" type="password" placeholder="Password" id="password" @bind-Value="user_registration_obj.Password" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="password_confirm">Confirm password</label>
+        <InputText class="form-control" type="password" placeholder="Confirm password" id="password_confirm" @bind-Value="user_registration_obj.PasswordConfirm" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_registration_obj.Email" />
+        <div class="form-text" id="emailHelp">Enter your email</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="name">Public name</label>
+        <InputText type="name" class="form-control" id="name" aria-describedby="loginName" @bind-Value="user_registration_obj.PublicName" />
+        <div class="form-text" id="loginName">Enter your public Name</div>
+    </div>
+    <div class="alert alert-secondary" role="alert">Есть учётная запись? <a href="/authentication/login">Войти</a>. Забыли логин/пароль? <a href="/authentication/restore">Восстановить доступ</a>.</div>
+    <button class="btn btn-primary" type="submit">
+        @{
+            if (InRestProgress == true)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <text> Загрузка...</text>
+            }
+            else
+            {
+                <text>Регистрация</text>
+            }
+        }
+    </button>
+    @{
+        if (!string.IsNullOrWhiteSpace(user_registration_result?.Message))
+        {
+            <p></p>
+            <div class="alert alert-danger" role="alert">
+                @user_registration_result.Message
+            </div>
+        }
+    }
+</EditForm>
+@code {
+    private UserRegistrationModel user_registration_obj = new();
+    private AuthUserResultModel? user_registration_result = null;
+    private bool InRestProgress = false;
+
+    private async Task HandleValidSubmit()
+    {
+        InRestProgress = true;
+        await SessionLocalStorage.RemoveSessionAsync();
+        ApiResponse<AuthUserResultModel> auth_result = await UsersAuthService.RegistrationNewUser(user_registration_obj);
+        user_registration_result = auth_result?.Content;
+
+        if (user_registration_result?.IsSuccess == true)
+        {
+            SessionMarker.Reload(user_registration_result.SessionMarker.Login, user_registration_result.SessionMarker.AccessLevelUser, user_registration_result.SessionMarker.Token);
+            await SessionLocalStorage.SaveSessionAsync(user_registration_result.SessionMarker);
+        }
+        InRestProgress = false;
+        authState.StateChanged();
+    }
+}
