@@ -26,7 +26,7 @@ namespace LibMetaApp.Models
         /// Подтверждён (подтвердил по Email и/или Telegram)
         /// </summary>
         [Display(Name = "Проверенный", Description = "Подтверждённый пользователь (подтвердил по Email и/или Telegram)")]
-        Verified = 2,
+        Confirmed = 2,
 
         /// <summary>
         /// Привилегированный

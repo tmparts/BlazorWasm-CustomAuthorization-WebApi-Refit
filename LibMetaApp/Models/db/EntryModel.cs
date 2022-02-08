@@ -2,10 +2,14 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
 namespace LibMetaApp.Models
 {
     public abstract class IdModel
     {
+        [Key]
         public int Id { get; set; }
     }
 
@@ -13,7 +17,7 @@ namespace LibMetaApp.Models
     {
         public EntryModel() { }
 
-        public EntryModel(int id, string name) { Id = id; Name = name; }
+        public EntryModel(string name) { Name = name; }
 
         public string Name { get; set; } = string.Empty;
     }
@@ -22,18 +26,18 @@ namespace LibMetaApp.Models
     {
         public EntryDescriptionModel() { }
 
-        public EntryDescriptionModel(int id, string name) : base(id, name) { }
+        public EntryDescriptionModel(string name) : base(name) { }
 
-        public EntryDescriptionModel(int id, string name, string description) : base(id, name) { Description = description; }
+        public EntryDescriptionModel(string name, string description) : base(name) { Description = description; }
 
         public string Description { get; set; } = string.Empty;
     }
 
     public class EntryTagModel : EntryModel
     {
-        protected EntryTagModel() { }
+        public EntryTagModel() { }
 
-        protected EntryTagModel(int id, string name, string tag) : base(id, name)
+        protected EntryTagModel(string name, string tag) : base(name)
         {
             Tag = tag;
         }
@@ -41,11 +45,12 @@ namespace LibMetaApp.Models
         public string Tag { get; set; } = string.Empty;
     }
 
+    [Index(nameof(CreatedAt))]
     public class EntryCreatedModel : EntryModel
     {
-        protected EntryCreatedModel() { }
+        public EntryCreatedModel() { }
 
-        protected EntryCreatedModel(int id, string name) : base(id, name) { }
+        public EntryCreatedModel(string name) : base(name) { }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

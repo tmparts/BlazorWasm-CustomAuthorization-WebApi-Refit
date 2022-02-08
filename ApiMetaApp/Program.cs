@@ -38,16 +38,16 @@ builder.WebHost.UseKestrel(options =>
     switch (conf.WebConfig.AllowedHosts.Trim().ToLower())
     {
         case "broadcast":
-            options.Listen(IPAddress.Broadcast, conf.WebConfig.IpPort);
+            options.Listen(IPAddress.Broadcast, conf.ApiConfig.Port);
             break;
         case "loopback":
-            options.Listen(IPAddress.Loopback, conf.WebConfig.IpPort);
+            options.Listen(IPAddress.Loopback, conf.ApiConfig.Port);
             break;
         case "None":
-            options.Listen(IPAddress.None, conf.WebConfig.IpPort);
+            options.Listen(IPAddress.None, conf.ApiConfig.Port);
             break;
         default:
-            options.Listen(IPAddress.Any, conf.WebConfig.IpPort);
+            options.Listen(IPAddress.Any, conf.ApiConfig.Port);
             break;
     }
 });
@@ -71,7 +71,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/api/UsersAuthorization";//api/<UsersController>/ReturnUrl=/api/UsersAuthorization
         options.AccessDeniedPath = "/AccessDenied";
-        options.LogoutPath = "/Logout";
+        options.LogoutPath = $"/{GlobalStaticConstants.LOGOUT_ACTION_NAME}";
     });
 
 builder.Services.AddDistributedMemoryCache();

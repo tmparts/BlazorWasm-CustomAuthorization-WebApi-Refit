@@ -6,17 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LibMetaApp.Models
 {
-    [Index(nameof(Email))]
-    [Index(nameof(Login))]
+    [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(Login), IsUnique = true)]
     [Index(nameof(AccessLevelUser))]
     public class UserModelDB : EntryCreatedModel
     {
         public UserModelDB() { }
 
-        public UserModelDB(int id, string name) : base(id, name) { }
+        public UserModelDB(string name) : base(name) { }
 
-        public UserModelDB(int id, string name, AccessLevelsUsersEnum access_level) : base(id, name) { AccessLevelUser = access_level; }
-                
+        public UserModelDB(string name, AccessLevelsUsersEnum access_level) : base(name) { AccessLevelUser = access_level; }
+
 
         public string LastName { get; set; } = string.Empty;
 
@@ -26,7 +26,7 @@ namespace LibMetaApp.Models
 
         public AccessLevelsUsersEnum AccessLevelUser { get; set; } = AccessLevelsUsersEnum.Anonim;
 
-        public ConfirmationUsersTypesEnum VonfirmationType { get; set; } = ConfirmationUsersTypesEnum.None;
+        public ConfirmationUsersTypesEnum ConfirmationType { get; set; } = ConfirmationUsersTypesEnum.None;
 
         public IEnumerable<GroupUserModelDB>? Groups { get; set; }
 

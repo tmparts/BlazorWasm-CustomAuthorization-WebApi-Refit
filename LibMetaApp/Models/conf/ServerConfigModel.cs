@@ -4,7 +4,7 @@
 
 namespace LibMetaApp.Models
 {
-    public class ServerConfigModel
+    public class ServerConfigModel : BaseConfigModel
     {
         /// <summary>
         /// Путь к папке для хранения файлов программы
@@ -23,5 +23,7 @@ namespace LibMetaApp.Models
         public SmtpConfigModel SmtpConfig { get; set; } = new SmtpConfigModel();
 
         public RedisConfigModel RedisConfig { get; set; } = new RedisConfigModel();
+
+        public UserManageModel UserManageConfig { get; set; } = new UserManageModel();
     }
 }

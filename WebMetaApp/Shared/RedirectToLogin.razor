@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager Navigation
+@using LibMetaApp.Models
 
 @code {
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+        Navigation.NavigateTo($"{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
     }
 }

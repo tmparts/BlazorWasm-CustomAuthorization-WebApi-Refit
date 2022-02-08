@@ -8,9 +8,9 @@ namespace LibMetaApp.Models
     {
         public GroupUserModelDB() { }
 
-        public GroupUserModelDB(int id, string name) : base(id, name) { }
+        public GroupUserModelDB(string name) : base(name) { }
 
-        public GroupUserModelDB(int id, string name, string descripton) : base(id, name, descripton) { }
+        public GroupUserModelDB(string name, string descripton) : base(name, descripton) { }
 
         public IEnumerable<UserModelDB>? Users { get; set; }
     }

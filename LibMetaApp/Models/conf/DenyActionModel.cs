@@ -4,8 +4,9 @@
 
 namespace LibMetaApp.Models
 {
-    public class ClientConfigModel : BaseConfigModel
+    public class DenyActionModel
     {
-
+        public bool IsDeny { get; set; } = false;
+        public string Message { get; set; } = string.Empty;
     }
 }

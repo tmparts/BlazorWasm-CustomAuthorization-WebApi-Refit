@@ -12,7 +12,7 @@ namespace LibMetaApp.Models
         public int ParentId { get; set; }
 
         public NodeModelAnalog() { }
-        public NodeModelAnalog(int id, string name) : base(id, name) { }
-        public NodeModelAnalog(int id, string name, int parent_id) : base(id, name) { ParentId = parent_id; }
+        public NodeModelAnalog(int id, string name) : base(name) { Id = id; }
+        public NodeModelAnalog(string name, int parent_id) : base(name) { ParentId = parent_id; }
     }
 }

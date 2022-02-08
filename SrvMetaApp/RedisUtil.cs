@@ -67,6 +67,16 @@ namespace SrvMetaApp
                 AbortOnConnectFail = _config?.AbortOnConnectFail ?? false,
                 ConnectTimeout = _config?.ConnectTimeout ?? 10000,
                 AllowAdmin = _config?.AllowAdmin ?? true,
+                ConnectRetry = _config?.ConnectRetry ?? 5,
+                ResolveDns = _config?.ResolveDns ?? true,
+                User = _config?.User ?? string.Empty,
+                Password = _config?.Password ?? string.Empty,
+                KeepAlive = _config?.KeepAlive ?? 5,
+                HighPrioritySocketThreads = _config?.HighPrioritySocketThreads ?? true,
+                ConfigurationChannel = _config?.ConfigurationChannel ?? string.Empty,
+                ClientName = _config?.ClientName ?? string.Empty,
+                Ssl = _config?.Ssl ?? true,
+                SslHost = _config?.SslHost ?? string.Empty
             };
 
             ConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(co);
@@ -309,15 +319,7 @@ namespace SrvMetaApp
             ConnectionMultiplexer rc = Connection;
             IDatabase db = rc.GetDatabase();
             RedisKey key = GetRedisKey(pref, pair.Key);
-
-            try
-            {
-                db.StringSet(key, pair.Value, expiry);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка Redis.StringSet(key:{key}, val:{pair.Value}). {Connection}");
-            }
+            db.StringSet(key, pair.Value, expiry);
         }
 
         public async Task UpdateKeyAsync(KeyValuePair<string, string> pair, RedisPrefixExternModel pref, TimeSpan? expiry = null)
@@ -325,15 +327,7 @@ namespace SrvMetaApp
             ConnectionMultiplexer rc = Connection;
             IDatabase db = rc.GetDatabase();
             RedisKey key = GetRedisKey(pref, pair.Key);
-
-            try
-            {
-                await db.StringSetAsync(key, pair.Value, expiry);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка Redis.StringSet(key:{key}, val:{pair.Value}). {Connection}");
-            }
+            await db.StringSetAsync(key, pair.Value, expiry);
         }
 
         public void UpdateKey(RedisKey redisKey, string value, TimeSpan? expiry = null)

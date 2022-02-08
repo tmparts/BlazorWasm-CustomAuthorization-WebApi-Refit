@@ -27,7 +27,7 @@
         <InputCheckbox @bind-Value="user_auth_obj.RememberMe" class="form-check-input" id="RememberMe" />
         <label class="form-check-label" for="RememberMe">Запомнить меня</label>
     </div>
-    <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href="/authentication/registration">Регистрация!</a>. Забыли логин/пароль? <a href="/authentication/restore">Восстановить доступ!</a></div>
+    <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a>. Забыли логин/пароль? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ!</a></div>
     <button class="btn btn-primary" type="submit">
         @{
             if (InRestProgress == true)

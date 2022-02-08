@@ -14,8 +14,6 @@ using System.Security.Claims;
 
 namespace SrvMetaApp.Models
 {
-
-
     public class SessionService : SessionServiceLiteModel
     {
         readonly IOptions<ServerConfigModel> _config;

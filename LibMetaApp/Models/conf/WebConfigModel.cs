@@ -6,11 +6,9 @@ namespace LibMetaApp.Models
 {
     public class WebConfigModel
     {
-        public string[] ClientOrignsCORS { get; set; }
+        public string[] ClientOrignsCORS { get; set; } = Array.Empty<string>();
 
         public string AllowedHosts { get; set; } = "*";
-
-        public int IpPort { get; set; } = 5501;
 
         /// <summary>
         /// Maximum number of open connections. When set to null, the number of connections is unlimited.

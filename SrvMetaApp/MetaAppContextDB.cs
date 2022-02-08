@@ -65,24 +65,24 @@ namespace SrvMetaApp
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<GroupUserModelDB>().HasData(
-                    new GroupUserModelDB(1, "Test group 1", "Description group 1"),
-                    new GroupUserModelDB(2, "Test group 2", "Description group 2"),
-                    new GroupUserModelDB(3, "Test group 3", "Description group 3")
+                    new GroupUserModelDB("Test group 1", "Description group 1") { Id = 1 },
+                    new GroupUserModelDB("Test group 2", "Description group 2") { Id = 2 },
+                    new GroupUserModelDB("Test group 3", "Description group 3") { Id = 3 }
             );
 
             modelBuilder.Entity<ProjectModelDB>().HasData(
-                    new ProjectModelDB(1, "Demo project 1", "Description project 1"),
-                    new ProjectModelDB(2, "Demo project 2", "Description project 2"),
-                    new ProjectModelDB(3, "Demo project 3", "Description project 3")
+                    new ProjectModelDB("Demo project 1", "Description project 1") { Id = 1 },
+                    new ProjectModelDB("Demo project 2", "Description project 2") { Id = 2 },
+                    new ProjectModelDB("Demo project 3", "Description project 3") { Id = 3 }
             );
 
             modelBuilder.Entity<UserModelDB>().HasData(
-                    new UserModelDB(1, "Tom", AccessLevelsUsersEnum.Blocked) { Login = "tom", PasswordHash = GlobalUtils.CalculateHashString("ffsgfgggragf"), Email = "tom@mail.ru" },
-                    new UserModelDB(2, "Bob", AccessLevelsUsersEnum.Verified) { Login = "bobb", PasswordHash = GlobalUtils.CalculateHashString("gsdfghjg"), Email = "bobb@mail.ru" },
-                    new UserModelDB(3, "Sam", AccessLevelsUsersEnum.Trusted) { Login = "samuel", PasswordHash = GlobalUtils.CalculateHashString("hdg6hw46s"), Email = "samuel@mail.ru" },
-                    new UserModelDB(4, "Kelly", AccessLevelsUsersEnum.Manager) { Login = "kiki", PasswordHash = GlobalUtils.CalculateHashString("dh6jwk45"), Email = "kiki@mail.ru" },
-                    new UserModelDB(5, "David", AccessLevelsUsersEnum.Admin) { Login = "diablo", PasswordHash = GlobalUtils.CalculateHashString("dfgh6qeh"), Email = "diablo@mail.ru" },
-                    new UserModelDB(6, "Rokki", AccessLevelsUsersEnum.ROOT) { Login = "ronin", PasswordHash = GlobalUtils.CalculateHashString("ghyh356ust"), Email = "ronin@mail.ru" }
+                    new UserModelDB("Tom", AccessLevelsUsersEnum.Blocked) { Id = 1, Login = "tom", PasswordHash = GlobalUtils.CalculateHashString("ffsgfgggragf"), Email = "tom@mail.ru" },
+                    new UserModelDB("Bob", AccessLevelsUsersEnum.Confirmed) { Id = 2, Login = "bobb", PasswordHash = GlobalUtils.CalculateHashString("gsdfghjg"), Email = "bobb@mail.ru" },
+                    new UserModelDB("Sam", AccessLevelsUsersEnum.Trusted) { Id = 3, Login = "samuel", PasswordHash = GlobalUtils.CalculateHashString("hdg6hw46s"), Email = "samuel@mail.ru" },
+                    new UserModelDB("Kelly", AccessLevelsUsersEnum.Manager) { Id = 4, Login = "kiki", PasswordHash = GlobalUtils.CalculateHashString("dh6jwk45"), Email = "kiki@mail.ru" },
+                    new UserModelDB("David", AccessLevelsUsersEnum.Admin) { Id = 5, Login = "diablo", PasswordHash = GlobalUtils.CalculateHashString("dfgh6qeh"), Email = "diablo@mail.ru" },
+                    new UserModelDB("Rokki", AccessLevelsUsersEnum.ROOT) { Id = 6, Login = "ronin", PasswordHash = GlobalUtils.CalculateHashString("ghyh356ust"), Email = "ronin@mail.ru" }
             );
         }
 
@@ -91,5 +91,7 @@ namespace SrvMetaApp
         public DbSet<GroupUserModelDB> GroupsUsers { get; set; }
 
         public DbSet<ProjectModelDB> Projects { get; set; }
+
+        public DbSet<ConfirmationModelDb> Confirmations { get; set; }
     }
 }

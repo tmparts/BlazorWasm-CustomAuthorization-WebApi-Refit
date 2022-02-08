@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////
 
 using LibMetaApp.Models;
+using LibMetaApp.Models.enums;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace SrvMetaApp.Repositories
@@ -43,5 +44,13 @@ namespace SrvMetaApp.Repositories
         /// Восстановить доступ к учётной записи (сброс пароля)
         /// </summary>
         public Task<ResultRequestModel> RestoreUser(UserRestoreModel user);
+
+        /// <summary>
+        /// Подтвердить действие пользователя
+        /// </summary>
+        /// <param name="confirm_type">Тип подтверждения</param>
+        /// <param name="confirm_id">ИД подтверждения</param>
+        /// <returns></returns>
+        public Task<ResultRequestModel> ConfirmationUserAction(ConfirmationsTypesEnum confirm_type, string confirm_id);
     }
 }

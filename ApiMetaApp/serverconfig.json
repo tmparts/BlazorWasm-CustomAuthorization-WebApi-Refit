@@ -14,9 +14,8 @@
     "SessionCookieSslSecureOnly": false
   },
   "WebConfig": {
-    "ClientOrignsCORS": [ "https://localhost:7222", "http://localhost:6222" ],
+    "ClientOrignsCORS": [ "https://localhost:7222" ],
     "AllowedHosts": "*",
-    "IpPort": 5501,
     "MaxConcurrentConnections": 100,
     "MaxRequestBodySize": 30000000,
     "KeepAliveTimeout": 120,
@@ -28,29 +27,52 @@
       "ru.usa@mail.ru"
     ],
     "PublicName": "Public sender name",
-    "Email": "Email sender",
-    "Host": "",
+    "Email": "badhitman@yandex.ru",
+    "Host": "smtp.yandex.ru",
     "Port": 465,
-    "Login": "",
-    "Password": "",
+    "Login": "badhitman",
+    "Password": "asdfasd",
     "UseSsl": true
   },
   "RedisConfig": {
     "ResolveDns": false,
     "Password": "",
     "User": "",
-    "KeepAlive": 0,
+    "KeepAlive": 5,
     "HighPrioritySocketThreads": false,
     "EndPoint": "localhost:6379",
     "AbortOnConnectFail": false,
     "ConnectTimeout": 10000,
     "ConfigurationChannel": "",
-    "ConnectRetry": 0,
+    "ConnectRetry": 5,
     "ClientName": "",
-    "AsyncTimeout": 0,
+    "AsyncTimeout": 10000,
     "AllowAdmin": true,
     "Ssl": false,
     "SslHost": "",
-    "SyncTimeout": 0
+    "SyncTimeout": 10000
+  },
+  "ApiConfig": {
+    "Host": "localhost",
+    "Port": 5501,
+    "HttpSheme": "http"
+  },
+  "ClientConfig": {
+    "Host": "localhost",
+    "Port": 7222,
+    "HttpSheme": "http"
+  },
+  "UserManageConfig": {
+    "RegistrationUserConfirmDeadlineMinutes": 180,
+    "RestoreUserConfirmDeadlineMinutes": 30,
+    "DenyRegistration": {
+      "IsDeny": false,
+      "Message": ""
+    },
+    "DenyAuthorisation": {
+      "IsDeny": false,
+      "Message": ""
+    },
+    "ConfirmHistoryDays": 60
   }
 }

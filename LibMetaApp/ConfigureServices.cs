@@ -19,8 +19,8 @@ namespace LibMetaApp
             {
                 opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Auth.ToString(),
                     policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Auth)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Verified.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Verified)));
+                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Confirmed.ToString(),
+                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Confirmed)));
                 opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Trusted.ToString(),
                     policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Trusted)));
                 opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Manager.ToString(),

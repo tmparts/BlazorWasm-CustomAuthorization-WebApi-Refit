@@ -23,7 +23,7 @@ var http = new HttpClient()
 builder.Services.AddScoped(sp => http);
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
-builder.Services.AddScoped<SessionMarkerLiteModel>(sp=> marker);
+builder.Services.AddScoped<SessionMarkerLiteModel>(sp => marker);
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
@@ -36,11 +36,10 @@ using Stream? stream = await response.Content.ReadAsStreamAsync();
 
 ClientConfigModel? conf = new ClientConfigModel();
 builder.Configuration.Bind(conf);
-
 builder.Services.AddScoped<IUsersService, UserAuthService>();
 
 builder.Services.AddRefitClient<IUsersAuthApi>()
-        .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{conf.HttpSheme}://{conf.ApiHostName}:{conf.ApiHostPort}/"))
+        .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{conf.ApiConfig.HttpSheme}://{conf.ApiConfig.Host}:{conf.ApiConfig.Port}/"))
         .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
         .SetHandlerLifetime(TimeSpan.FromMinutes(2));
 

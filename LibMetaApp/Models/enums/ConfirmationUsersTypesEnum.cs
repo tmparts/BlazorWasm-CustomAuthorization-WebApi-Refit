@@ -13,6 +13,11 @@
         /// <summary>
         /// По Email
         /// </summary>
-        Email = 1
+        Email = 1,
+
+        /// <summary>
+        /// Ручное подтверждение администрацией
+        /// </summary>
+        Manual = 2,
     }
 }

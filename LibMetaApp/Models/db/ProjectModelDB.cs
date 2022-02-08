@@ -8,9 +8,9 @@ namespace LibMetaApp.Models
     {
         public ProjectModelDB() { }
 
-        public ProjectModelDB(int id, string name) : base(id, name) { }
+        public ProjectModelDB(string name) : base(name) { }
 
-        public ProjectModelDB(int id, string name, string descripton) : base(id, name, descripton) { }
+        public ProjectModelDB(string name, string descripton) : base(name, descripton) { }
 
         public IEnumerable<UserModelDB>? Users { get; set; }
     }

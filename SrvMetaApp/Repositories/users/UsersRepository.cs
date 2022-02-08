@@ -4,6 +4,7 @@
 
 using LibMetaApp;
 using LibMetaApp.Models;
+using LibMetaApp.Models.enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -82,6 +83,14 @@ namespace SrvMetaApp.Repositories
         {
             await LogOutAsync();
             AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
+
+            if (_config.Value.UserManageConfig.DenyAuthorisation.IsDeny)
+            {
+                res.Message = _config.Value.UserManageConfig.DenyRegistration.Message ?? "Авторизация не возможна по техническим причинам";
+                res.IsSuccess = false;
+                return res;
+            }
+
             if (!model_state.IsValid)
             {
                 res.IsSuccess = false;
@@ -141,10 +150,81 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
+        public async Task<ResultRequestModel> ConfirmationUserAction(ConfirmationsTypesEnum confirm_type, string confirm_id)
+        {
+            ResultRequestModel res = new ResultRequestModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
+            if (!res.IsSuccess)
+            {
+                res.Message = "токен подтверждения меет не корректный формат";
+                return res;
+            }
+            _db_context.Confirmations.RemoveRange(_db_context.Confirmations.Where(x => x.Deadline > DateTime.Now.AddDays(_config.Value.UserManageConfig.ConfirmHistoryDays)));
+            await _db_context.SaveChangesAsync();
+
+            ConfirmationModelDb? confirmation_db = await _db_context.Confirmations.Include(x => x.User).FirstOrDefaultAsync(x => x.ConfirmetAt == null && x.Guid == confirm_id && x.ConfirmationType == confirm_type && x.Deadline >= DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RegistrationUserConfirmDeadlineMinutes));
+            res.IsSuccess = confirmation_db is null;
+            if (!res.IsSuccess)
+            {
+                res.Message = "токен подтверждения не найден или просрочен";
+                return res;
+            }
+
+            switch (confirm_type)
+            {
+                case ConfirmationsTypesEnum.RegistrationUser:
+
+                    confirmation_db.ConfirmetAt = DateTime.Now;
+                    _db_context.Update(confirmation_db);
+
+                    confirmation_db.User.AccessLevelUser = AccessLevelsUsersEnum.Confirmed;
+                    _db_context.Update(confirmation_db.User);
+
+                    res.IsSuccess = await _db_context.SaveChangesAsync() > 0;
+
+                    if (res.IsSuccess)
+                    {
+                        res.Message = "Регистрация подтверждена. Авторизуйтесь заново, что бы изменения отразились у вас на клиенте";
+                    }
+                    else
+                    {
+                        res.Message = "Ошибка подтверждения регистрации";
+                    }
+                    break;
+                case ConfirmationsTypesEnum.RestoreUser:
+
+                    confirmation_db.ConfirmetAt = DateTime.Now;
+                    _db_context.Update(confirmation_db);
+
+                    string? new_pass = GlobalUtils.CreatePassword(9);
+                    confirmation_db.User.PasswordHash = GlobalUtils.CalculateHashString(new_pass);
+                    _db_context.Update(confirmation_db.User);
+                    res.IsSuccess = await _db_context.SaveChangesAsync() > 0;
+                    if (res.IsSuccess)
+                    {
+                        res.Message = $"Ваш новый пароль: {new_pass}.";
+                    }
+                    else
+                    {
+                        res.Message = "Ошибка сброса пароля";
+                    }
+                    break;
+            }
+
+            return res;
+        }
+
         public async Task<AuthUserResultModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state)
         {
             await LogOutAsync();
             AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
+
+            if (_config.Value.UserManageConfig.DenyRegistration.IsDeny)
+            {
+                res.Message = _config.Value.UserManageConfig.DenyRegistration.Message ?? "Регистрация не возможна по техническим причинам";
+                res.IsSuccess = false;
+                return res;
+            }
+
             if (!model_state.IsValid)
             {
                 res.IsSuccess = false;
@@ -161,6 +241,10 @@ namespace SrvMetaApp.Repositories
             UserModelDB user_db = (UserModelDB)new_user;
             await _db_context.Users.AddAsync(user_db);
             await _db_context.SaveChangesAsync();
+            ConfirmationModelDb confirm_registration = new ConfirmationModelDb("name", user_db, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RegistrationUser, DateTime.Now.AddSeconds(0)) { };
+            await _mail.SendEmailConfirmUser(user_db, confirm_registration);
+
+
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
             SessionReadResultModel? current_session = ReadMainSession();
 

@@ -11,5 +11,7 @@ namespace SrvMetaApp.Repositories
         public Task<bool> SendEmailRestoreUser(UserModelDB user);
 
         public Task SendEmailAsync(string email, string subject, string message, MimeKit.Text.TextFormat format);
-    }    
+
+        public Task<bool> SendEmailConfirmUser(UserModelDB user_db, ConfirmationModelDb confirm_db);
+    }
 }

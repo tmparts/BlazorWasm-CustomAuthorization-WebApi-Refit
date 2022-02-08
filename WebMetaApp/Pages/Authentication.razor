@@ -1,4 +1,4 @@
-﻿@page "/authentication/{action?}"
+﻿@page "/authentication/{action?}/{token:guid?}"
 @using Microsoft.Extensions.Logging
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
@@ -14,7 +14,7 @@
         <hr />
         @{
             string? action_name = Action?.ToLower();
-            if (action_name == "logout")
+            if (action_name == GlobalStaticConstants.LOGOUT_ACTION_NAME)
             {
                 <UserLogoutForm />
             }
@@ -27,13 +27,13 @@
     <NotAuthorized>
         @{
             string? action_name = Action?.ToLower();
-            if (action_name == "login")
+            if (action_name == GlobalStaticConstants.LOGIN_ACTION_NAME)
             {
                 <UserLoginForm />
             }
-            else if (action_name == "restore")
+            else if (action_name == GlobalStaticConstants.RESTORE_ACTION_NAME)
             {
-                <UserRestoreForm />
+                <UserRestoreForm ConfirmationToken="@Token" />
             }
             else
             {
@@ -44,9 +44,10 @@
 </AuthorizeView>
 @code {
     [Parameter] public string? Action { get; set; }
+    [Parameter] public string? Token { get; set; }
 
     private void BeginLogout(MouseEventArgs args)
     {
-        Navigation.NavigateTo("authentication/logout");
+        Navigation.NavigateTo($"{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGOUT_ACTION_NAME}");
     }
 }
