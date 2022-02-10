@@ -12,10 +12,10 @@
 	"ReCaptchaConfig": {
 		"Mode": 1,
 		"ReCaptchaV2Config": {
-			"PublicKey": "6LdIhEcUAAAAAMO-wXB9GLQCK1UJyj6OV47yjRXo"
+			"PublicKey": "asd-sadsa"
 		},
 		"ReCaptchaV2InvisibleConfig": {
-			"PublicKey": "6Ld5eLgUAAAAAImQ1H3X1GkBgfZI-g_ojri1Gk3z"
+			"PublicKey": "asd-asd"
 		}
 	}
 }
