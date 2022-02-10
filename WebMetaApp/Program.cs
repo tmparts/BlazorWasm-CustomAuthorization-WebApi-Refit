@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Refit;
+using System.Net.Http.Headers;
 using WebMetaApp;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -20,6 +21,11 @@ var http = new HttpClient()
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
 };
+http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+{
+    NoCache = true
+};
+
 builder.Services.AddScoped(sp => http);
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
@@ -33,9 +39,13 @@ builder.Services.AddBlazoredLocalStorage();
 
 using HttpResponseMessage? response = await http.GetAsync("clientconfig.json");
 using Stream? stream = await response.Content.ReadAsStreamAsync();
-
+IConfigurationRoot? config = new ConfigurationBuilder()
+                .AddJsonStream(stream)
+                .Build();
 ClientConfigModel? conf = new ClientConfigModel();
-builder.Configuration.Bind(conf);
+config.Bind(conf);
+builder.Services.AddSingleton<ClientConfigModel>(sp => conf);
+
 builder.Services.AddScoped<IUserAuthService, UserAuthService>();
 
 builder.Services.AddRefitClient<IUsersAuthApi>()
@@ -43,8 +53,5 @@ builder.Services.AddRefitClient<IUsersAuthApi>()
         .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
         .SetHandlerLifetime(TimeSpan.FromMinutes(2));
 
-//var httpBin = RestService.For<IUsersAuthApi>($"{conf.HttpSheme}://{conf.ApiHostName}:{conf.ApiHostPort}/");
-
 builder.Services.InitAccessMinLevelHandler();
-
 await builder.Build().RunAsync();

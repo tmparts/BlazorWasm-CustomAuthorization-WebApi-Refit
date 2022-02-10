@@ -14,5 +14,7 @@ namespace LibMetaApp.Models
 
         [StringLength(30, MinimumLength = 8, ErrorMessage = "Длина пароля должна быть от 8 до 30 символов")]
         public string Password { get; set; } = string.Empty;
+
+        public string ResponseReCAPTCHA { get; set; } = string.Empty;
     }
 }

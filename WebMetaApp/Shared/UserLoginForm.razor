@@ -3,12 +3,15 @@
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
 @using Microsoft.Extensions.Options
+@using LibMetaApp.Services
+@inherits BlazorReCaptchaComponentBaseModel
+
 @inject CustomAuthStateProvider authState
 @inject ISessionLocalStorage SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
 @inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
 @inject ILogger<UserLoginForm> Logger
-@inject IOptions<ClientConfigModel> Config
+@inject ClientConfigModel Config
 
 <h3>Вход</h3>
 <EditForm Model="@user_auth_obj" OnValidSubmit="@HandleValidSubmit">
@@ -27,8 +30,9 @@
         <InputCheckbox @bind-Value="user_auth_obj.RememberMe" class="form-check-input" id="RememberMe" />
         <label class="form-check-label" for="RememberMe">Запомнить меня</label>
     </div>
+    <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
     <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a>. Забыли логин/пароль? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ!</a></div>
-    <button class="btn btn-primary" type="submit">
+    <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
         @{
             if (InRestProgress == true)
             {
@@ -54,7 +58,22 @@
 @code {
     private UserAuthorizationModel user_auth_obj = new();
     private AuthUserResultModel? user_auth_result = null;
-    private bool InRestProgress = false;
+    
+    public override void OnReCaptchaExpired()
+    {
+        user_auth_obj.ResponseReCAPTCHA = string.Empty;
+        Logger.LogDebug("OnReCaptchaExpired");
+    }
+
+    public override void OnReCaptchaSuccess(string response_code)
+    {
+        user_auth_obj.ResponseReCAPTCHA = response_code;
+    }
+
+    public override void OnReCaptchaFailure(string response_code)
+    {
+        Logger.LogError($"OnReCaptchaFailure! response code: {response_code}");
+    }
 
     private async Task HandleValidSubmit()
     {

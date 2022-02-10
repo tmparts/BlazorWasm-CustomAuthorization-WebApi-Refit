@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\reCaptcha\reCaptcha.csproj" />
     <ProjectReference Include="..\SrvMetaApp\SrvMetaApp.csproj" />
   </ItemGroup>
 

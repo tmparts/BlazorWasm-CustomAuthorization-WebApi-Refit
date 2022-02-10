@@ -13,7 +13,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using reCaptcha.Models.VerifyingUsersResponse;
+using reCaptcha.stat;
 using SrvMetaApp.Models;
+using System.Net;
 
 namespace SrvMetaApp.Repositories
 {
@@ -27,6 +30,7 @@ namespace SrvMetaApp.Repositories
         readonly MetaAppContextDB _db_context;
         readonly IMailInterface _mail;
         readonly IUsersConfirmationsInterface _user_confirmation;
+        readonly IPAddress? _remote_ip_address;
 
         public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
 
@@ -40,6 +44,7 @@ namespace SrvMetaApp.Repositories
             _db_context = set_db_context;
             _mail = set_mail;
             _user_confirmation = set_user_confirmation;
+            _remote_ip_address = _http_context.HttpContext.Request.HttpContext.Connection.RemoteIpAddress;
         }
 
         public SessionReadResultModel ReadMainSession()
@@ -87,6 +92,41 @@ namespace SrvMetaApp.Repositories
             await LogOutAsync();
             AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
 
+            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
+            {
+                res.IsSuccess = !string.IsNullOrWhiteSpace(user.ResponseReCAPTCHA);
+                if (!res.IsSuccess)
+                {
+                    res.Message = "Пройдите проверку reCaptcha";
+                    return res;
+                }
+                reCaptcha2ResponseModel? reCaptcha2SiteVerify;
+                switch (_config.Value.ReCaptchaConfig.Mode)
+                {
+                    case ReCaptchaModesEnum.Version2:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                    case ReCaptchaModesEnum.Version2Invisible:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                }
+                if (!res.IsSuccess)
+                {
+                    res.Message = $"Ошибка проверки reCaptcha! {res.Message}";
+                    return res;
+                }
+            }
+
             if (_config.Value.UserManageConfig.DenyAuthorisation.IsDeny)
             {
                 res.Message = _config.Value.UserManageConfig.DenyRegistration.Message ?? "Авторизация не возможна по техническим причинам";
@@ -110,8 +150,6 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-
-
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser, user.RememberMe ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
             SessionReadResultModel? current_session = ReadMainSession();
 
@@ -130,6 +168,48 @@ namespace SrvMetaApp.Repositories
                 IsSuccess = !string.IsNullOrWhiteSpace(user?.Login) || !string.IsNullOrWhiteSpace(user?.Email)
             };
 
+            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None && string.IsNullOrWhiteSpace(user.ResponseReCAPTCHA))
+            {
+                res.IsSuccess = false;
+                res.Message = "Пройдите проверку reCaptcha";
+                return res;
+            }
+
+            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
+            {
+                res.IsSuccess = !string.IsNullOrWhiteSpace(user.ResponseReCAPTCHA);
+                if (!res.IsSuccess)
+                {
+                    res.Message = "Пройдите проверку reCaptcha";
+                    return res;
+                }
+                reCaptcha2ResponseModel? reCaptcha2SiteVerify;
+                switch (_config.Value.ReCaptchaConfig.Mode)
+                {
+                    case ReCaptchaModesEnum.Version2:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                    case ReCaptchaModesEnum.Version2Invisible:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                }
+                if (!res.IsSuccess)
+                {
+                    res.Message = $"Ошибка проверки reCaptcha! {res.Message}";
+                    return res;
+                }
+            }
+
             if (!res.IsSuccess)
             {
                 res.Message = "Укажите логин или email";
@@ -145,6 +225,7 @@ namespace SrvMetaApp.Repositories
             {
                 return res;
             }
+
             ConfirmationModelDb confirm_reset_password;
             if (user_db_by_login is not null)
             {
@@ -178,6 +259,48 @@ namespace SrvMetaApp.Repositories
         {
             await LogOutAsync();
             AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
+
+            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None && string.IsNullOrWhiteSpace(new_user.ResponseReCAPTCHA))
+            {
+                res.IsSuccess = false;
+                res.Message = "Пройдите проверку reCaptcha";
+                return res;
+            }
+
+            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
+            {
+                res.IsSuccess = !string.IsNullOrWhiteSpace(new_user.ResponseReCAPTCHA);
+                if (!res.IsSuccess)
+                {
+                    res.Message = "Пройдите проверку reCaptcha";
+                    return res;
+                }
+                reCaptcha2ResponseModel? reCaptcha2SiteVerify;
+                switch (_config.Value.ReCaptchaConfig.Mode)
+                {
+                    case ReCaptchaModesEnum.Version2:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, new_user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                    case ReCaptchaModesEnum.Version2Invisible:
+                        reCaptcha2SiteVerify = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, new_user.ResponseReCAPTCHA, _remote_ip_address.ToString());
+                        res.IsSuccess = reCaptcha2SiteVerify?.success == true;
+                        if (!res.IsSuccess)
+                        {
+                            res.Message = string.Join(";", reCaptcha2SiteVerify?.ErrorСodes ?? Array.Empty<string>());
+                        }
+                        break;
+                }
+                if (!res.IsSuccess)
+                {
+                    res.Message = $"Ошибка проверки reCaptcha! {res.Message}";
+                    return res;
+                }
+            }
 
             if (_config.Value.UserManageConfig.DenyRegistration.IsDeny)
             {

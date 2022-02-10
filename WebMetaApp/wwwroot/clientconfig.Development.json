@@ -1,12 +1,21 @@
 {
-  "ApiConfig": {
-    "Host": "localhost",
-    "Port": 5501,
-    "HttpSheme": "http"
-  },
-  "ClientConfig": {
-    "Host": "localhost",
-    "Port": 7222,
-    "HttpSheme": "http"
-  }
+	"ApiConfig": {
+		"Host": "localhost",
+		"Port": 5501,
+		"HttpSheme": "http"
+	},
+	"ClientConfig": {
+		"Host": "localhost",
+		"Port": 7222,
+		"HttpSheme": "http"
+	},
+	"ReCaptchaConfig": {
+		"Mode": 1,
+		"ReCaptchaV2Config": {
+			"PublicKey": "6LdIhEcUAAAAAMO-wXB9GLQCK1UJyj6OV47yjRXo"
+		},
+		"ReCaptchaV2InvisibleConfig": {
+			"PublicKey": "6Ld5eLgUAAAAAImQ1H3X1GkBgfZI-g_ojri1Gk3z"
+		}
+	}
 }

@@ -9,6 +9,11 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="WebMetaApp.styles.css" rel="stylesheet" />
+    <!--<script type="text/javascript">
+        var onloadCallbackReCaptcha = function () {
+            alert("grecaptcha is ready!");
+        };
+    </script>-->
 </head>
 
 <body>
@@ -21,6 +26,9 @@
     </div>
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="/js/scriptLoader.js"></script>
+    <script src="/js/JsOfReCAPTCHA.js"></script>
 </body>
 
 </html>

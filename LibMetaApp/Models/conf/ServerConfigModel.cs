@@ -11,6 +11,8 @@ namespace LibMetaApp.Models
         /// </summary>
         public string RootFolderName { get; set; } = "./storage-files";
 
+        public new ReCaptchaConfigServerModel ReCaptchaConfig { get; set; } = new ReCaptchaConfigServerModel();
+
         public DatabaseConfigModel DatabaseConfig { get; set; } = new DatabaseConfigModel();
 
         public HttpSessionCookieConfigModel CookiesConfig { get; set; } = new HttpSessionCookieConfigModel();

@@ -1,4 +1,4 @@
-﻿@page "/authentication/{action?}/{token:guid?}"
+﻿@page "/authentication/{action?}"
 @using Microsoft.Extensions.Logging
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
@@ -44,7 +44,6 @@
 </AuthorizeView>
 @code {
     [Parameter] public string? Action { get; set; }
-    [Parameter] public string? Token { get; set; }
 
     private void BeginLogout(MouseEventArgs args)
     {

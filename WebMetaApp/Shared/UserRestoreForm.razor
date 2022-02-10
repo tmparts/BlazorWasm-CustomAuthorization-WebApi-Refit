@@ -3,12 +3,15 @@
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
 @using Microsoft.Extensions.Options
+@using LibMetaApp.Services
+@inherits BlazorReCaptchaComponentBaseModel
+
 @inject CustomAuthStateProvider authState
 @inject ISessionLocalStorage SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
 @inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
 @inject ILogger<UserRestoreForm> Logger
-@inject IOptions<ClientConfigModel> Config
+@inject ClientConfigModel Config
 
 <h4>Запрос восстановления доступа!</h4>
 @if (user_restore_result is null)
@@ -36,6 +39,7 @@
             <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
             <div class="form-text" id="emailHelp">Enter your email</div>
         </div>
+        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
         <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
         <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
             @{
@@ -57,6 +61,7 @@
                 <div class="alert alert-primary" role="alert">
                     @user_restore_result.Message
                 </div>
+                <a href="#" onclick="@(()=>{user_restore_result.Message = string.Empty;})">Повторить</a>
             }
         }
     </EditForm>
@@ -70,7 +75,22 @@ else
 @code {
     private UserRestoreModel user_restore_obj = new();
     ResultRequestModel? user_restore_result = null;
-    private bool InRestProgress = false;
+
+    public override void OnReCaptchaExpired()
+    {
+        user_restore_obj.ResponseReCAPTCHA = string.Empty;
+        Logger.LogDebug("OnReCaptchaExpired");
+    }
+
+    public override void OnReCaptchaSuccess(string response_code)
+    {
+        user_restore_obj.ResponseReCAPTCHA = response_code;
+    }
+
+    public override void OnReCaptchaFailure(string response_code)
+    {
+        Logger.LogError($"OnReCaptchaFailure! response code: {response_code}");
+    }
 
     private async Task HandleValidSubmit()
     {
