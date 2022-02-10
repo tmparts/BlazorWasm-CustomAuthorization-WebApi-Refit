@@ -10,12 +10,12 @@
 		"HttpSheme": "http"
 	},
 	"ReCaptchaConfig": {
-		"Mode": 1,
+		"Mode": 0,
 		"ReCaptchaV2Config": {
-			"PublicKey": "asd-sadsa"
+			"PublicKey": ""
 		},
 		"ReCaptchaV2InvisibleConfig": {
-			"PublicKey": "asd-asd"
+			"PublicKey": ""
 		}
 	}
 }
