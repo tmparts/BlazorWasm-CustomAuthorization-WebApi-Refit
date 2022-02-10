@@ -26,7 +26,7 @@ http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
     NoCache = true
 };
 
-builder.Services.AddScoped(sp => http);
+//builder.Services.AddScoped(sp => http);
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
 builder.Services.AddScoped<SessionMarkerLiteModel>(sp => marker);
