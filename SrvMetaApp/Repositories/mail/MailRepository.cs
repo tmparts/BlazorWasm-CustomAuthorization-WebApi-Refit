@@ -27,16 +27,16 @@ namespace SrvMetaApp.Repositories.mail
             _db_context = set_db_context;
         }
 
-        public async Task<bool> SendEmailRestoreUser(UserModelDB user)
+        public async Task<bool> SendEmailRestoreUser(ConfirmationModelDb confirm_db)
         {
             if (_config.Value.SmtpConfig.IsEmptyConfig())
                 return false;
 
             try
             {
-                string subject = "subject";
-                string message = $"Доброго времени суток, {user.Name} {user.LastName}. Мы получили запрос на восстановление доступа к вашей учётной записи. Напоминаем вам, что ваш логин '{user.Login}'";
-                await SendEmailAsync(user.Email, subject, message);
+                string subject = "Восстановление доступа к учётной записи. IQ-S.pro";
+                string message = $"Доброго времени суток, {confirm_db.User.Name} {confirm_db.User.LastName}. Мы получили запрос на восстановление доступа к вашей учётной записи. Напоминаем вам, что ваш логин '{confirm_db.User.Login}'. Для сброса пароля перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>создать новый пароль</a>.";
+                await SendEmailAsync(confirm_db.User.Email, subject, message);
                 return true;
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace SrvMetaApp.Repositories.mail
             }
         }
 
-        public async Task<bool> SendEmailRegistrationUser(UserModelDB user, ConfirmationModelDb confirm_db)
+        public async Task<bool> SendEmailRegistrationUser(ConfirmationModelDb confirm_db)
         {
             if (_config.Value.SmtpConfig.IsEmptyConfig())
                 return false;
@@ -54,8 +54,8 @@ namespace SrvMetaApp.Repositories.mail
             try
             {
                 string subject = "Подтверждение регистрации: iq-s.pro";
-                string message = $"Доброго времени суток, {user.Name} {user.LastName}. Вызарегистрировались в системе. Ваш логин '{user.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>подтвердить</a>.";
-                await SendEmailAsync(user.Email, subject, message);
+                string message = $"Доброго времени суток, {confirm_db.User.Name} {confirm_db.User.LastName}. Вызарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>подтвердить</a>.";
+                await SendEmailAsync(confirm_db.User.Email, subject, message);
                 return true;
             }
             catch (Exception ex)

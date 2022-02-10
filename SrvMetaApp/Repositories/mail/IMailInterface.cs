@@ -11,7 +11,7 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// Отправить пользователю уведомление на Email, для подтверждения операции
         /// </summary>
-        public Task<bool> SendEmailRestoreUser(UserModelDB user);
+        public Task<bool> SendEmailRestoreUser(ConfirmationModelDb confirm_db);
 
         /// <summary>
         /// Отправка Email
@@ -21,6 +21,6 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// Отправить пользователю уведомление на Email, для подтверждения операции
         /// </summary>
-        public Task<bool> SendEmailRegistrationUser(UserModelDB user_db, ConfirmationModelDb confirm_db);
+        public Task<bool> SendEmailRegistrationUser(ConfirmationModelDb confirm_db);
     }
 }

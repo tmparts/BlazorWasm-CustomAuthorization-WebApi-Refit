@@ -85,9 +85,19 @@ namespace SrvMetaApp.Repositories
                     res.Confirmation.User.PasswordHash = GlobalUtils.CalculateHashString(new_pass);
                     _db_context.Update(res.Confirmation.User);
                     res.IsSuccess = await _db_context.SaveChangesAsync() > 0;
+
+                    try
+                    {
+                        await _mail.SendEmailAsync(res.Confirmation.User.Email, "Новый пароль - IQ-S.pro", $"Вам установлен новый пароль: {new_pass}", MimeKit.Text.TextFormat.Html);
+                    }
+                    catch
+                    {
+
+                    }
+
                     if (res.IsSuccess)
                     {
-                        res.Message = $"Ваш новый пароль: {new_pass}.";
+                        res.Message = $"Ваш новый пароль: {new_pass}. Он так же отправлен на ваш Email";
                     }
                     else
                     {

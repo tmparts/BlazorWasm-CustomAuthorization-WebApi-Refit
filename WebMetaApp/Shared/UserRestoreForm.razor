@@ -10,65 +10,64 @@
 @inject ILogger<UserRestoreForm> Logger
 @inject IOptions<ClientConfigModel> Config
 
-<TabSet>
-    <Tab Title="Запрос токена">
-        <h4>Запрос восстановления доступа!</h4>
-        <div class="alert alert-info" role="alert">
-            Если вы забыли логин и/или пароль, запросите токен восстановления доступа. На ваш Email будет выслан ваш логин и токен сброса пароля.
-            Полученый токен сброса пароля можно будет активировать на соседней вкладке. Активировав такой токен - вы получите новый пароль на почту.
+<h4>Запрос восстановления доступа!</h4>
+@if (user_restore_result is null)
+{
+    <div class="alert alert-info" role="alert">
+        Если вы забыли логин и/или пароль, запросите токен восстановления доступа. На ваш Email будет выслан ваш логин и токен сброса пароля.
+    </div>
+}
+<hr />
+@if (user_restore_result is null)
+{
+    <EditForm Model="@user_restore_obj" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label" for="login">Login</label>
+            <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_restore_obj.Login" />
+            <div class="form-text" id="loginHelp">Enter your login</div>
         </div>
-        <EditForm Model="@user_restore_obj" OnValidSubmit="@HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="mb-3">
-                <label class="form-label" for="login">Login</label>
-                <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_restore_obj.Login" />
-                <div class="form-text" id="loginHelp">Enter your login</div>
-            </div>
-            <div class="mb-3">
-                и/или
-            </div>
-            <div class="mb-3">
-                <label class="form-label" for="email">Email</label>
-                <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
-                <div class="form-text" id="emailHelp">Enter your email</div>
-            </div>
-            <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
-            <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
-                @{
-                    if (InRestProgress == true)
-                    {
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        <text> Загрузка...</text>
-                    }
-                    else
-                    {
-                        <text>Отправить</text>
-                    }
-                }
-            </button>
+        <div class="mb-3">
+            и/или
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
+            <div class="form-text" id="emailHelp">Enter your email</div>
+        </div>
+        <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
+        <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
             @{
-                if (!string.IsNullOrWhiteSpace(user_restore_result?.Message))
+                if (InRestProgress == true)
                 {
-                    <p></p>
-                    <div class="alert alert-primary" role="alert">
-                        @user_restore_result.Message
-                    </div>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <text> Загрузка...</text>
+                }
+                else
+                {
+                    <text>Отправить</text>
                 }
             }
-        </EditForm>
-    </Tab>
-
-    <Tab Title="Активация токена">
-        <h4>Hello from the second tab!</h4>
-    </Tab>
-</TabSet>
-
-
+        </button>
+        @{
+            if (!string.IsNullOrWhiteSpace(user_restore_result?.Message))
+            {
+                <p></p>
+                <div class="alert alert-primary" role="alert">
+                    @user_restore_result.Message
+                </div>
+            }
+        }
+    </EditForm>
+}
+else
+{
+    <div class="alert alert-primary" role="alert">
+        @user_restore_result.Message
+    </div>
+}
 @code {
-    [Parameter]
-    public string ConfirmationToken { get; set; } = string.Empty;
-
     private UserRestoreModel user_restore_obj = new();
     ResultRequestModel? user_restore_result = null;
     private bool InRestProgress = false;

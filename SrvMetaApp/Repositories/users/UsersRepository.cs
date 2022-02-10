@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SrvMetaApp.Models;
 
 namespace SrvMetaApp.Repositories
@@ -102,12 +103,14 @@ namespace SrvMetaApp.Repositories
 
             user.Password = GlobalUtils.CalculateHashString(user.Password);
             UserModelDB? user_db = await _db_context.Users.FirstOrDefaultAsync(x => x.Login == user.Login);
-            if (user_db is null)
+            if (user_db is null || user_db.PasswordHash != user.Password)
             {
                 res.IsSuccess = false;
                 res.Message = $"Не правильный 'логин' и/или 'пароль'";
                 return res;
             }
+
+
 
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser, user.RememberMe ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
             SessionReadResultModel? current_session = ReadMainSession();
@@ -119,6 +122,9 @@ namespace SrvMetaApp.Repositories
 
         public async Task<ResultRequestModel> RestoreUser(UserRestoreModel user)
         {
+            user.Login = user.Login?.Trim() ?? string.Empty;
+            user.Email = user.Email?.Trim() ?? string.Empty;
+
             ResultRequestModel? res = new ResultRequestModel()
             {
                 IsSuccess = !string.IsNullOrWhiteSpace(user?.Login) || !string.IsNullOrWhiteSpace(user?.Email)
@@ -130,9 +136,6 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            user.Login = user.Login?.Trim() ?? string.Empty;
-            user.Email = user.Email?.Trim() ?? string.Empty;
-
             UserModelDB? user_db_by_login = string.IsNullOrEmpty(user.Login) ? null : await _db_context.Users.FirstOrDefaultAsync(x => x.Login == user.Login);
             UserModelDB? user_db_by_email = string.IsNullOrEmpty(user.Email) ? null : await _db_context.Users.FirstOrDefaultAsync(x => x.Email == user.Email);
 
@@ -142,11 +145,30 @@ namespace SrvMetaApp.Repositories
             {
                 return res;
             }
-
-            if (!await _mail.SendEmailRestoreUser(user_db_by_login))
+            ConfirmationModelDb confirm_reset_password;
+            if (user_db_by_login is not null)
             {
-                res.Message = "Системная ошибка. Произошёл сбой отправки Email. ";
-                _logger.LogError(res.Message);
+                confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_login.Login}']", user_db_by_login, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
+                await _db_context.Confirmations.AddAsync(confirm_reset_password);
+                await _db_context.SaveChangesAsync();
+
+                if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
+                {
+                    res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
+                    _logger.LogError($"{res.Message} - user_db_by_login: {JsonConvert.SerializeObject(user_db_by_login)}");
+                }
+            }
+
+            if (user_db_by_email is not null)
+            {
+                confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_email.Login}']", user_db_by_email, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
+                await _db_context.Confirmations.AddAsync(confirm_reset_password);
+                await _db_context.SaveChangesAsync();
+                if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
+                {
+                    res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
+                    _logger.LogError($"{res.Message} - user_db_by_email: { JsonConvert.SerializeObject(user_db_by_email)}");
+                }
             }
 
             return res;
@@ -185,7 +207,7 @@ namespace SrvMetaApp.Repositories
             await _db_context.Confirmations.AddAsync(confirm_registration);
             await _db_context.SaveChangesAsync();
 
-            await _mail.SendEmailRegistrationUser(user_db, confirm_registration);
+            await _mail.SendEmailRegistrationUser(confirm_registration);
 
 
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
