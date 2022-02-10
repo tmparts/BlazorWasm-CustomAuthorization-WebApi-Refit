@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Net;
 using LibMetaApp;
 using SrvMetaApp.Repositories.mail;
+using ApiMetaApp.Controllers;
 
 Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 logger.Info("init main");
@@ -58,6 +59,7 @@ builder.Services.AddScoped<RedisUtil>();
 
 // Add services to the container.
 builder.Services.AddScoped<IUsersRepositoryInterface, UsersRepository>();
+builder.Services.AddScoped<IUsersConfirmationsInterface, UsersConfirmationsRepository>();
 builder.Services.AddScoped<IMailInterface, MailRepository>();
 
 builder.Services.InitAccessMinLevelHandler();
@@ -109,19 +111,13 @@ builder.Services.AddSwaggerGen(options =>
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
+builder.Services.AddControllersWithViews();
 
 try
 {
     WebApplication app = builder.Build();
 
-    app.UseCors(x => x
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin =>
-                {
-                    return conf.WebConfig.ClientOrignsCORS.Contains(origin);
-                }) // allow any origin
-                .AllowCredentials()); // allow credentials
+    app.UseCors(x => x.AllowAnyMethod().AllowAnyHeader().SetIsOriginAllowed(origin => { return conf.WebConfig.ClientOrignsCORS.Contains(origin); }).AllowCredentials());
 
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -131,8 +127,17 @@ try
     });
 
     app.UseHttpsRedirection();
+    app.UseStaticFiles();
+    app.UseWhen(context => context.Request.Path.Value.StartsWith("/mvc/"), appBuilder =>
+    {
+        app.UseRouting();
+        app.MapControllerRoute(name: "default", pattern: "/mvc/{controller=Home}/{action=Index}/{id?}");
+    });
+    app.UseWhen(context => context.Request.Path != "/ConfirmView", appBuilder =>
+    {
+        app.UseMiddleware<PassageMiddleware>();
+    });
 
-    app.UseMiddleware<PassageMiddleware>();
     app.UseAuthentication();    // аутентификация
     app.UseAuthorization();     // авторизация
 

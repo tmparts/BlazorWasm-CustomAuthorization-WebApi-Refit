@@ -15,7 +15,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5501",
+      "applicationUrl": "http://localhost:5501/mvc/ConfirmView",
       "dotnetRunMessages": true
     },
     "IIS Express": {

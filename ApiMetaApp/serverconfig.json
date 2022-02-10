@@ -26,12 +26,12 @@
     "EmailNotificationRecipients": [
       "ru.usa@mail.ru"
     ],
-    "PublicName": "Public sender name",
+    "PublicName": "iq-s.pro",
     "Email": "badhitman@yandex.ru",
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "asdfasd",
+    "Password": "",
     "UseSsl": true
   },
   "RedisConfig": {

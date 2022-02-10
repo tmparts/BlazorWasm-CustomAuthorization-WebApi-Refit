@@ -36,7 +36,7 @@ using Stream? stream = await response.Content.ReadAsStreamAsync();
 
 ClientConfigModel? conf = new ClientConfigModel();
 builder.Configuration.Bind(conf);
-builder.Services.AddScoped<IUsersService, UserAuthService>();
+builder.Services.AddScoped<IUserAuthService, UserAuthService>();
 
 builder.Services.AddRefitClient<IUsersAuthApi>()
         .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{conf.ApiConfig.HttpSheme}://{conf.ApiConfig.Host}:{conf.ApiConfig.Port}/"))

@@ -40,7 +40,7 @@
         <div class="form-text" id="loginName">Enter your public Name</div>
     </div>
     <div class="alert alert-secondary" role="alert">Есть учётная запись? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}")>Войти</a>. Забыли логин/пароль? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ</a>.</div>
-    <button class="btn btn-primary" type="submit">
+    <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
         @{
             if (InRestProgress == true)
             {

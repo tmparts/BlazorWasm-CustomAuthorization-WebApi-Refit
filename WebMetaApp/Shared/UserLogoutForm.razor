@@ -9,7 +9,7 @@
 @inject ILogger<UserLogoutForm> Logger
 
 <h3>Выход</h3>
-<button class="btn btn-primary" onclick="@Logout">
+<button class="btn btn-primary" onclick="@Logout" disabled="@InRestProgress">
     @{
         if (InRestProgress == true)
         {

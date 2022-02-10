@@ -42,7 +42,7 @@ namespace ApiMetaApp.Controllers
             return await _users_repo.UserLoginAsync(user, ModelState);
         }
 
-        [SwaggerOperation(Summary = "Восстановление доступа к учётной записи")]
+        [SwaggerOperation(Summary = "Запрос восстановления доступа к учётной записи")]
         [HttpPatch]
         public async Task<ResultRequestModel> Patch([FromBody] UserRestoreModel user)
         {

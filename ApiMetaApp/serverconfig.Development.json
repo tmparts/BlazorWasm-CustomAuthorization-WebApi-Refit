@@ -31,7 +31,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "fdsfsa",
+    "Password": "",
     "UseSsl": true
   },
   "RedisConfig": {

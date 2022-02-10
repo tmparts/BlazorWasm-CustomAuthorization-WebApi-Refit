@@ -41,16 +41,9 @@ namespace SrvMetaApp.Repositories
         public Task<AuthUserResultModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state);
         
         /// <summary>
-        /// Восстановить доступ к учётной записи (сброс пароля)
+        /// Запрос восстановления доступа к учётной записи
         /// </summary>
         public Task<ResultRequestModel> RestoreUser(UserRestoreModel user);
 
-        /// <summary>
-        /// Подтвердить действие пользователя
-        /// </summary>
-        /// <param name="confirm_type">Тип подтверждения</param>
-        /// <param name="confirm_id">ИД подтверждения</param>
-        /// <returns></returns>
-        public Task<ResultRequestModel> ConfirmationUserAction(ConfirmationsTypesEnum confirm_type, string confirm_id);
     }
 }

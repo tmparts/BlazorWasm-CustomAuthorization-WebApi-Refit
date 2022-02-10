@@ -46,21 +46,21 @@ namespace SrvMetaApp.Repositories.mail
             }
         }
 
-        public async Task<bool> SendEmailConfirmUser(UserModelDB user, ConfirmationModelDb confirm_db)
+        public async Task<bool> SendEmailRegistrationUser(UserModelDB user, ConfirmationModelDb confirm_db)
         {
             if (_config.Value.SmtpConfig.IsEmptyConfig())
                 return false;
 
             try
             {
-                string subject = "subject";
-                string message = $"Доброго времени суток, {user.Name} {user.LastName}. Вызарегистрировались в системе. Ваш логин '{user.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ClientConfig.GetFullUrl($"{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}/{confirm_db.Guid}")}'>подтвердить</a>.";
+                string subject = "Подтверждение регистрации: iq-s.pro";
+                string message = $"Доброго времени суток, {user.Name} {user.LastName}. Вызарегистрировались в системе. Ваш логин '{user.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>подтвердить</a>.";
                 await SendEmailAsync(user.Email, subject, message);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error - {nameof(SendEmailConfirmUser)}");
+                _logger.LogError(ex, $"Error - {nameof(SendEmailRegistrationUser)}");
                 return false;
             }
         }
