@@ -2,9 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp;
 using SrvMetaApp.Models;
-using System.Globalization;
 
 namespace ApiMetaApp
 {
@@ -19,15 +17,15 @@ namespace ApiMetaApp
 
         public async Task Invoke(HttpContext _http_context, SessionService _session, ILogger<PassageMiddleware> _logger)
         {
-            CultureInfo.CurrentCulture = GlobalUtils.RU;
-            CultureInfo.CurrentUICulture = GlobalUtils.RU;
+            //CultureInfo.CurrentCulture = GlobalUtils.RU;
+            //CultureInfo.CurrentUICulture = GlobalUtils.RU;
             try
             {
-                _session.InitSession();
+                await _session.InitSession();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error PassageMiddleware");
+                _logger.LogError(ex, $"Error {nameof(PassageMiddleware)}");
             }
 
             await _next.Invoke(_http_context);

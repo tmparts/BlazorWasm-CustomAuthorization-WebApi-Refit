@@ -26,7 +26,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.Get
 builder.Services.AddScoped<ISessionLocalStorage, SessionLocalStorage>();
 builder.Services.AddBlazoredLocalStorage();
 
-
 #region Config
 
 HttpClient http = new HttpClient()
@@ -72,7 +71,6 @@ await stream.DisposeAsync();
 http.Dispose();
 
 #endregion
-
 
 builder.Services.AddScoped<IUserAuthService, UserAuthService>();
 

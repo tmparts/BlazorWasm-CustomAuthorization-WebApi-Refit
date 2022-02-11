@@ -29,14 +29,17 @@ namespace SrvMetaApp.Models
             _redis = set_redis;
         }
 
-        public async void InitSession()
+        public async Task InitSession()
         {
+            if (_httpContext?.HttpContext?.User.Identity is null)
+                return;
+
             Guid token = ReadTokenFromRequest();
             if (token == Guid.Empty)
             {
-                if (_httpContext.HttpContext?.User?.Identity?.IsAuthenticated == true)
+                if (_httpContext.HttpContext.User.Identity.IsAuthenticated == true)
                 {
-                    await _httpContext?.HttpContext?.SignOutAsync();
+                    await _httpContext.HttpContext.SignOutAsync();
                 }
                 return;
             }
