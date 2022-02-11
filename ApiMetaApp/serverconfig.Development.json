@@ -3,12 +3,12 @@
   "ReCaptchaConfig": {
     "Mode": 1,
     "ReCaptchaV2Config": {
-      "PublicKey": "sdf-fsf",
-      "PrivateKey": "sdf-sdf-9"
+      "PublicKey": "6LdIhEcUAAAAAMO-wXB9GLQCK1UJyj6OV47yjRXo",
+      "PrivateKey": "6LdIhEcUAAAAAJWS2SfCIrmYPDkeP-u7rvONbC-9"
     },
     "ReCaptchaV2InvisibleConfig": {
-      "PublicKey": "dsfs-sdf",
-      "PrivateKey": "sdf-sdf--sdf"
+      "PublicKey": "6Ld5eLgUAAAAAImQ1H3X1GkBgfZI-g_ojri1Gk3z",
+      "PrivateKey": "6Ld5eLgUAAAAAGIqamBF-6Otg2dlU6Fc4L--OW6U"
     }/*,
     "ReCaptchaV3Config": {
       "PublicKey": "",

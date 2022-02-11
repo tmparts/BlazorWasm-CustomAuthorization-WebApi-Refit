@@ -64,7 +64,7 @@ namespace SrvMetaApp.Models
             {
                 if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated != true)
                 {
-                    await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString()/*, SessionMarker.IsLongTimeSession? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds*/);
+                    await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());
                     await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(SessionMarker.Token, SessionMarker.ToString()), UsersRepository.PrefRedisSessions, TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
                 }
             }
@@ -72,7 +72,7 @@ namespace SrvMetaApp.Models
 
         public Guid ReadTokenFromRequest()
         {
-            if (_httpContext.HttpContext.Request.Headers.TryGetValue(SessionTokenName, out StringValues tok))
+            if (_httpContext.HttpContext.Request.Headers.TryGetValue(GlobalStaticConstants.SESSION_TOKEN_NAME, out StringValues tok))
             {
                 string raw_token = tok.FirstOrDefault() ?? string.Empty;
 
@@ -85,36 +85,19 @@ namespace SrvMetaApp.Models
             return Guid.Empty;
         }
 
-        public bool TokenFromRequestIsLongTime()
+        public async Task AuthenticateAsync(string set_login, string set_role)
         {
-            if (_httpContext.HttpContext.Request.Headers.TryGetValue(SessionLongTimeName, out StringValues tok))
-            {
-                string raw_is_long_time = tok.FirstOrDefault() ?? "false";
-
-                if (!string.IsNullOrWhiteSpace(raw_is_long_time) && bool.TryParse(raw_is_long_time, out bool parsed_guid2))
-                {
-                    return parsed_guid2;
-                }
-            }
-
-            return false;
-        }
-
-        public async Task AuthenticateAsync(string set_login, string set_role/*, int seconds_session*/)
-        {
-            // создаем один claim
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, set_login),
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, set_role)
             };
-            // создаем объект ClaimsIdentity
+
             ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             ClaimsPrincipal id_claim = new ClaimsPrincipal(id);
             if (_httpContext.HttpContext is not null)
             {
                 _httpContext.HttpContext.User = id_claim;
-                // установка аутентификационных куки
                 await _httpContext.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, id_claim);
                 AuthenticateResult? res_auth = await _httpContext.HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             }

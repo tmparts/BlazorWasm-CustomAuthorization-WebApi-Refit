@@ -9,6 +9,7 @@ using SrvMetaApp.Repositories;
 
 namespace ApiMetaApp.Controllers
 {
+    [Route("mvc/[controller]")]
     public class ConfirmViewController : Controller
     {
         IUsersConfirmationsInterface _users_confirmations_repo;

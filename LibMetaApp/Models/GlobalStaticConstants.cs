@@ -1,7 +1,13 @@
-﻿namespace LibMetaApp.Models
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+namespace LibMetaApp.Models
 {
     public static class GlobalStaticConstants
     {
+        public const string SESSION_TOKEN_NAME = "token";
+
         public const string LOGOUT_ACTION_NAME = "logout";
         public const string LOGIN_ACTION_NAME = "login";
         public const string RESTORE_ACTION_NAME = "restore";

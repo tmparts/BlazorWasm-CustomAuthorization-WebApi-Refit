@@ -8,14 +8,5 @@
 		"Host": "localhost",
 		"Port": 7222,
 		"HttpSheme": "http"
-	},
-	"ReCaptchaConfig": {
-		"Mode": 0,
-		"ReCaptchaV2Config": {
-			"PublicKey": ""
-		},
-		"ReCaptchaV2InvisibleConfig": {
-			"PublicKey": ""
-		}
 	}
 }

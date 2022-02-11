@@ -19,7 +19,7 @@ namespace LibMetaApp.Services
         {
             if (!string.IsNullOrEmpty(_marker.Token))
             {
-                request.Headers.Add(SessionServiceLiteModel.SessionTokenName, _marker.Token);
+                request.Headers.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, _marker.Token);
             }
             return await base.SendAsync(request, cancellationToken);
         }
@@ -28,7 +28,7 @@ namespace LibMetaApp.Services
         {
             if (!string.IsNullOrEmpty(_marker.Token))
             {
-                request.Headers.Add(SessionServiceLiteModel.SessionTokenName, _marker.Token);
+                request.Headers.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, _marker.Token);
             }
             return base.Send(request, cancellationToken);
         }

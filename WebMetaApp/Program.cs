@@ -13,20 +13,9 @@ using Refit;
 using System.Net.Http.Headers;
 using WebMetaApp;
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
+WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-
-var http = new HttpClient()
-{
-    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
-};
-http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-{
-    NoCache = true
-};
-
-//builder.Services.AddScoped(sp => http);
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
 builder.Services.AddScoped<SessionMarkerLiteModel>(sp => marker);
@@ -37,14 +26,53 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.Get
 builder.Services.AddScoped<ISessionLocalStorage, SessionLocalStorage>();
 builder.Services.AddBlazoredLocalStorage();
 
-using HttpResponseMessage? response = await http.GetAsync("clientconfig.json");
-using Stream? stream = await response.Content.ReadAsStreamAsync();
+
+#region Config
+
+HttpClient http = new HttpClient()
+{
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+};
+http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+{
+    NoCache = true
+};
+
+// ClientConfig
+HttpResponseMessage? response = await http.GetAsync("clientconfig.json");
+Stream? stream = await response.Content.ReadAsStreamAsync();
 IConfigurationRoot? config = new ConfigurationBuilder()
                 .AddJsonStream(stream)
                 .Build();
 ClientConfigModel? conf = new ClientConfigModel();
 config.Bind(conf);
+
+http = new HttpClient()
+{
+    BaseAddress = new Uri(conf.ApiConfig.ToString())
+};
+http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+{
+    NoCache = true
+};
+
+response = await http.GetAsync("api/ClientConfig");
+stream = await response.Content.ReadAsStreamAsync();
+IConfigurationRoot? remote_config = new ConfigurationBuilder()
+                .AddJsonStream(stream)
+                .Build();
+ClientConfigModel? remote_conf = new ClientConfigModel();
+remote_config.Bind(remote_conf);
+
+conf.ReCaptchaConfig = remote_conf.ReCaptchaConfig;
+
 builder.Services.AddSingleton<ClientConfigModel>(sp => conf);
+response.Dispose();
+await stream.DisposeAsync();
+http.Dispose();
+
+#endregion
+
 
 builder.Services.AddScoped<IUserAuthService, UserAuthService>();
 

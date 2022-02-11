@@ -1,4 +1,8 @@
-﻿namespace LibMetaApp.Models
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+namespace LibMetaApp.Models
 {
     /// <summary>
     /// Тип подтверждения учётной записи пользователя
