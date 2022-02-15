@@ -72,36 +72,41 @@
 @code {
     private UserRegistrationModel user_registration_obj = new();
     private AuthUserResultModel? user_registration_result = null;
-    
-    public override void OnReCaptchaExpired()
-    {
-        user_registration_obj.ResponseReCAPTCHA = string.Empty;
-        Logger.LogDebug("OnReCaptchaExpired");
-    }
 
-    public override void OnReCaptchaSuccess(string response_code)
-    {
-        user_registration_obj.ResponseReCAPTCHA = response_code;
-    }
-
-    public override void OnReCaptchaFailure(string response_code)
-    {
-        Logger.LogError($"OnReCaptchaFailure! response code: {response_code}");
-    }
+    public override void OnReCaptchaExpired() { user_registration_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
+    public override void OnReCaptchaSuccess(string response_code) { user_registration_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
+    public override void OnReCaptchaFailure(string response_code) { Logger.LogError($"{nameof(OnReCaptchaFailure)}! response code: {response_code}"); }
 
     private async Task HandleValidSubmit()
     {
         InRestProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
-        ApiResponse<AuthUserResultModel> auth_result = await UsersAuthService.RegistrationNewUser(user_registration_obj);
-        user_registration_result = auth_result?.Content;
+
+        try
+        {
+            ApiResponse<AuthUserResultModel> rest = await UsersAuthService.RegistrationNewUser(user_registration_obj);
+            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
+                InRestProgress = false;
+                return;
+            }
+            user_registration_result = rest?.Content;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error {nameof(UsersAuthService.RegistrationNewUser)}");
+            InRestProgress = false;
+            return;
+        }
 
         if (user_registration_result?.IsSuccess == true)
         {
             SessionMarker.Reload(user_registration_result.SessionMarker.Login, user_registration_result.SessionMarker.AccessLevelUser, user_registration_result.SessionMarker.Token);
             await SessionLocalStorage.SaveSessionAsync(user_registration_result.SessionMarker);
         }
+
+        authState.AuthenticationStateChanged();
         InRestProgress = false;
-        authState.StateChanged();
     }
 }

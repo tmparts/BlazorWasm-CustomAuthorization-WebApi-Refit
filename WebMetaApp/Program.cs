@@ -9,6 +9,7 @@ using LibMetaApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Newtonsoft.Json;
 using Refit;
 using System.Net.Http.Headers;
 using WebMetaApp;
@@ -68,7 +69,7 @@ conf.ReCaptchaConfig = remote_conf.ReCaptchaConfig;
 builder.Services.AddSingleton<ClientConfigModel>(sp => conf);
 response.Dispose();
 await stream.DisposeAsync();
-http.Dispose();
+builder.Services.AddScoped(sp => http);
 
 #endregion
 

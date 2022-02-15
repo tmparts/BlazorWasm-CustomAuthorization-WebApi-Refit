@@ -76,31 +76,34 @@ else
     private UserRestoreModel user_restore_obj = new();
     ResultRequestModel? user_restore_result = null;
 
-    public override void OnReCaptchaExpired()
-    {
-        user_restore_obj.ResponseReCAPTCHA = string.Empty;
-        Logger.LogDebug("OnReCaptchaExpired");
-    }
-
-    public override void OnReCaptchaSuccess(string response_code)
-    {
-        user_restore_obj.ResponseReCAPTCHA = response_code;
-    }
-
-    public override void OnReCaptchaFailure(string response_code)
-    {
-        Logger.LogError($"OnReCaptchaFailure! response code: {response_code}");
-    }
+    public override void OnReCaptchaExpired() { user_restore_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
+    public override void OnReCaptchaSuccess(string response_code) { user_restore_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
+    public override void OnReCaptchaFailure(string response_code) { Logger.LogError($"{nameof(OnReCaptchaFailure)}! response code: {response_code}"); }
 
     private async Task HandleValidSubmit()
     {
         InRestProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
-        ApiResponse<ResultRequestModel>? refit_rest = await UsersAuthService.RestoreUser(user_restore_obj);
-        user_restore_result = refit_rest?.Content;
 
+        try
+        {
+            ApiResponse<ResultRequestModel>? rest = await UsersAuthService.RestoreUser(user_restore_obj);
+            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
+                InRestProgress = false;
+                return;
+            }
+            user_restore_result = rest?.Content;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error {nameof(UsersAuthService.RestoreUser)}");
+            InRestProgress = false;
+            return;
+        }
+
+        authState.AuthenticationStateChanged();
         InRestProgress = false;
-
-        authState.StateChanged();
     }
 }

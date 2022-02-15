@@ -14,9 +14,9 @@ namespace ApiMetaApp.Controllers
     [ApiController]
     public class UsersAuthorizationController : ControllerBase
     {
-        IUsersRepositoryInterface _users_repo;
+        IUsersAuthenticateRepositoryInterface _users_repo;
 
-        public UsersAuthorizationController(IUsersRepositoryInterface set_users_repo)
+        public UsersAuthorizationController(IUsersAuthenticateRepositoryInterface set_users_repo)
         {
             _users_repo = set_users_repo;
         }

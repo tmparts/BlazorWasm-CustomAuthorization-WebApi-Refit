@@ -2,16 +2,14 @@
 @using Refit
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
-@using Microsoft.Extensions.Options
 @using LibMetaApp.Services
 @inherits BlazorReCaptchaComponentBaseModel
 
-@inject CustomAuthStateProvider authState
-@inject ISessionLocalStorage SessionLocalStorage
-@inject SessionMarkerLiteModel SessionMarker
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
 @inject ILogger<UserLoginForm> Logger
-@inject ClientConfigModel Config
+@inject ISessionLocalStorage SessionLocalStorage
+@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject SessionMarkerLiteModel SessionMarker
+@inject CustomAuthStateProvider authState
 
 <h3>Вход</h3>
 <EditForm Model="@user_auth_obj" OnValidSubmit="@HandleValidSubmit">
@@ -58,36 +56,40 @@
 @code {
     private UserAuthorizationModel user_auth_obj = new();
     private AuthUserResultModel? user_auth_result = null;
-    
-    public override void OnReCaptchaExpired()
-    {
-        user_auth_obj.ResponseReCAPTCHA = string.Empty;
-        Logger.LogDebug("OnReCaptchaExpired");
-    }
 
-    public override void OnReCaptchaSuccess(string response_code)
-    {
-        user_auth_obj.ResponseReCAPTCHA = response_code;
-    }
-
-    public override void OnReCaptchaFailure(string response_code)
-    {
-        Logger.LogError($"OnReCaptchaFailure! response code: {response_code}");
-    }
+    public override void OnReCaptchaExpired() { user_auth_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
+    public override void OnReCaptchaSuccess(string response_code) { user_auth_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
+    public override void OnReCaptchaFailure(string response_code) { user_auth_obj.ResponseReCAPTCHA = string.Empty; Logger.LogError($"{nameof(OnReCaptchaFailure)}! response code: {response_code}"); }
 
     private async Task HandleValidSubmit()
     {
         InRestProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
-        ApiResponse<AuthUserResultModel> auth_result = await UsersAuthService.LoginUser(user_auth_obj);
-        user_auth_result = auth_result?.Content;
+        try
+        {
+            ApiResponse<AuthUserResultModel> rest = await UsersAuthService.LoginUser(user_auth_obj);
+            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
+                InRestProgress = false;
+                return;
+            }
+            user_auth_result = rest?.Content;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Error {nameof(UsersAuthService.LoginUser)}");
+            InRestProgress = false;
+            return;
+        }
 
         if (user_auth_result?.IsSuccess == true)
         {
             SessionMarker.Reload(user_auth_result.SessionMarker.Login, user_auth_result.SessionMarker.AccessLevelUser, user_auth_result.SessionMarker.Token);
             await SessionLocalStorage.SaveSessionAsync(SessionMarker);
         }
+
+        authState.AuthenticationStateChanged();
         InRestProgress = false;
-        authState.StateChanged();
     }
 }

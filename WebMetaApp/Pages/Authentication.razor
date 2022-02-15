@@ -1,11 +1,9 @@
 ﻿@page "/authentication/{action?}"
+
 @using Microsoft.Extensions.Logging
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using LibMetaApp.Models
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+
 @inject NavigationManager Navigation
-@inject SessionMarkerLiteModel SessionMarker
 @inject ILogger<Authentication> Logger
 
 <AuthorizeView>

@@ -58,9 +58,9 @@ builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<RedisUtil>();
 
 // Add services to the container.
-builder.Services.AddScoped<IUsersRepositoryInterface, UsersRepository>();
+builder.Services.AddScoped<IUsersAuthenticateRepositoryInterface, UsersAuthenticateRepository>();
 builder.Services.AddScoped<IUsersConfirmationsInterface, UsersConfirmationsRepository>();
-builder.Services.AddScoped<IMailInterface, MailRepository>();
+builder.Services.AddScoped<IMailServiceInterface, MailService>();
 
 builder.Services.InitAccessMinLevelHandler();
 

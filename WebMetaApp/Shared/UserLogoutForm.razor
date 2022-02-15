@@ -2,6 +2,7 @@
 @using Refit
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
+
 @inject CustomAuthStateProvider authState
 @inject ISessionLocalStorage SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
@@ -32,12 +33,20 @@
         await SessionLocalStorage.RemoveSessionAsync();
         try
         {
-            ApiResponse<ResultRequestModel> auth_result = await UsersAuthService.LogOutUser();
-            res = auth_result?.Content;
+            ApiResponse<ResultRequestModel> rest = await UsersAuthService.LogOutUser();
+            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
+                InRestProgress = false;
+                return;
+            }
+            res = rest?.Content;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"Error - {nameof(Logout)}");
+            Logger.LogError(ex, $"Error - {nameof(UsersAuthService.LogOutUser)}");
+            InRestProgress = false;
+            return;
         }
 
         if (res?.IsSuccess == true)
@@ -45,7 +54,8 @@
             SessionMarker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
             await SessionLocalStorage.SaveSessionAsync(SessionMarker);
         }
+
+        authState.AuthenticationStateChanged();
         InRestProgress = false;
-        authState.StateChanged();
     }
 }
