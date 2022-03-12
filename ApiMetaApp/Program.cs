@@ -1,5 +1,5 @@
-////////////////////////////////////////////////
-// © https://github.com/badhitman - @fakegov 
+п»ї////////////////////////////////////////////////
+// В© https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
 using Microsoft.OpenApi.Models;
@@ -138,8 +138,8 @@ try
         app.UseMiddleware<PassageMiddleware>();
     });
 
-    app.UseAuthentication();    // аутентификация
-    app.UseAuthorization();     // авторизация
+    app.UseAuthentication();    // Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ
+    app.UseAuthorization();     // Р°РІС‚РѕСЂРёР·Р°С†РёСЏ
 
     app.MapControllers();
 
