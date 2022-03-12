@@ -15,7 +15,7 @@ namespace LibMetaApp.Models
         /// Указывает, должны ли конечные точки разрешаться через DNS перед подключением. 
         /// Если этот параметр включен, ConnectionMultiplexer не будет повторно разрешать DNS при попытке повторного подключения после сбоя подключения.
         /// </summary>
-        public bool ResolveDns { get; set; }
+        public bool ResolveDns { get; set; } = false;
 
         /// <summary>
         /// Пароль для аутентификации на сервере.
@@ -30,12 +30,12 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Specifies the time in seconds at which connections should be pinged to ensure validity
         /// </summary>
-        public int KeepAlive { get; set; }
+        public int KeepAlive { get; set; } = 5;
 
         /// <summary>
         /// Используйте ThreadPriority.AboveNormal для потоков чтения и записи SocketManager (по умолчанию true). Если false, будет использоваться ThreadPriority.Normal.
         /// </summary>
-        public bool HighPrioritySocketThreads { get; set; }
+        public bool HighPrioritySocketThreads { get; set; } = true;
 
         /// <summary>
         /// Конечные точки, определенные для этой конфигурации
@@ -48,7 +48,7 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Указывает время в миллисекундах, которое должно быть разрешено для подключения (по умолчанию 5 секунд, если SyncTimeout не больше)
         /// </summary>
-        public int ConnectTimeout { get; set; }
+        public int ConnectTimeout { get; set; } = 10000;
 
         /// <summary>
         /// Канал, используемый для трансляции и прослушивания уведомлений об изменении конфигурации
@@ -58,7 +58,7 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Сколько раз повторять начальный цикл подключения, если ни один сервер не отвечает незамедлительно.
         /// </summary>
-        public int ConnectRetry { get; set; }
+        public int ConnectRetry { get; set; } = 5;
 
         /// <summary>
         /// Имя клиента, которое будет использоваться для всех подключений.
@@ -68,7 +68,7 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Задает время в миллисекундах, в течение которого система должна разрешать асинхронные операции (по умолчанию SyncTimeout)
         /// </summary>
-        public int AsyncTimeout { get; set; }
+        public int AsyncTimeout { get; set; } = 10000;
 
         /// <summary>
         /// Указывает, должны ли быть разрешены административные операции
@@ -78,7 +78,7 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Указывает, следует ли зашифровать соединение
         /// </summary>
-        public bool Ssl { get; set; }
+        public bool Ssl { get; set; } = false;
 
         /// <summary>
         /// Целевой хост для использования при проверке сертификата SSL; установка значения здесь включает режим SSL
@@ -88,7 +88,6 @@ namespace LibMetaApp.Models
         /// <summary>
         /// Задает время в миллисекундах, в течение которого система должна разрешать синхронные операции (по умолчанию 5 секунд)
         /// </summary>
-        public int SyncTimeout { get; set; }
-
+        public int SyncTimeout { get; set; } = 10000;
     }
 }

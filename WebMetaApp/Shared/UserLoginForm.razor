@@ -3,6 +3,7 @@
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
 @using LibMetaApp.Services
+@using LibMetaApp.Models.enums
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject ILogger<UserLoginForm> Logger
@@ -13,45 +14,47 @@
 
 <h3>Вход</h3>
 <EditForm Model="@user_auth_obj" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="mb-3">
-        <label class="form-label" for="login">Login</label>
-        <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_auth_obj.Login" />
-        <div class="form-text" id="loginHelp">Enter your login</div>
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="password">Password</label>
-        <InputText class="form-control" type="password" placeholder="Password" id="name" @bind-Value="user_auth_obj.Password" />
-    </div>
-    <div class="mb-3 form-check">
-        <InputCheckbox @bind-Value="user_auth_obj.RememberMe" class="form-check-input" id="RememberMe" />
-        <label class="form-check-label" for="RememberMe">Запомнить меня</label>
-    </div>
-    <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
-    <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a>. Забыли логин/пароль? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ!</a></div>
-    <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
+    <fieldset disabled="@IsBusyProgress">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label" for="login">Login</label>
+            <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_auth_obj.Login" />
+            <div class="form-text" id="loginHelp">Enter your login</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <InputText class="form-control" type="password" placeholder="Password" id="name" @bind-Value="user_auth_obj.Password" />
+        </div>
+        <div class="mb-3 form-check">
+            <InputCheckbox @bind-Value="user_auth_obj.RememberMe" class="form-check-input" id="RememberMe" />
+            <label class="form-check-label" for="RememberMe">Запомнить меня</label>
+        </div>
+        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+        <div class="alert alert-secondary" role="alert">Нет учётной записи? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Primary)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a>. Забыли логин/пароль? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Success)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ!</a></div>
+        <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
+            @{
+                if (IsBusyProgress == true)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <text> Загрузка...</text>
+                }
+                else
+                {
+                    <text>Войти</text>
+                }
+            }
+        </button>
         @{
-            if (InRestProgress == true)
+            if (!string.IsNullOrWhiteSpace(user_auth_result?.Message))
             {
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <text> Загрузка...</text>
-            }
-            else
-            {
-                <text>Войти</text>
+                <p></p>
+                <div class="alert alert-danger" role="alert">
+                    @user_auth_result.Message
+                </div>
             }
         }
-    </button>
-    @{
-        if (!string.IsNullOrWhiteSpace(user_auth_result?.Message))
-        {
-            <p></p>
-            <div class="alert alert-danger" role="alert">
-                @user_auth_result.Message
-            </div>
-        }
-    }
+    </fieldset>
 </EditForm>
 @code {
     private UserAuthorizationModel user_auth_obj = new();
@@ -63,7 +66,7 @@
 
     private async Task HandleValidSubmit()
     {
-        InRestProgress = true;
+        IsBusyProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
         try
         {
@@ -71,7 +74,7 @@
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                InRestProgress = false;
+                IsBusyProgress = false;
                 return;
             }
             user_auth_result = rest?.Content;
@@ -79,7 +82,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, $"Error {nameof(UsersAuthService.LoginUser)}");
-            InRestProgress = false;
+            IsBusyProgress = false;
             return;
         }
 
@@ -90,6 +93,6 @@
         }
 
         authState.AuthenticationStateChanged();
-        InRestProgress = false;
+        IsBusyProgress = false;
     }
 }

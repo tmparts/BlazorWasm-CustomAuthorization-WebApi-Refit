@@ -37,7 +37,7 @@ namespace WebMetaApp
             return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
         }
 
-        public void AuthenticationStateChanged()
+        public new void AuthenticationStateChanged()
         {
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }

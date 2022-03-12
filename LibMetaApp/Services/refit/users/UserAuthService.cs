@@ -40,5 +40,12 @@ namespace LibMetaApp.Services
         {
             return await _api.RestoreUser(user);
         }
+
+#if DEBUG
+        public async Task<ApiResponse<WeatherForecastModel[]>> DebugAccessCheck()
+        {
+            return await _api.DebugAccessCheck();
+        }
+#endif
     }
 }

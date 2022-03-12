@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////
 using Newtonsoft.Json;
 using reCaptcha.stat;
-using System;
 
 namespace reCaptcha.Models.VerifyingUsersResponse
 {

@@ -46,7 +46,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "",
+    "Password": "qsoqghbhhrhxgvmt",
     "UseSsl": true
   },
   "RedisConfig": {
@@ -75,7 +75,7 @@
   "ClientConfig": {
     "Host": "localhost",
     "Port": 7222,
-    "HttpSheme": "http"
+    "HttpSheme": "https"
   },
   "UserManageConfig": {
     "RegistrationUserConfirmDeadlineMinutes": 180,

@@ -14,6 +14,6 @@ namespace SrvMetaApp.Repositories
         /// <param name="confirm_id">ИД подтверждения</param>
         public Task<ResultRequestModel> ConfirmUserAction(string confirm_id);
 
-        public Task<ConfirmationRequestResultModel> GetConfirmation(string confirm_id);        
+        public Task<ConfirmationRequestResultModel> GetConfirmation(string confirm_id);
     }
 }

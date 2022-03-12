@@ -20,7 +20,7 @@ namespace LibMetaApp
         /// <param name="actual">Новые ноды</param>
         /// <param name="current">Текущие (из кэша) ноды</param>
         /// <returns>Ноды, которх нет в новом наборе нод (current), но есть в текущем наборе (actual)</returns>
-        public static NodeModelAnalog[] ExpiredNodes(NodeModelAnalog[] actual, NodeModelAnalog[] current)
+        public static NodeModel[] ExpiredNodes(NodeModel[] actual, NodeModel[] current)
         {
             return current.Where(cur => !actual.Any(act => act.Id == cur.Id)).ToArray();
         }
@@ -31,7 +31,7 @@ namespace LibMetaApp
         /// <param name="actual">Новые ноды</param>
         /// <param name="current">Текущие (из кэша) ноды</param>
         /// <returns>Ноды, которых нет в текущем наборе нод (current), но есть в новом наборе (actual)</returns>
-        public static NodeModelAnalog[] NewNodes(NodeModelAnalog[] actual, NodeModelAnalog[] current)
+        public static NodeModel[] NewNodes(NodeModel[] actual, NodeModel[] current)
         {
             return actual.Where(act => !current.Any(cur => cur.Id == act.Id)).ToArray();
         }

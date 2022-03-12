@@ -58,6 +58,7 @@ namespace SrvMetaApp
         protected readonly ILogger<RedisUtil> _logger;
         public static string RedisServerAddress => _config?.EndPoint ?? "localhost:6379";
 
+        ConnectionMultiplexer connectionMultiplexer = null;
         private Lazy<ConnectionMultiplexer> lazyConnection => new Lazy<ConnectionMultiplexer>(() =>
         {
             ConfigurationOptions co = new ConfigurationOptions()
@@ -78,8 +79,9 @@ namespace SrvMetaApp
                 Ssl = _config?.Ssl ?? true,
                 SslHost = _config?.SslHost ?? string.Empty
             };
+            if (connectionMultiplexer is null)
+                connectionMultiplexer = ConnectionMultiplexer.Connect(co);
 
-            ConnectionMultiplexer connectionMultiplexer = ConnectionMultiplexer.Connect(co);
             return connectionMultiplexer;
         });
         public ConnectionMultiplexer Connection
@@ -162,14 +164,14 @@ namespace SrvMetaApp
             return server.Keys(pattern: GetRedisKey(pref, id)).ToArray();
         }
 
-        public NodeModelAnalog[] Nodes(RedisPrefixExternModel pref, string id = "")
+        public NodeModel[] Nodes(RedisPrefixExternModel pref, string id = "")
         {
             ConnectionMultiplexer rc = Connection;
             IServer server = rc.GetServer(RedisServerAddress);
             IDatabase db = rc.GetDatabase();
 
             return server.Keys(pattern: GetRedisKey(pref, id)).Select(_ =>
-                new NodeModelAnalog
+                new NodeModel
                 (
                     GetRealId(_.ToString(), pref),
                     db.StringGet(_).ToString()
@@ -253,14 +255,14 @@ namespace SrvMetaApp
         /// <param name="prov_nodes">Загружаемые данные</param>
         /// <param name="pref">Префикс (шаблон ключей) загружаемых данных</param>
         /// <param name="auto_remove_expires_nodes">Автоматически удалять данные, которых нет (по ключу) в загружаемых</param>
-        public void MergeNodes(NodeModelAnalog[] prov_nodes, RedisPrefixExternModel pref, bool auto_remove_expires_nodes = true)
+        public void MergeNodes(NodeModel[] prov_nodes, RedisPrefixExternModel pref, bool auto_remove_expires_nodes = true)
         {
             if (prov_nodes == null)
             {
                 return;
             }
 
-            NodeModelAnalog[] redis_nodes = Values(pref, KeyToNode);
+            NodeModel[] redis_nodes = Values(pref, KeyToNode);
             if (redis_nodes == null)
             {
                 return;
@@ -268,17 +270,17 @@ namespace SrvMetaApp
 
             if (auto_remove_expires_nodes)
             {
-                NodeModelAnalog[] expired_nodes = GlobalUtils.ExpiredNodes(prov_nodes, redis_nodes);
+                NodeModel[] expired_nodes = GlobalUtils.ExpiredNodes(prov_nodes, redis_nodes);
                 RemoveKeys(expired_nodes.Select(_ => _.Id).ToArray(), pref);
             }
 
-            NodeModelAnalog[] new_nodes = GlobalUtils.NewNodes(prov_nodes, redis_nodes);
+            NodeModel[] new_nodes = GlobalUtils.NewNodes(prov_nodes, redis_nodes);
 
             Dictionary<int, string> provDict = prov_nodes.ToDictionary(_ => _.Id, _ => _.Name);
             Dictionary<int, string> redisDict = redis_nodes.ToDictionary(_ => _.Id, _ => _.Name);
 
-            NodeModelAnalog[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
-                .Select(_ => new NodeModelAnalog(_.Key, _.Value))
+            NodeModel[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
+                .Select(_ => new NodeModel(_.Key, _.Value))
                 .ToArray();
 
             KeyValuePair<string, string>[] pairsToUpdate = new_nodes.Concat(changedNodes)
@@ -288,10 +290,10 @@ namespace SrvMetaApp
             UpdateKeys(pairsToUpdate, pref);
         }
 
-        public static NodeModelAnalog KeyToNode(IDatabase db, RedisKey _, RedisPrefixExternModel pref)
+        public static NodeModel KeyToNode(IDatabase db, RedisKey _, RedisPrefixExternModel pref)
         {
             return
-                new NodeModelAnalog
+                new NodeModel
                 (
                     GetRealId(_.ToString(), pref),
                     db.StringGet(_).ToString()
@@ -346,13 +348,13 @@ namespace SrvMetaApp
             await db.StringSetAsync(redisKey, value, expiryCurrent ?? expiry);
         }
 
-        public void MergeNodesNotRemove(NodeModelAnalog[] provNodes, RedisPrefixExternModel pref)
+        public void MergeNodesNotRemove(NodeModel[] provNodes, RedisPrefixExternModel pref)
         {
             if (provNodes == null)
             {
                 return;
             }
-            List<NodeModelAnalog> redisNodes = new List<NodeModelAnalog>();
+            List<NodeModel> redisNodes = new List<NodeModel>();
             try
             {
                 ConnectionMultiplexer rc = Connection;
@@ -371,7 +373,7 @@ namespace SrvMetaApp
                     red_comp_key = new RedisCompKeyExternModel(obj_id_str, pref);  // red_comp_key.Id = k.ToString();
                     res = db.StringGet(k);
 
-                    redisNodes.Add(new NodeModelAnalog(obj_id, res.IsNull ? null : res.ToString()));
+                    redisNodes.Add(new NodeModel(obj_id, res.IsNull ? null : res.ToString()));
                 }
             }
             catch (Exception ex)
@@ -385,7 +387,7 @@ namespace SrvMetaApp
                 return;
             }
 
-            NodeModelAnalog[] newNodes = GlobalUtils.NewNodes(provNodes, redisNodes.ToArray());
+            NodeModel[] newNodes = GlobalUtils.NewNodes(provNodes, redisNodes.ToArray());
 
             Dictionary<int, string> provDict = provNodes.ToDictionary(_ => _.Id, _ => _.Name);
             Dictionary<int, string> redisDict = redisNodes.ToDictionary(_ => _.Id, _ => _.Name);
@@ -395,8 +397,8 @@ namespace SrvMetaApp
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            NodeModelAnalog[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
-                .Select(_ => new NodeModelAnalog(_.Key, _.Value))
+            NodeModel[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
+                .Select(_ => new NodeModel(_.Key, _.Value))
                 .ToArray();
 
             KeyValuePair<string, string>[] pairsToUpdate = newNodes.Concat(changedNodes)
@@ -407,26 +409,26 @@ namespace SrvMetaApp
 
         }
 
-        public async Task MergeNodesNotRemoveAsync(NodeModelAnalog[] provNodes, RedisPrefixExternModel pref)
+        public async Task MergeNodesNotRemoveAsync(NodeModel[] provNodes, RedisPrefixExternModel pref)
         {
             if (provNodes == null)
             {
                 return;
             }
 
-            NodeModelAnalog[] redisNodes = Values(pref, KeyToNode);
+            NodeModel[] redisNodes = Values(pref, KeyToNode);
             if (redisNodes == null)
             {
                 return;
             }
 
-            NodeModelAnalog[] newNodes = GlobalUtils.NewNodes(provNodes, redisNodes);
+            NodeModel[] newNodes = GlobalUtils.NewNodes(provNodes, redisNodes);
 
             Dictionary<int, string> provDict = provNodes.ToDictionary(_ => _.Id, _ => _.Name);
             Dictionary<int, string> redisDict = redisNodes.ToDictionary(_ => _.Id, _ => _.Name);
 
-            NodeModelAnalog[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
-                .Select(_ => new NodeModelAnalog(_.Key, _.Value))
+            NodeModel[] changedNodes = GlobalUtils.ChangedDictItems<int, string>(provDict, redisDict)
+                .Select(_ => new NodeModel(_.Key, _.Value))
                 .ToArray();
 
             KeyValuePair<string, string>[] pairsToUpdate = newNodes.Concat(changedNodes)

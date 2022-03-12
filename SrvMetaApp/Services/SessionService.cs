@@ -41,6 +41,7 @@ namespace SrvMetaApp.Models
                 {
                     await _httpContext.HttpContext.SignOutAsync();
                 }
+                SessionMarker?.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
                 return;
             }
             GuidToken = token.ToString();
@@ -61,10 +62,12 @@ namespace SrvMetaApp.Models
 
             if (string.IsNullOrEmpty(SessionMarker.Login))
             {
+                SessionMarker?.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
                 await _httpContext.HttpContext.SignOutAsync();
             }
             else
             {
+                SessionMarker.Token = token.ToString();
                 if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated != true)
                 {
                     await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());

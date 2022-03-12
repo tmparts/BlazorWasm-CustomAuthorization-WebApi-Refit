@@ -18,6 +18,7 @@ namespace SrvMetaApp.Repositories.mail
         readonly IOptions<ServerConfigModel> _config;
         readonly RedisUtil _redis;
         readonly MetaAppContextDB _db_context;
+
         public MailService(IHttpContextAccessor set_http_context, ILogger<MailService> set_logger, IOptions<ServerConfigModel> set_config, RedisUtil set_redis, MetaAppContextDB set_db_context)
         {
             _http_context = set_http_context;
@@ -54,7 +55,7 @@ namespace SrvMetaApp.Repositories.mail
             try
             {
                 string subject = "Подтверждение регистрации: iq-s.pro";
-                string message = $"Доброго времени суток, {confirm_db.User.Name} {confirm_db.User.LastName}. Вызарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>подтвердить</a>.";
+                string message = $"Доброго времени суток, {confirm_db.User.Name} {confirm_db.User.LastName}. Вы зарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.Guid}")}'>подтвердить</a>.";
                 await SendEmailAsync(confirm_db.User.Email, subject, message);
                 return true;
             }

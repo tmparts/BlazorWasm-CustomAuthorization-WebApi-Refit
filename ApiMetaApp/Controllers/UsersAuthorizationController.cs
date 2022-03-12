@@ -22,7 +22,7 @@ namespace ApiMetaApp.Controllers
         }
 
         [HttpGet]
-        [SwaggerOperation(Summary = "Прочитать информацию о текущей сессии сессии")]
+        [SwaggerOperation(Summary = "Прочитать информацию о текущей сессии")]
         public SessionReadResultModel Get([FromQuery] string? ReturnUrl)
         {
             return _users_repo.ReadMainSession();
@@ -54,7 +54,64 @@ namespace ApiMetaApp.Controllers
         [HttpDelete]
         public async Task<ResultRequestModel> DeleteAsync()
         {
-           return await _users_repo.LogOutAsync();
+            return await _users_repo.LogOutAsync();
         }
+
+#if DEBUG
+
+        private Random gen = new Random();
+
+        [SwaggerOperation(Summary = "Проврерка работоспособности")]
+        [Authorize]
+        [HttpOptions]
+        public WeatherForecastModel[] Options()
+        {
+            return new WeatherForecastModel[]
+            {
+                RandomDemo(),
+                RandomDemo(),
+                RandomDemo(),
+                RandomDemo(),
+                RandomDemo(),
+                RandomDemo()
+            };
+        }
+
+        private WeatherForecastModel RandomDemo()
+        {
+            WeatherForecastModel res = new WeatherForecastModel();
+
+            res.Date = RandomDay();
+            res.TemperatureC = gen.Next(-20, 20);
+            if (res.TemperatureC <= -16)
+            {
+                res.Summary = "Balmy";
+            }
+            else if (res.TemperatureC <= -13)
+            {
+                res.Summary = "Freezing";
+            }
+            else if (res.TemperatureC <= -2)
+            {
+                res.Summary = "Chilly";
+            }
+            else if (res.TemperatureC <= 1)
+            {
+                res.Summary = "Freezing";
+            }
+            else
+            {
+                res.Summary = "Bracing";
+            }
+            return res;
+        }
+
+        DateTime RandomDay()
+        {
+            DateTime start = new DateTime(1995, 1, 1);
+            int range = (DateTime.Today - start).Days;
+            return start.AddDays(gen.Next(range));
+        }
+#endif
     }
 }

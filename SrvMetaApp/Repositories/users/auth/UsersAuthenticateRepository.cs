@@ -29,10 +29,17 @@ namespace SrvMetaApp.Repositories
         readonly RedisUtil _redis;
         readonly MetaAppContextDB _db_context;
         readonly IMailServiceInterface _mail;
-        readonly IUsersConfirmationsInterface _user_confirmation;
+        //readonly IUsersConfirmationsInterface _user_confirmation;
         readonly IPAddress? _remote_ip_address;
 
         public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
+
+        //public void Dispose()
+        //{
+        //    //_redis.Dispose();
+        //    _session_service.Dispose();
+        //    _mail.Dispose();
+        //}
 
         public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, MetaAppContextDB set_db_context, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
@@ -43,7 +50,7 @@ namespace SrvMetaApp.Repositories
             _config = set_config;
             _db_context = set_db_context;
             _mail = set_mail;
-            _user_confirmation = set_user_confirmation;
+            //_user_confirmation = set_user_confirmation;
             _remote_ip_address = _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
         }
 

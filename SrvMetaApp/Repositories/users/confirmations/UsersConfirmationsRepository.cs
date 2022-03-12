@@ -15,20 +15,20 @@ namespace SrvMetaApp.Repositories
 {
     public class UsersConfirmationsRepository : IUsersConfirmationsInterface
     {
-        readonly IHttpContextAccessor _http_context;
-        readonly ILogger<UsersConfirmationsRepository> _logger;
+        //readonly IHttpContextAccessor _http_context;
+        //readonly ILogger<UsersConfirmationsRepository> _logger;
         readonly IOptions<ServerConfigModel> _config;
-        readonly SessionService _session_service;
-        readonly RedisUtil _redis;
+        //readonly SessionService _session_service;
+        //readonly RedisUtil _redis;
         readonly MetaAppContextDB _db_context;
         readonly IMailServiceInterface _mail;
 
         public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IMailServiceInterface set_mail, MetaAppContextDB set_db_context, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
-            _logger = set_logger;
-            _session_service = set_session_service;
-            _redis = set_redisUtil;
-            _http_context = set_http_context;
+            //_logger = set_logger;
+            //_session_service = set_session_service;
+            //_redis = set_redisUtil;
+            //_http_context = set_http_context;
             _config = set_config;
             _db_context = set_db_context;
             _mail = set_mail;
@@ -69,7 +69,7 @@ namespace SrvMetaApp.Repositories
 
                     if (res.IsSuccess)
                     {
-                        res.Message = "Регистрация подтверждена. Авторизуйтесь заново, что бы изменения отразились у вас на клиенте";
+                        res.Message = "Регистрация подтверждена. Авторизуйтесь заново, что бы изменения применились у вас";
                     }
                     else
                     {

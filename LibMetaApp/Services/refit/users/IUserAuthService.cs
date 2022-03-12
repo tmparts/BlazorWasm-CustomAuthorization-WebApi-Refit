@@ -18,5 +18,9 @@ namespace LibMetaApp.Services
         Task<ApiResponse<ResultRequestModel>> LogOutUser();
 
         Task<ApiResponse<ResultRequestModel>> RestoreUser(UserRestoreModel user);
+
+#if DEBUG
+        Task<ApiResponse<WeatherForecastModel[]>> DebugAccessCheck();
+#endif
     }
 }

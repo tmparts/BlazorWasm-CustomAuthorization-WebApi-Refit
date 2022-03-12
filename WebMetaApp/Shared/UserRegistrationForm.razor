@@ -5,6 +5,7 @@
 @using LibMetaApp
 @using Microsoft.Extensions.Options
 @using LibMetaApp.Services
+@using LibMetaApp.Models.enums
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
@@ -17,57 +18,59 @@
 
 <h3>Регистрация</h3>
 <EditForm Model="@user_registration_obj" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="mb-3">
-        <label class="form-label" for="login">Login</label>
-        <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_registration_obj.Login" />
-        <div class="form-text" id="loginHelp">Enter your login</div>
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="password">Password</label>
-        <InputText class="form-control" type="password" placeholder="Password" id="password" @bind-Value="user_registration_obj.Password" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="password_confirm">Confirm password</label>
-        <InputText class="form-control" type="password" placeholder="Confirm password" id="password_confirm" @bind-Value="user_registration_obj.PasswordConfirm" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="email">Email</label>
-        <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_registration_obj.Email" />
-        <div class="form-text" id="emailHelp">Enter your email</div>
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="name">Public name</label>
-        <InputText type="name" class="form-control" id="name" aria-describedby="loginName" @bind-Value="user_registration_obj.PublicName" />
-        <div class="form-text" id="loginName">Enter your public Name</div>
-    </div>
-    <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+    <fieldset disabled="@IsBusyProgress">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label class="form-label" for="login">Login</label>
+            <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_registration_obj.Login" />
+            <div class="form-text" id="loginHelp">Enter your login</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <InputText class="form-control" type="password" placeholder="Password" id="password" @bind-Value="user_registration_obj.Password" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password_confirm">Confirm password</label>
+            <InputText class="form-control" type="password" placeholder="Confirm password" id="password_confirm" @bind-Value="user_registration_obj.PasswordConfirm" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_registration_obj.Email" />
+            <div class="form-text" id="emailHelp">Enter your email</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="name">Public name</label>
+            <InputText type="name" class="form-control" id="name" aria-describedby="loginName" @bind-Value="user_registration_obj.PublicName" />
+            <div class="form-text" id="loginName">Enter your public Name</div>
+        </div>
+        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
 
-    <div class="alert alert-secondary" role="alert">Есть учётная запись? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}")>Войти</a>. Забыли логин/пароль? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ</a>.</div>
+        <div class="alert alert-secondary" role="alert">Есть учётная запись? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Success)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}")>Войти</a>. Забыли логин/пароль? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Info)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ</a>.</div>
 
-    <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
+        <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
+            @{
+                if (IsBusyProgress == true)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <text> Загрузка...</text>
+                }
+                else
+                {
+                    <text>Регистрация</text>
+                }
+            }
+        </button>
         @{
-            if (InRestProgress == true)
+            if (!string.IsNullOrWhiteSpace(user_registration_result?.Message))
             {
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <text> Загрузка...</text>
-            }
-            else
-            {
-                <text>Регистрация</text>
+                <p></p>
+                <div class="alert alert-danger" role="alert">
+                    @user_registration_result.Message
+                </div>
             }
         }
-    </button>
-    @{
-        if (!string.IsNullOrWhiteSpace(user_registration_result?.Message))
-        {
-            <p></p>
-            <div class="alert alert-danger" role="alert">
-                @user_registration_result.Message
-            </div>
-        }
-    }
+    </fieldset>
 </EditForm>
 @code {
     private UserRegistrationModel user_registration_obj = new();
@@ -79,7 +82,7 @@
 
     private async Task HandleValidSubmit()
     {
-        InRestProgress = true;
+        IsBusyProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
 
         try
@@ -88,7 +91,7 @@
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                InRestProgress = false;
+                IsBusyProgress = false;
                 return;
             }
             user_registration_result = rest?.Content;
@@ -96,7 +99,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, $"Error {nameof(UsersAuthService.RegistrationNewUser)}");
-            InRestProgress = false;
+            IsBusyProgress = false;
             return;
         }
 
@@ -107,6 +110,6 @@
         }
 
         authState.AuthenticationStateChanged();
-        InRestProgress = false;
+        IsBusyProgress = false;
     }
 }

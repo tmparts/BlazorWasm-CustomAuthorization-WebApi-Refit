@@ -7,7 +7,7 @@ using Refit;
 
 namespace LibMetaApp.Services
 {
-    [Headers("Content-Type: application/json")]    
+    [Headers("Content-Type: application/json")]
     public interface IUsersAuthApi
     {
         [Get("/api/UsersAuthorization")]
@@ -25,5 +25,10 @@ namespace LibMetaApp.Services
 
         [Patch("/api/UsersAuthorization")]
         Task<ApiResponse<ResultRequestModel>> RestoreUser(UserRestoreModel user);
+
+#if DEBUG
+        [Options("/api/UsersAuthorization")]
+        Task<ApiResponse<WeatherForecastModel[]>> DebugAccessCheck();
+#endif
     }
 }

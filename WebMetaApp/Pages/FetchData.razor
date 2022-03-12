@@ -1,6 +1,12 @@
 ﻿@page "/fetchdata"
-@inject HttpClient Http
 @using Microsoft.AspNetCore.Authorization
+@using LibMetaApp.Models
+@inject HttpClient Http
+@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject ILogger<FetchData> Logger
+
+@inherits LibMetaApp.Services.BlazorBusyComponentBaseModel
+
 @attribute [Authorize(Policy = "AccessMinLevelAuth")]
 
 <PageTitle>Weather forecast</PageTitle>
@@ -15,45 +21,54 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+    if (IsBusyProgress == true)
+    {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <text> Загрузка...</text>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private WeatherForecastModel[]? forecasts;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
-    }
+#if DEBUG
+    Refit.ApiResponse< WeatherForecastModel[]> rest = await UsersAuthService.DebugAccessCheck();
 
-    public class WeatherForecast
+    if (rest.StatusCode != System.Net.HttpStatusCode.OK)
     {
-        public DateTime Date { get; set; }
-
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
+    IsBusyProgress = false;
+    return;
+    }
+    forecasts = rest?.Content;
+#else
+        forecasts = await Http.GetFromJsonAsync<WeatherForecastModel[]>("sample-data/weather.json");
+#endif
     }
 }

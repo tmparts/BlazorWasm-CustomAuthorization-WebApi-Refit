@@ -1,14 +1,12 @@
 ﻿////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
+
 using Newtonsoft.Json;
 using reCaptcha.Models.VerifyingUsersResponse;
-using System;
 using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace reCaptcha.stat
 {

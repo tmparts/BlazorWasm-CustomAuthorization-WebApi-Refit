@@ -2,6 +2,7 @@
 @using Refit
 @using Microsoft.Extensions.Logging
 @using LibMetaApp
+@inherits LibMetaApp.Services.BlazorBusyComponentBaseModel
 
 @inject CustomAuthStateProvider authState
 @inject ISessionLocalStorage SessionLocalStorage
@@ -10,9 +11,9 @@
 @inject ILogger<UserLogoutForm> Logger
 
 <h3>Выход</h3>
-<button class="btn btn-primary" onclick="@Logout" disabled="@InRestProgress">
+<button class="btn btn-primary" onclick="@LogoutAsync" disabled="@IsBusyProgress">
     @{
-        if (InRestProgress == true)
+        if (IsBusyProgress == true)
         {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <text> Загрузка...</text>
@@ -24,38 +25,32 @@
     }
 </button>
 @code {
-    private bool InRestProgress = false;
     ResultRequestModel? res = null;
 
-    private async Task Logout()
+    private async Task LogoutAsync()
     {
-        InRestProgress = true;
-        await SessionLocalStorage.RemoveSessionAsync();
+        IsBusyProgress = true;
         try
         {
             ApiResponse<ResultRequestModel> rest = await UsersAuthService.LogOutUser();
+            await SessionLocalStorage.RemoveSessionAsync();
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                InRestProgress = false;
+                IsBusyProgress = false;
                 return;
             }
             res = rest?.Content;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"Error - {nameof(UsersAuthService.LogOutUser)}");
-            InRestProgress = false;
-            return;
+            Logger.LogError(ex, $"Error - {nameof(UsersAuthService.LogOutUser)}");            
         }
 
-        if (res?.IsSuccess == true)
-        {
-            SessionMarker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
-            await SessionLocalStorage.SaveSessionAsync(SessionMarker);
-        }
-
+        SessionMarker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+        await SessionLocalStorage.SaveSessionAsync(SessionMarker);
+        
         authState.AuthenticationStateChanged();
-        InRestProgress = false;
+        IsBusyProgress = false;
     }
 }

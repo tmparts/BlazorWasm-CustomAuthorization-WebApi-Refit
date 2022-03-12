@@ -13,6 +13,7 @@ namespace LibMetaApp.Models
 
         public bool IsLongTimeSession { get; set; }
 
+        public SessionMarkerModel() { }
         public SessionMarkerModel(string set_login, AccessLevelsUsersEnum set_access_level_user, string set_token, bool is_long_time_session)
         {
             Login = set_login;

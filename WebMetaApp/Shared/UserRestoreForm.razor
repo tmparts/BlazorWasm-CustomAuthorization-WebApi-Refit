@@ -4,6 +4,7 @@
 @using LibMetaApp
 @using Microsoft.Extensions.Options
 @using LibMetaApp.Services
+@using LibMetaApp.Models.enums
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
@@ -24,46 +25,48 @@
 @if (user_restore_result is null)
 {
     <EditForm Model="@user_restore_obj" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="mb-3">
-            <label class="form-label" for="login">Login</label>
-            <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_restore_obj.Login" />
-            <div class="form-text" id="loginHelp">Enter your login</div>
-        </div>
-        <div class="mb-3">
-            и/или
-        </div>
-        <div class="mb-3">
-            <label class="form-label" for="email">Email</label>
-            <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
-            <div class="form-text" id="emailHelp">Enter your email</div>
-        </div>
-        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
-        <div class="alert alert-secondary" role="alert">Нет учётной записи? <a href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
-        <button class="btn btn-primary" type="submit" disabled="@InRestProgress">
+        <fieldset disabled="@IsBusyProgress">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-3">
+                <label class="form-label" for="login">Login</label>
+                <InputText class="form-control" id="login" aria-describedby="loginHelp" @bind-Value="user_restore_obj.Login" />
+                <div class="form-text" id="loginHelp">Enter your login</div>
+            </div>
+            <div class="mb-3">
+                и/или
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="email">Email</label>
+                <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
+                <div class="form-text" id="emailHelp">Enter your email</div>
+            </div>
+            <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+            <div class="alert alert-secondary" role="alert">Нет учётной записи? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Primary)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
+            <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
+                @{
+                    if (IsBusyProgress == true)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <text> Загрузка...</text>
+                    }
+                    else
+                    {
+                        <text>Отправить</text>
+                    }
+                }
+            </button>
             @{
-                if (InRestProgress == true)
+                if (!string.IsNullOrWhiteSpace(user_restore_result?.Message))
                 {
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <text> Загрузка...</text>
-                }
-                else
-                {
-                    <text>Отправить</text>
+                    <p></p>
+                    <div class="alert alert-primary" role="alert">
+                        @user_restore_result.Message
+                    </div>
+                    <a href="#" onclick="@(()=>{user_restore_result.Message = string.Empty;})">Повторить</a>
                 }
             }
-        </button>
-        @{
-            if (!string.IsNullOrWhiteSpace(user_restore_result?.Message))
-            {
-                <p></p>
-                <div class="alert alert-primary" role="alert">
-                    @user_restore_result.Message
-                </div>
-                <a href="#" onclick="@(()=>{user_restore_result.Message = string.Empty;})">Повторить</a>
-            }
-        }
+        </fieldset>
     </EditForm>
 }
 else
@@ -82,7 +85,7 @@ else
 
     private async Task HandleValidSubmit()
     {
-        InRestProgress = true;
+        IsBusyProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();
 
         try
@@ -91,7 +94,7 @@ else
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                InRestProgress = false;
+                IsBusyProgress = false;
                 return;
             }
             user_restore_result = rest?.Content;
@@ -99,11 +102,11 @@ else
         catch (Exception ex)
         {
             Logger.LogError(ex, $"Error {nameof(UsersAuthService.RestoreUser)}");
-            InRestProgress = false;
+            IsBusyProgress = false;
             return;
         }
 
         authState.AuthenticationStateChanged();
-        InRestProgress = false;
+        IsBusyProgress = false;
     }
 }
