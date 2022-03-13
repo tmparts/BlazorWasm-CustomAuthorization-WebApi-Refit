@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DbcMetaLib\DbcMetaSqliteLib.csproj" />
+    <ProjectReference Include="..\reCaptchaLib\reCaptchaLib.csproj" />
   </ItemGroup>
 
 </Project>

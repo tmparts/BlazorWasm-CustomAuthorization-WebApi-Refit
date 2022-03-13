@@ -11,7 +11,7 @@ using SrvMetaApp;
 
 namespace DbcMetaSqliteLib.Confirmations
 {
-    public class ConfirmationsTable : IConfirmationsDb
+    public class ConfirmationsTable : IConfirmationsTable
     {
         readonly MetaAppSqliteContext _db_context;
         readonly ILogger<ConfirmationsTable> _logger;
@@ -48,7 +48,9 @@ namespace DbcMetaSqliteLib.Confirmations
         public async Task<ConfirmationModelDb?> FirstOrDefaultActualAsync(string confirm_id, bool include_user_data = true)
         {
             IQueryable<ConfirmationModelDb> q = _db_context.Confirmations.Where(x => x.ConfirmetAt == null && x.Guid == confirm_id && x.Deadline >= DateTime.Now);
-
+#if DEBUG
+            var v = q.ToArray();
+#endif
             if (include_user_data)
                 q = q.Include(x => x.User);
 
@@ -57,6 +59,9 @@ namespace DbcMetaSqliteLib.Confirmations
 
         public async Task RemoveOutdatedRowsAsync(bool auto_save = true)
         {
+#if DEBUG
+            var v = _db_context.Confirmations.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)).ToArray();
+#endif
             _db_context.Confirmations.RemoveRange(_db_context.Confirmations.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)));
 
             if (auto_save)

@@ -20,10 +20,10 @@ namespace SrvMetaApp.Repositories
         readonly IMailServiceInterface _mail;
         ILogger<UsersConfirmationsRepository> _logger;
 
-        readonly IUsersDb _users_dt;
-        readonly IConfirmationsDb _confirmations_dt;
+        readonly IUsersTable _users_dt;
+        readonly IConfirmationsTable _confirmations_dt;
 
-        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IConfirmationsDb set_confirmations_dt, IUsersDb set_users_dt, IMailServiceInterface set_mail, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IConfirmationsTable set_confirmations_dt, IUsersTable set_users_dt, IMailServiceInterface set_mail, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _config = set_config;
@@ -61,7 +61,7 @@ namespace SrvMetaApp.Repositories
 
                     res.Confirmation.User.AccessLevelUser = AccessLevelsUsersEnum.Confirmed;
                     res.Confirmation.User.ConfirmationType = ConfirmationUsersTypesEnum.Email;
-                    await _users_dt.UpdateAsync(res.Confirmation.User);
+                    await _users_dt.UpdateAsync(res.Confirmation.User,false);
 
                     res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
@@ -81,7 +81,7 @@ namespace SrvMetaApp.Repositories
 
                     string? new_pass = GlobalUtils.CreatePassword(9);
                     res.Confirmation.User.PasswordHash = GlobalUtils.CalculateHashString(new_pass);
-                    await _users_dt.UpdateAsync(res.Confirmation.User);
+                    await _users_dt.UpdateAsync(res.Confirmation.User, false);
                     res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
                     try

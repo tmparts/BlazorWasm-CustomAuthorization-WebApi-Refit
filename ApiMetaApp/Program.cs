@@ -19,6 +19,10 @@ using DbcMetaLib.Confirmations;
 using DbcMetaSqliteLib.Confirmations;
 using DbcMetaLib.Users;
 using DbcMetaSqliteLib.Users;
+using DbcMetaSqliteLib.UsersGroups;
+using DbcMetaLib.UsersGroups;
+using DbcMetaLib.Projects;
+using DbcMetaSqliteLib.Projects;
 
 Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 logger.Info("init main");
@@ -29,8 +33,10 @@ WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<MetaAppSqliteContext>();
 
-builder.Services.AddScoped<IConfirmationsDb, ConfirmationsTable>();
-builder.Services.AddScoped<IUsersDb, UsersTable>();
+builder.Services.AddScoped<IConfirmationsTable, ConfirmationsTable>();
+builder.Services.AddScoped<IUsersTable, UsersTable>();
+builder.Services.AddScoped<IUsersGroupsTable, UsersGroupsTable>();
+builder.Services.AddScoped<IProjectsTable, ProjectsTable>();
 
 #endregion
 

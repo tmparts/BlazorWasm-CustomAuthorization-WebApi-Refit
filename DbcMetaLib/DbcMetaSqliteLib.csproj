@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LibMetaApp\MetaLib.csproj" />
+    <ProjectReference Include="..\MetaLib\MetaLib.csproj" />
   </ItemGroup>
 
 </Project>

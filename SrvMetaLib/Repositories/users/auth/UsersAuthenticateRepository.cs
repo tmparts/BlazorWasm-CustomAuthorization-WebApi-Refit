@@ -31,8 +31,8 @@ namespace SrvMetaApp.Repositories
         readonly SessionService _session_service;
         readonly RedisUtil _redis;
 
-        readonly IUsersDb _users_dt;
-        readonly IConfirmationsDb _confirmations_dt;
+        readonly IUsersTable _users_dt;
+        readonly IConfirmationsTable _confirmations_dt;
 
         readonly IMailServiceInterface _mail;
 
@@ -40,7 +40,7 @@ namespace SrvMetaApp.Repositories
 
         public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
 
-        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IConfirmationsDb set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersDb set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IConfirmationsTable set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _session_service = set_session_service;

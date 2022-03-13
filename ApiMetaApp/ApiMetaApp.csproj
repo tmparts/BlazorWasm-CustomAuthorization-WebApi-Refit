@@ -30,13 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SrvMetaApp\SrvMetaLib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MetaLib\MetaLib.csproj" />
+    <ProjectReference Include="..\SrvMetaLib\SrvMetaLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

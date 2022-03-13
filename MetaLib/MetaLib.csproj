@@ -17,8 +17,4 @@
     <PackageReference Include="StackExchange.Redis" Version="2.5.43" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\reCaptchaCore\reCaptchaLib.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -6,7 +6,7 @@ using LibMetaApp.Models;
 
 namespace DbcMetaLib.Confirmations
 {
-    public interface IConfirmationsDb : SavingChanges
+    public interface IConfirmationsTable : SavingChanges
     {
         /// <summary>
         /// Поиск актуальной/непогашеной записи подтверждения действия пользователя

@@ -28,7 +28,7 @@ namespace LibMetaApp.Models
 
         public ConfirmationUsersTypesEnum ConfirmationType { get; set; } = ConfirmationUsersTypesEnum.None;
 
-        public IEnumerable<GroupUserModelDB>? Groups { get; set; }
+        public IEnumerable<UserGroupModelDB>? Groups { get; set; }
 
         public IEnumerable<ProjectModelDB>? Projects { get; set; }
 

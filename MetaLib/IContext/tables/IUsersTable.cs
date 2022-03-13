@@ -11,7 +11,7 @@ namespace DbcMetaLib.Users
     /// <summary>
     /// Интерфейс доступа к данным пользователей
     /// </summary>
-    public interface IUsersDb : SavingChanges
+    public interface IUsersTable : SavingChanges
     {
         public Task<bool> AnyByLoginOrEmailAsync(string login, string email);
 

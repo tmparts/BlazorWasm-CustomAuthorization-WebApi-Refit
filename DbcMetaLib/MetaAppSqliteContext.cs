@@ -57,10 +57,10 @@ namespace SrvMetaApp
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GroupUserModelDB>().HasData(
-                    new GroupUserModelDB("Test group 1", "Description group 1") { Id = 1 },
-                    new GroupUserModelDB("Test group 2", "Description group 2") { Id = 2 },
-                    new GroupUserModelDB("Test group 3", "Description group 3") { Id = 3 }
+            modelBuilder.Entity<UserGroupModelDB>().HasData(
+                    new UserGroupModelDB("Test group 1", "Description group 1") { Id = 1 },
+                    new UserGroupModelDB("Test group 2", "Description group 2") { Id = 2 },
+                    new UserGroupModelDB("Test group 3", "Description group 3") { Id = 3 }
             );
 
             modelBuilder.Entity<ProjectModelDB>().HasData(
@@ -79,12 +79,12 @@ namespace SrvMetaApp
             );
         }
 
+        public DbSet<ConfirmationModelDb> Confirmations { get; set; }
+
         public DbSet<UserModelDB> Users { get; set; }
 
-        public DbSet<GroupUserModelDB> GroupsUsers { get; set; }
+        public DbSet<UserGroupModelDB> GroupsUsers { get; set; }
 
         public DbSet<ProjectModelDB> Projects { get; set; }
-
-        public DbSet<ConfirmationModelDb> Confirmations { get; set; }
     }
 }

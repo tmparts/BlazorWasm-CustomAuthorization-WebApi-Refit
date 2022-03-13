@@ -14,7 +14,7 @@ namespace DbcMetaSqliteLib.Users
     /// <summary>
     /// Доступ к таблице пользователей базы данных SQLite
     /// </summary>
-    public class UsersTable : IUsersDb
+    public class UsersTable : IUsersTable
     {
         readonly MetaAppSqliteContext _db_context;
         readonly ILogger<UsersTable> _logger;
