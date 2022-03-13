@@ -73,9 +73,6 @@ builder.Services.AddScoped<IUsersAuthenticateRepositoryInterface, UsersAuthentic
 builder.Services.AddScoped<IUsersConfirmationsInterface, UsersConfirmationsRepository>();
 builder.Services.AddScoped<IMailServiceInterface, MailService>();
 
-builder.Services.AddScoped<DbcMetaLib.Users.IUsersDb, DbcMetaSqliteLib.Users.UsersTable>();
-builder.Services.AddScoped<DbcMetaLib.Confirmations.IConfirmationsDb, DbcMetaSqliteLib.Confirmations.ConfirmationsTable>();
-
 builder.Services.InitAccessMinLevelHandler();
 
 builder.Services.AddControllers();
