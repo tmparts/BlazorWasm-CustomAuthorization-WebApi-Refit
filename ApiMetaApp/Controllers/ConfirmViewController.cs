@@ -17,12 +17,6 @@ namespace ApiMetaApp.Controllers
             _users_confirmations_repo = set_confirmations_repo;
         }
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    _users_confirmations_repo.Dispose();
-        //    base.Dispose(disposing);
-        //}
-
         [HttpGet]
         public async Task<IActionResult> Index(string confirm_id)
         {

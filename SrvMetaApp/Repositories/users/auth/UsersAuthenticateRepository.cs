@@ -2,9 +2,12 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using DbcMetaLib.Confirmations;
+using DbcMetaLib.Users;
 using LibMetaApp;
 using LibMetaApp.Models;
 using LibMetaApp.Models.enums;
+using MetaLib.Models.enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -27,31 +30,26 @@ namespace SrvMetaApp.Repositories
         readonly IOptions<ServerConfigModel> _config;
         readonly SessionService _session_service;
         readonly RedisUtil _redis;
-        readonly MetaAppContextDB _db_context;
+
+        readonly IUsersDb _users_dt;
+        readonly IConfirmationsDb _confirmations_dt;
+
         readonly IMailServiceInterface _mail;
-        //readonly IUsersConfirmationsInterface _user_confirmation;
-        readonly IPAddress? _remote_ip_address;
+
+        IPAddress? RemoteIpAddress => _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
 
         public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
 
-        //public void Dispose()
-        //{
-        //    //_redis.Dispose();
-        //    _session_service.Dispose();
-        //    _mail.Dispose();
-        //}
-
-        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, MetaAppContextDB set_db_context, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IConfirmationsDb set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersDb set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _session_service = set_session_service;
             _redis = set_redisUtil;
             _http_context = set_http_context;
             _config = set_config;
-            _db_context = set_db_context;
+            _users_dt = set_users_dt;
+            _confirmations_dt = set_confirmations_dt;
             _mail = set_mail;
-            //_user_confirmation = set_user_confirmation;
-            _remote_ip_address = _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
         }
 
         public SessionReadResultModel ReadMainSession()
@@ -94,7 +92,7 @@ namespace SrvMetaApp.Repositories
                 throw new ArgumentNullException();
             }
 
-            string session_json_raw = await _redis.ValueAsync(new RedisCompKeyExternModel(token, PrefRedisSessions));
+            string? session_json_raw = await _redis.ValueAsync(new RedisCompKeyExternModel(token, PrefRedisSessions));
 
             _logger.LogDebug(session_json_raw);
 
@@ -137,7 +135,7 @@ namespace SrvMetaApp.Repositories
             }
 
             user.Password = GlobalUtils.CalculateHashString(user.Password);
-            UserModelDB? user_db = await _db_context.Users.FirstOrDefaultAsync(x => x.Login == user.Login);
+            UserModelDB? user_db = await _users_dt.FirstOrDefaultByLoginAsync(user.Login);
             if (user_db is null || user_db.PasswordHash != user.Password)
             {
                 res.IsSuccess = false;
@@ -192,8 +190,13 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            UserModelDB? user_db_by_login = string.IsNullOrEmpty(user.Login) ? null : await _db_context.Users.FirstOrDefaultAsync(x => x.Login == user.Login);
-            UserModelDB? user_db_by_email = string.IsNullOrEmpty(user.Email) ? null : await _db_context.Users.FirstOrDefaultAsync(x => x.Email == user.Email);
+            UserModelDB? user_db_by_login = string.IsNullOrEmpty(user?.Login)
+                ? null
+                : await _users_dt.FirstOrDefaultByLoginAsync(user.Login); //(new AbstractRequestProp[] { new RequestByLoginEqualModel(user.Login) });
+
+            UserModelDB? user_db_by_email = string.IsNullOrEmpty(user?.Email)
+                ? null
+                : await _users_dt.FirstOrDefaultByEmailAsync(user.Email); //(new AbstractRequestProp[] { new RequestByEmailEqualModel(user.Email) });
 
             res.Message = "Ваш запрос принят. Если пользователь с указанными данными есть в системе, то он получит письмо на Email с инструкцией";
 
@@ -206,8 +209,7 @@ namespace SrvMetaApp.Repositories
             if (user_db_by_login is not null)
             {
                 confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_login.Login}']", user_db_by_login, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
-                await _db_context.Confirmations.AddAsync(confirm_reset_password);
-                await _db_context.SaveChangesAsync();
+                await _confirmations_dt.AddAsync(confirm_reset_password);
 
                 if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
                 {
@@ -219,8 +221,8 @@ namespace SrvMetaApp.Repositories
             if (user_db_by_email is not null)
             {
                 confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_email.Login}']", user_db_by_email, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
-                await _db_context.Confirmations.AddAsync(confirm_reset_password);
-                await _db_context.SaveChangesAsync();
+                await _confirmations_dt.AddAsync(confirm_reset_password);
+
                 if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
                 {
                     res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
@@ -274,19 +276,17 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            if (await _db_context.Users.AnyAsync(x => x.Login == new_user.Login || x.Email == new_user.Email))
+            if (await _users_dt.AnyByLoginOrEmailAsync(new_user.Login, new_user.Email))
             {
                 res.IsSuccess = false;
                 res.Message = $"'Логин' и/или 'Email' занят.";
                 return res;
             }
             UserModelDB user_db = (UserModelDB)new_user;
-            await _db_context.Users.AddAsync(user_db);
-            await _db_context.SaveChangesAsync();
+            await _users_dt.AddAsync(user_db);
 
             ConfirmationModelDb confirm_registration = new ConfirmationModelDb($"Регистрация пользователя [login:'{user_db.Login}']", user_db, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RegistrationUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RegistrationUserConfirmDeadlineMinutes)) { };
-            await _db_context.Confirmations.AddAsync(confirm_registration);
-            await _db_context.SaveChangesAsync();
+            await _confirmations_dt.AddAsync(confirm_registration);
 
             await _mail.SendEmailRegistrationUser(confirm_registration);
 
@@ -306,7 +306,7 @@ namespace SrvMetaApp.Repositories
             switch (_config.Value.ReCaptchaConfig.Mode)
             {
                 case ReCaptchaModesEnum.Version2:
-                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, ResponseReCAPTCHA, _remote_ip_address.ToString());
+                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
 
                     if (!res.reCaptcha.success)
                     {
@@ -314,7 +314,7 @@ namespace SrvMetaApp.Repositories
                     }
                     break;
                 case ReCaptchaModesEnum.Version2Invisible:
-                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, ResponseReCAPTCHA, _remote_ip_address.ToString());
+                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
 
                     if (!res.reCaptcha.success)
                     {

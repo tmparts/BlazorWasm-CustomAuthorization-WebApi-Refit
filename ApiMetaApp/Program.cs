@@ -15,12 +15,24 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Net;
 using LibMetaApp;
 using SrvMetaApp.Repositories.mail;
-using ApiMetaApp.Controllers;
+using DbcMetaLib.Confirmations;
+using DbcMetaSqliteLib.Confirmations;
+using DbcMetaLib.Users;
+using DbcMetaSqliteLib.Users;
 
 Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 logger.Info("init main");
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+
+#region db context
+
+builder.Services.AddScoped<MetaAppSqliteContext>();
+
+builder.Services.AddScoped<IConfirmationsDb, ConfirmationsTable>();
+builder.Services.AddScoped<IUsersDb, UsersTable>();
+
+#endregion
 
 builder.Configuration.AddJsonFile("serverconfig.json");
 ServerConfigModel? conf = new ServerConfigModel();
@@ -53,7 +65,6 @@ builder.WebHost.UseKestrel(options =>
     }
 });
 
-builder.Services.AddScoped<MetaAppContextDB>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<RedisUtil>();
 
@@ -61,6 +72,9 @@ builder.Services.AddScoped<RedisUtil>();
 builder.Services.AddScoped<IUsersAuthenticateRepositoryInterface, UsersAuthenticateRepository>();
 builder.Services.AddScoped<IUsersConfirmationsInterface, UsersConfirmationsRepository>();
 builder.Services.AddScoped<IMailServiceInterface, MailService>();
+
+builder.Services.AddScoped<DbcMetaLib.Users.IUsersDb, DbcMetaSqliteLib.Users.UsersTable>();
+builder.Services.AddScoped<DbcMetaLib.Confirmations.IConfirmationsDb, DbcMetaSqliteLib.Confirmations.ConfirmationsTable>();
 
 builder.Services.InitAccessMinLevelHandler();
 
@@ -138,8 +152,8 @@ try
         app.UseMiddleware<PassageMiddleware>();
     });
 
-    app.UseAuthentication();    // аутентификация
-    app.UseAuthorization();     // авторизация
+    app.UseAuthentication(); // аутентификация
+    app.UseAuthorization();  // авторизация
 
     app.MapControllers();
 

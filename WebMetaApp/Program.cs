@@ -83,7 +83,7 @@ builder.Services.AddRefitClient<IUsersAuthApi>()
 
 builder.Services.InitAccessMinLevelHandler();
 
-builder.Logging.SetMinimumLevel(LogLevel.Trace);
+//builder.Logging.SetMinimumLevel(LogLevel.Trace);
 //builder.Logging.AddProvider(new CustomLoggingProvider());
 
 WebAssemblyHost WebHost = builder.Build();

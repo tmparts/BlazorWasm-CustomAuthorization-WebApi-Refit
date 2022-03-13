@@ -2,11 +2,12 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using DbcMetaLib.Confirmations;
+using DbcMetaLib.Users;
 using LibMetaApp;
 using LibMetaApp.Models;
 using LibMetaApp.Models.enums;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SrvMetaApp.Models;
@@ -15,23 +16,20 @@ namespace SrvMetaApp.Repositories
 {
     public class UsersConfirmationsRepository : IUsersConfirmationsInterface
     {
-        //readonly IHttpContextAccessor _http_context;
-        //readonly ILogger<UsersConfirmationsRepository> _logger;
         readonly IOptions<ServerConfigModel> _config;
-        //readonly SessionService _session_service;
-        //readonly RedisUtil _redis;
-        readonly MetaAppContextDB _db_context;
         readonly IMailServiceInterface _mail;
+        ILogger<UsersConfirmationsRepository> _logger;
 
-        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IMailServiceInterface set_mail, MetaAppContextDB set_db_context, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        readonly IUsersDb _users_dt;
+        readonly IConfirmationsDb _confirmations_dt;
+
+        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IConfirmationsDb set_confirmations_dt, IUsersDb set_users_dt, IMailServiceInterface set_mail, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
-            //_logger = set_logger;
-            //_session_service = set_session_service;
-            //_redis = set_redisUtil;
-            //_http_context = set_http_context;
+            _logger = set_logger;
             _config = set_config;
-            _db_context = set_db_context;
             _mail = set_mail;
+            _users_dt = set_users_dt;
+            _confirmations_dt = set_confirmations_dt;
         }
 
         /// <summary>
@@ -59,13 +57,13 @@ namespace SrvMetaApp.Repositories
                     }
 
                     res.Confirmation.ConfirmetAt = DateTime.Now;
-                    _db_context.Update(res.Confirmation);
+                    await _confirmations_dt.UpdateAsync(res.Confirmation, false);
 
                     res.Confirmation.User.AccessLevelUser = AccessLevelsUsersEnum.Confirmed;
                     res.Confirmation.User.ConfirmationType = ConfirmationUsersTypesEnum.Email;
-                    _db_context.Update(res.Confirmation.User);
+                    await _users_dt.UpdateAsync(res.Confirmation.User);
 
-                    res.IsSuccess = await _db_context.SaveChangesAsync() > 0;
+                    res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
                     if (res.IsSuccess)
                     {
@@ -79,12 +77,12 @@ namespace SrvMetaApp.Repositories
                 case ConfirmationsTypesEnum.RestoreUser:
 
                     res.Confirmation.ConfirmetAt = DateTime.Now;
-                    _db_context.Update(res.Confirmation);
+                    await _confirmations_dt.UpdateAsync(res.Confirmation, false);
 
                     string? new_pass = GlobalUtils.CreatePassword(9);
                     res.Confirmation.User.PasswordHash = GlobalUtils.CalculateHashString(new_pass);
-                    _db_context.Update(res.Confirmation.User);
-                    res.IsSuccess = await _db_context.SaveChangesAsync() > 0;
+                    await _users_dt.UpdateAsync(res.Confirmation.User);
+                    res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
                     try
                     {
@@ -109,7 +107,7 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
-        public async Task<ConfirmationRequestResultModel> GetConfirmation(string confirm_id)
+        public async Task<ConfirmationRequestResultModel> GetConfirmation(string confirm_id, bool include_user_data = true)
         {
             ConfirmationRequestResultModel res = new ConfirmationRequestResultModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
             if (!res.IsSuccess)
@@ -117,10 +115,10 @@ namespace SrvMetaApp.Repositories
                 res.Message = "токен подтверждения меет не корректный формат";
                 return res;
             }
-            _db_context.Confirmations.RemoveRange(_db_context.Confirmations.Where(x => x.Deadline > DateTime.Now.AddDays(_config.Value.UserManageConfig.ConfirmHistoryDays)));
-            await _db_context.SaveChangesAsync();
 
-            res.Confirmation = await _db_context.Confirmations.Include(x => x.User).FirstOrDefaultAsync(x => x.ConfirmetAt == null && x.Guid == confirm_id && x.Deadline >= DateTime.Now);
+            await _confirmations_dt.RemoveOutdatedRowsAsync();
+
+            res.Confirmation = await _confirmations_dt.FirstOrDefaultActualAsync(confirm_id, include_user_data);
 
             res.IsSuccess = res.Confirmation is not null;
             if (!res.IsSuccess)

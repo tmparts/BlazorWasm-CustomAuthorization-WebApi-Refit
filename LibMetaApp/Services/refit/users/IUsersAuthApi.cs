@@ -7,6 +7,9 @@ using Refit;
 
 namespace LibMetaApp.Services
 {
+    /// <summary>
+    /// Refit коннектор к API/UsersAuthorization
+    /// </summary>
     [Headers("Content-Type: application/json")]
     public interface IUsersAuthApi
     {

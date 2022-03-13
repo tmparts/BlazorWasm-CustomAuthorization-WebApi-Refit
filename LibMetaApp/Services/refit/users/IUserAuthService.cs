@@ -7,6 +7,9 @@ using Refit;
 
 namespace LibMetaApp.Services
 {
+    /// <summary>
+    /// Регистрация/Авторизация/Вход/Выход пользователя и т.п.
+    /// </summary>
     public interface IUserAuthService
     {
         ApiResponse<SessionReadResultModel> GetUserSession();

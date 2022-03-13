@@ -9,7 +9,7 @@ using LibMetaApp;
 
 namespace SrvMetaApp
 {
-    public class MetaAppContextDB : DbContext
+    public class MetaAppSqliteContext : DbContext
     {
         private DatabaseConfigModel _config;
         private static bool IsEnsureCreated = false;
@@ -37,7 +37,7 @@ namespace SrvMetaApp
             }
         }
 
-        public MetaAppContextDB(IOptions<ServerConfigModel> set_config)
+        public MetaAppSqliteContext(IOptions<ServerConfigModel> set_config)
         {
             //Environment.SpecialFolder spec_folder = Environment.SpecialFolder.LocalApplicationData;
             string? spec_path = AppDomain.CurrentDomain.BaseDirectory;

@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SrvMetaApp\SrvMetaApp.csproj" />
+    <ProjectReference Include="..\SrvMetaApp\SrvMetaLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

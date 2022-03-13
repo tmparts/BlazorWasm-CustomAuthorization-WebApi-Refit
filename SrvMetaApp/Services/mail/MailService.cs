@@ -17,15 +17,13 @@ namespace SrvMetaApp.Repositories.mail
         readonly ILogger<MailService> _logger;
         readonly IOptions<ServerConfigModel> _config;
         readonly RedisUtil _redis;
-        readonly MetaAppContextDB _db_context;
 
-        public MailService(IHttpContextAccessor set_http_context, ILogger<MailService> set_logger, IOptions<ServerConfigModel> set_config, RedisUtil set_redis, MetaAppContextDB set_db_context)
+        public MailService(IHttpContextAccessor set_http_context, ILogger<MailService> set_logger, IOptions<ServerConfigModel> set_config, RedisUtil set_redis)
         {
             _http_context = set_http_context;
             _logger = set_logger;
             _config = set_config;
             _redis = set_redis;
-            _db_context = set_db_context;
         }
 
         public async Task<bool> SendEmailRestoreUser(ConfirmationModelDb confirm_db)
@@ -81,7 +79,7 @@ namespace SrvMetaApp.Repositories.mail
             using SmtpClient? client = new SmtpClient();
             await client.ConnectAsync(_config.Value.SmtpConfig.Host, _config.Value.SmtpConfig.Port, _config.Value.SmtpConfig.UseSsl);
             await client.AuthenticateAsync(_config.Value.SmtpConfig.Login, _config.Value.SmtpConfig.Password);
-            var res = await client.SendAsync(emailMessage);
+            string? res = await client.SendAsync(emailMessage);
 
             await client.DisconnectAsync(true);
         }
