@@ -10,8 +10,8 @@
 
 @inject CustomAuthStateProvider authState
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ISessionLocalStorage SessionLocalStorage
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject IClientSession SessionLocalStorage
+@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
 @inject SessionMarkerLiteModel SessionMarker
 @inject ILogger<UserRegistrationForm> Logger
 @inject ClientConfigModel Config
@@ -37,12 +37,12 @@
         <div class="mb-3">
             <label class="form-label" for="email">Email</label>
             <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_registration_obj.Email" />
-            <div class="form-text" id="emailHelp">Enter your email</div>
+            <div class="form-text" id="emailHelp">Укажите свой Email. Мы никогда не будем делиться вашей электронной почтой с кем-либо еще.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="name">Public name</label>
             <InputText type="name" class="form-control" id="name" aria-describedby="loginName" @bind-Value="user_registration_obj.PublicName" />
-            <div class="form-text" id="loginName">Enter your public Name</div>
+            <div class="form-text" id="loginName">Ваше публичное имя</div>
         </div>
         <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
 
@@ -74,7 +74,7 @@
 </EditForm>
 @code {
     private UserRegistrationModel user_registration_obj = new();
-    private AuthUserResultModel? user_registration_result = null;
+    private AuthUserResponseModel? user_registration_result = null;
 
     public override void OnReCaptchaExpired() { user_registration_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
     public override void OnReCaptchaSuccess(string response_code) { user_registration_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
@@ -87,7 +87,7 @@
 
         try
         {
-            ApiResponse<AuthUserResultModel> rest = await UsersAuthService.RegistrationNewUser(user_registration_obj);
+            ApiResponse<AuthUserResponseModel> rest = await UsersAuthService.RegistrationNewUser(user_registration_obj);
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");

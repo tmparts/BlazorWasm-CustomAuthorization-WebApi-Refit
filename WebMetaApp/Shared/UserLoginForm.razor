@@ -7,8 +7,8 @@
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject ILogger<UserLoginForm> Logger
-@inject ISessionLocalStorage SessionLocalStorage
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject IClientSession SessionLocalStorage
+@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
 
@@ -58,7 +58,7 @@
 </EditForm>
 @code {
     private UserAuthorizationModel user_auth_obj = new();
-    private AuthUserResultModel? user_auth_result = null;
+    private AuthUserResponseModel? user_auth_result = null;
 
     public override void OnReCaptchaExpired() { user_auth_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
     public override void OnReCaptchaSuccess(string response_code) { user_auth_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
@@ -70,7 +70,7 @@
         await SessionLocalStorage.RemoveSessionAsync();
         try
         {
-            ApiResponse<AuthUserResultModel> rest = await UsersAuthService.LoginUser(user_auth_obj);
+            ApiResponse<AuthUserResponseModel> rest = await UsersAuthService.LoginUser(user_auth_obj);
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");

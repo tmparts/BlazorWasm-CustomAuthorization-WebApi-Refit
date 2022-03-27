@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LibMetaApp.Models
 {
-    public class ResultRequestModel
+    public class ResponseBaseModel
     {
         [JsonProperty("isSuccess")]
         public bool IsSuccess { get; set; }

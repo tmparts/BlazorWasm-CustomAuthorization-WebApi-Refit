@@ -12,17 +12,17 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// Прочитать текущую сессию пользователя
         /// </summary>
-        public SessionReadResultModel ReadMainSession();
+        public SessionReadResponseModel ReadMainSession();
 
         /// <summary>
         /// Войти в учётную запись пользователя
         /// </summary>
-        public Task<AuthUserResultModel> UserLoginAsync(UserAuthorizationModel user, ModelStateDictionary model_state);
+        public Task<AuthUserResponseModel> UserLoginAsync(UserAuthorizationModel user, ModelStateDictionary model_state);
 
         /// <summary>
         /// Выйти из текущей сессии пользователя
         /// </summary>
-        public Task<ResultRequestModel> LogOutAsync();
+        public Task<ResponseBaseModel> LogOutAsync();
 
         /// <summary>
         /// Найти/прочитать сессию ользователя
@@ -37,12 +37,12 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// Регистрация нового пароля
         /// </summary>
-        public Task<AuthUserResultModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state);
+        public Task<AuthUserResponseModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state);
 
         /// <summary>
         /// Запрос восстановления доступа к учётной записи
         /// </summary>
-        public Task<ResultRequestModel> RestoreUser(UserRestoreModel user);
+        public Task<ResponseBaseModel> RestoreUser(UserRestoreModel user);
 
     }
 }

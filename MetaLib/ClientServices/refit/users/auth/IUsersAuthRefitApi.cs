@@ -11,23 +11,23 @@ namespace LibMetaApp.Services
     /// Refit коннектор к API/UsersAuthorization
     /// </summary>
     [Headers("Content-Type: application/json")]
-    public interface IUsersAuthApi
+    public interface IUsersAuthRefitApi
     {
         [Get("/api/UsersAuthorization")]
-        ApiResponse<SessionReadResultModel> GetUserSession();
+        ApiResponse<SessionReadResponseModel> GetUserSession();
 
         [Post("/api/UsersAuthorization")]
-        Task<ApiResponse<AuthUserResultModel>> RegistrationNewUser(UserRegistrationModel user);
+        Task<ApiResponse<AuthUserResponseModel>> RegistrationNewUser(UserRegistrationModel user);
 
         [Put("/api/UsersAuthorization")]
-        Task<ApiResponse<AuthUserResultModel>> LoginUser(UserAuthorizationModel user);
+        Task<ApiResponse<AuthUserResponseModel>> LoginUser(UserAuthorizationModel user);
 
         [Delete("/api/UsersAuthorization")]
-        Task<ApiResponse<ResultRequestModel>> LogOutUser();
+        Task<ApiResponse<ResponseBaseModel>> LogOutUser();
 
 
         [Patch("/api/UsersAuthorization")]
-        Task<ApiResponse<ResultRequestModel>> RestoreUser(UserRestoreModel user);
+        Task<ApiResponse<ResponseBaseModel>> RestoreUser(UserRestoreModel user);
 
 #if DEBUG
         [Options("/api/UsersAuthorization")]

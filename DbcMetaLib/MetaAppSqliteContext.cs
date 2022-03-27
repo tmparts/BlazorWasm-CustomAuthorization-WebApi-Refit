@@ -39,7 +39,6 @@ namespace SrvMetaApp
 
         public MetaAppSqliteContext(IOptions<ServerConfigModel> set_config)
         {
-            //Environment.SpecialFolder spec_folder = Environment.SpecialFolder.LocalApplicationData;
             string? spec_path = AppDomain.CurrentDomain.BaseDirectory;
 
             _config = set_config.Value.DatabaseConfig;
@@ -84,7 +83,9 @@ namespace SrvMetaApp
         public DbSet<UserModelDB> Users { get; set; }
 
         public DbSet<UserGroupModelDB> GroupsUsers { get; set; }
+        public DbSet<UserToGroupLinkModelDb> UsersToGroupsLinks { get; set; }
 
         public DbSet<ProjectModelDB> Projects { get; set; }
+        public DbSet<UserToProjectLinkModelDb> UsersToProjectsLinks { get; set; }
     }
 }

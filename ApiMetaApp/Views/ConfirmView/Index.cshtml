@@ -2,7 +2,7 @@
 @using LibMetaApp.Models
 @using LibMetaApp.Models.enums
 
-@model ConfirmationRequestResultModel
+@model ConfirmationResponseModel
 
 @{
     if (!Model.IsSuccess)
@@ -34,7 +34,7 @@
             <div class="mb-3 row">
                 <label for="confirm_id" class="col-sm-2 col-form-label">Токен:</label>
                 <div class="col-sm-10">
-                    <input type="text" readonly class="form-control-plaintext" id="confirm_id" name="confirm_id" value="@Model.Confirmation.Guid">
+                    <input type="text" readonly class="form-control-plaintext" id="confirm_id" name="confirm_id" value="@Model.Confirmation.GuidConfirmation">
                 </div>
             </div>
             <p></p>

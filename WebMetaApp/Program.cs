@@ -21,7 +21,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
-builder.Services.AddScoped<ISessionLocalStorage, SessionLocalStorage>();
+builder.Services.AddScoped<IClientSession, ClientSession>();
 
 builder.Services.AddBlazoredLocalStorage();
 
@@ -39,8 +39,12 @@ http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
     NoCache = true
 };
 
-// ClientConfig
 HttpResponseMessage? response = await http.GetAsync("clientconfig.json");
+string json_raw;
+#if DEBUG
+json_raw = await response.Content.ReadAsStringAsync();
+#endif
+
 Stream? stream = await response.Content.ReadAsStreamAsync();
 IConfigurationRoot? config = new ConfigurationBuilder()
                 .AddJsonStream(stream)
@@ -50,7 +54,7 @@ config.Bind(conf);
 
 http = new HttpClient()
 {
-    BaseAddress = new Uri(conf.ApiConfig.ToString())
+    BaseAddress = conf.ApiConfig.Url
 };
 http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 {
@@ -59,6 +63,11 @@ http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 
 response = await http.GetAsync("api/ClientConfig");
 stream = await response.Content.ReadAsStreamAsync();
+
+#if DEBUG
+json_raw = await response.Content.ReadAsStringAsync();
+#endif
+
 IConfigurationRoot? remote_config = new ConfigurationBuilder()
                 .AddJsonStream(stream)
                 .Build();
@@ -74,30 +83,47 @@ builder.Services.AddScoped(sp => http);
 
 #endregion
 
-builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+TimeSpan RefitHandlerLifetime = TimeSpan.FromMinutes(2);
+if (remote_conf.RefitHandlerLifetimeMinutes > 0)
+    RefitHandlerLifetime = TimeSpan.FromMinutes(remote_conf.RefitHandlerLifetimeMinutes);
 
-builder.Services.AddRefitClient<IUsersAuthApi>()
-        .ConfigureHttpClient(c => c.BaseAddress = new Uri($"{conf.ApiConfig.HttpSheme}://{conf.ApiConfig.Host}:{conf.ApiConfig.Port}/"))
+builder.Services.AddScoped<IUserAuthRefitService, UserAuthRefitService>();
+
+builder.Services.AddRefitClient<IUsersAuthRefitApi>()
+        .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
         .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
-        .SetHandlerLifetime(TimeSpan.FromMinutes(2));
+        .SetHandlerLifetime(RefitHandlerLifetime);
+
+builder.Services.AddRefitClient<IUsersProfileRefitApi>()
+        .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
+        .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
+        .SetHandlerLifetime(RefitHandlerLifetime);
 
 builder.Services.InitAccessMinLevelHandler();
 
-//builder.Logging.SetMinimumLevel(LogLevel.Trace);
-//builder.Logging.AddProvider(new CustomLoggingProvider());
-
 WebAssemblyHost WebHost = builder.Build();
 
-ISessionLocalStorage SessionLocalStorage = WebHost.Services.GetService<ISessionLocalStorage>();
+IClientSession SessionLocalStorage = WebHost.Services.GetService<IClientSession>();
 SessionMarkerLiteModel set_marker = await SessionLocalStorage.ReadSessionAsync();
-//marker.Reload(set_marker);
-
 http.DefaultRequestHeaders.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, set_marker.Token);
-response = await http.GetAsync("api/UsersAuthorization");
-string current_session_raw = await response.Content.ReadAsStringAsync();
-SessionReadResultModel? session_token_online_object = JsonConvert.DeserializeObject<SessionReadResultModel>(current_session_raw);
-if (session_token_online_object.SessionMarker != null)
-    marker.Reload(session_token_online_object.SessionMarker);
+
+response = await http.GetAsync("api/UsersProfiles/0");
+json_raw = await response.Content.ReadAsStringAsync();
+GetUserProfileResponseModel check_session = JsonConvert.DeserializeObject<GetUserProfileResponseModel>(json_raw);
+if (check_session?.IsSuccess != true)
+{
+    await SessionLocalStorage.RemoveSessionAsync();
+    set_marker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+    await SessionLocalStorage.SaveSessionAsync(set_marker);
+}
+else
+{
+    response = await http.GetAsync("api/UsersAuthorization");
+    json_raw = await response.Content.ReadAsStringAsync();
+    SessionReadResponseModel? session_token_online_object = JsonConvert.DeserializeObject<SessionReadResponseModel>(json_raw);
+    if (session_token_online_object.SessionMarker != null)
+        marker.Reload(session_token_online_object.SessionMarker);
+}
 http.DefaultRequestHeaders.Clear();
 
 response.Dispose();

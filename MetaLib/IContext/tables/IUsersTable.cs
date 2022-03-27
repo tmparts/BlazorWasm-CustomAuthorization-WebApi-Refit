@@ -4,7 +4,7 @@
 
 using DbcMetaLib.Confirmations;
 using LibMetaApp.Models;
-using MetaLib.Models.enums;
+using MetaLib.Models;
 
 namespace DbcMetaLib.Users
 {
@@ -22,5 +22,14 @@ namespace DbcMetaLib.Users
         public Task AddAsync(UserModelDB user, bool auto_save = true);
 
         public Task UpdateAsync(UserModelDB user, bool auto_save = true);
+
+        /// <summary>
+        /// Поиск профилей пользовтелей
+        /// </summary>
+        public Task<FindUsersProfilesResponseModel> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter);
+
+        public Task<GetUserProfileResponseModel> GetUserProfileAsync(int id);
+
+        public Task<GetUserProfileResponseModel> GetUserProfileAsync(string login);
     }
 }

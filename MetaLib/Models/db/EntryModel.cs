@@ -52,6 +52,9 @@ namespace LibMetaApp.Models
 
         public EntryCreatedModel(string name) : base(name) { }
 
+        /// <summary>
+        /// Дата/время создания
+        /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

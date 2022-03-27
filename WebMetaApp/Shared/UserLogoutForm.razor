@@ -5,9 +5,9 @@
 @inherits LibMetaApp.Services.BlazorBusyComponentBaseModel
 
 @inject CustomAuthStateProvider authState
-@inject ISessionLocalStorage SessionLocalStorage
+@inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
 @inject ILogger<UserLogoutForm> Logger
 
 <h3>Выход</h3>
@@ -25,31 +25,21 @@
     }
 </button>
 @code {
-    ResultRequestModel? res = null;
+    ResponseBaseModel? res = null;
 
     private async Task LogoutAsync()
     {
         IsBusyProgress = true;
-        try
+        res = await SessionLocalStorage.LogoutAsync();
+
+        if (!string.IsNullOrEmpty(res?.Message))
         {
-            ApiResponse<ResultRequestModel> rest = await UsersAuthService.LogOutUser();
-            await SessionLocalStorage.RemoveSessionAsync();
-            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                IsBusyProgress = false;
-                return;
-            }
-            res = rest?.Content;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, $"Error - {nameof(UsersAuthService.LogOutUser)}");            
+            if (res.IsSuccess)
+                Logger.LogInformation(res?.Message);
+            else
+                Logger.LogError(res?.Message);
         }
 
-        SessionMarker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
-        await SessionLocalStorage.SaveSessionAsync(SessionMarker);
-        
         authState.AuthenticationStateChanged();
         IsBusyProgress = false;
     }

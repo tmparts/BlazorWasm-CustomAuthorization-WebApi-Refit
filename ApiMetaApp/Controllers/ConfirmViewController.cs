@@ -20,7 +20,7 @@ namespace ApiMetaApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string confirm_id)
         {
-            ConfirmationRequestResultModel? res = await _users_confirmations_repo.GetConfirmation(confirm_id);
+            ConfirmationResponseModel? res = await _users_confirmations_repo.GetConfirmationAsync(confirm_id);
 
             return View(res);
         }
@@ -28,7 +28,7 @@ namespace ApiMetaApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmAction(string confirm_id)
         {
-            ResultRequestModel? res = await _users_confirmations_repo.ConfirmUserAction(confirm_id);
+            ResponseBaseModel? res = await _users_confirmations_repo.ConfirmActionAsync(confirm_id);
 
             return View(res);
         }

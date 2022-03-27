@@ -32,7 +32,7 @@ namespace SrvMetaApp.Repositories
         readonly RedisUtil _redis;
 
         readonly IUsersTable _users_dt;
-        readonly IConfirmationsTable _confirmations_dt;
+        readonly IUsersConfirmationsInterface _confirmations_repo;
 
         readonly IMailServiceInterface _mail;
 
@@ -40,7 +40,7 @@ namespace SrvMetaApp.Repositories
 
         public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
 
-        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IConfirmationsTable set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsInterface set_confirmations_repo, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _session_service = set_session_service;
@@ -48,13 +48,13 @@ namespace SrvMetaApp.Repositories
             _http_context = set_http_context;
             _config = set_config;
             _users_dt = set_users_dt;
-            _confirmations_dt = set_confirmations_dt;
+            _confirmations_repo = set_confirmations_repo;
             _mail = set_mail;
         }
 
-        public SessionReadResultModel ReadMainSession()
+        public SessionReadResponseModel ReadMainSession()
         {
-            SessionReadResultModel? res = new SessionReadResultModel() { IsSuccess = !string.IsNullOrEmpty(_session_service.SessionMarker.Login) };
+            SessionReadResponseModel? res = new SessionReadResponseModel() { IsSuccess = !string.IsNullOrEmpty(_session_service.SessionMarker.Login) };
 
             if (res.IsSuccess)
             {
@@ -64,11 +64,11 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
-        public async Task<ResultRequestModel> LogOutAsync()
+        public async Task<ResponseBaseModel> LogOutAsync()
         {
             if (_http_context?.HttpContext is null)
             {
-                return new ResultRequestModel() { IsSuccess = false, Message = "HttpContext is null" };
+                return new ResponseBaseModel() { IsSuccess = false, Message = "HttpContext is null" };
             }
 
             if (!string.IsNullOrEmpty(_session_service.SessionMarker?.Login))
@@ -82,7 +82,7 @@ namespace SrvMetaApp.Repositories
                 await _redis.RemoveKeyAsync(new RedisCompKeyExternModel(token, PrefRedisSessions));
             }
 
-            return new ResultRequestModel() { IsSuccess = true, Message = "Выход выполнен" };
+            return new ResponseBaseModel() { IsSuccess = true, Message = "Выход выполнен" };
         }
 
         public async Task<SessionMarkerModel> SessionFind(string token)
@@ -99,10 +99,10 @@ namespace SrvMetaApp.Repositories
             return (SessionMarkerModel)session_json_raw;
         }
 
-        public async Task<AuthUserResultModel> UserLoginAsync(UserAuthorizationModel user, ModelStateDictionary model_state)
+        public async Task<AuthUserResponseModel> UserLoginAsync(UserAuthorizationModel user, ModelStateDictionary model_state)
         {
             await LogOutAsync();
-            AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
+            AuthUserResponseModel res = new AuthUserResponseModel() { Message = string.Empty };
 
             if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
             {
@@ -144,19 +144,19 @@ namespace SrvMetaApp.Repositories
             }
 
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser, user.RememberMe ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
-            SessionReadResultModel? current_session = ReadMainSession();
+            SessionReadResponseModel? current_session = ReadMainSession();
 
             res.IsSuccess = true;
             res.SessionMarker = current_session.SessionMarker;
             return res;
         }
 
-        public async Task<ResultRequestModel> RestoreUser(UserRestoreModel user)
+        public async Task<ResponseBaseModel> RestoreUser(UserRestoreModel user)
         {
             user.Login = user.Login?.Trim() ?? string.Empty;
             user.Email = user.Email?.Trim() ?? string.Empty;
 
-            ResultRequestModel? res = new ResultRequestModel()
+            ResponseBaseModel? res = new ResponseBaseModel()
             {
                 IsSuccess = !string.IsNullOrWhiteSpace(user?.Login) || !string.IsNullOrWhiteSpace(user?.Email)
             };
@@ -205,38 +205,34 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            ConfirmationModelDb confirm_reset_password;
+            ResponseBaseModel confirm_reset_password;
             if (user_db_by_login is not null)
             {
-                confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_login.Login}']", user_db_by_login, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
-                await _confirmations_dt.AddAsync(confirm_reset_password);
-
-                if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
+                confirm_reset_password = await _confirmations_repo.CreateConfirmationAsync(user_db_by_login, ConfirmationsTypesEnum.RestoreUser);
+                if (!confirm_reset_password.IsSuccess)
                 {
-                    res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
+                    res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
                     _logger.LogError($"{res.Message} - user_db_by_login: {JsonConvert.SerializeObject(user_db_by_login)}");
                 }
             }
 
             if (user_db_by_email is not null)
             {
-                confirm_reset_password = new ConfirmationModelDb($"Сброс пароля [login:'{user_db_by_email.Login}']", user_db_by_email, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RestoreUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RestoreUserConfirmDeadlineMinutes));
-                await _confirmations_dt.AddAsync(confirm_reset_password);
-
-                if (!await _mail.SendEmailRestoreUser(confirm_reset_password))
+                confirm_reset_password = await _confirmations_repo.CreateConfirmationAsync(user_db_by_email, ConfirmationsTypesEnum.RestoreUser);
+                if (!confirm_reset_password.IsSuccess)
                 {
-                    res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
-                    _logger.LogError($"{res.Message} - user_db_by_email: { JsonConvert.SerializeObject(user_db_by_email)}");
+                    res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
+                    _logger.LogError($"{res.Message} - user_db_by_email: {JsonConvert.SerializeObject(user_db_by_email)}");
                 }
             }
 
             return res;
         }
 
-        public async Task<AuthUserResultModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state)
+        public async Task<AuthUserResponseModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state)
         {
             await LogOutAsync();
-            AuthUserResultModel res = new AuthUserResultModel() { Message = string.Empty };
+            AuthUserResponseModel res = new AuthUserResponseModel() { Message = string.Empty };
 
             if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None && string.IsNullOrWhiteSpace(new_user.ResponseReCAPTCHA))
             {
@@ -285,14 +281,16 @@ namespace SrvMetaApp.Repositories
             UserModelDB user_db = (UserModelDB)new_user;
             await _users_dt.AddAsync(user_db);
 
-            ConfirmationModelDb confirm_registration = new ConfirmationModelDb($"Регистрация пользователя [login:'{user_db.Login}']", user_db, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RegistrationUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RegistrationUserConfirmDeadlineMinutes)) { };
-            await _confirmations_dt.AddAsync(confirm_registration);
+            ResponseBaseModel confirm_user_registeration = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RegistrationUser);
 
-            await _mail.SendEmailRegistrationUser(confirm_registration);
+            //ConfirmationModelDb confirm_registration = new ConfirmationModelDb($"Регистрация пользователя [login:'{user_db.Login}']", user_db, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RegistrationUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RegistrationUserConfirmDeadlineMinutes)) { };
+            //await _confirmations_dt.AddAsync(confirm_registration);
+
+            //await _mail.SendEmailRegistrationUser(confirm_registration);
 
 
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
-            SessionReadResultModel? current_session = ReadMainSession();
+            SessionReadResponseModel? current_session = ReadMainSession();
 
             res.IsSuccess = true;
             res.SessionMarker = current_session.SessionMarker;
@@ -307,8 +305,9 @@ namespace SrvMetaApp.Repositories
             {
                 case ReCaptchaModesEnum.Version2:
                     res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
-
-                    if (!res.reCaptcha.success)
+                    if (res.reCaptcha is null)
+                        res.Message = "Сбой работы reCaptcha: res.reCaptcha is null. Попробуйте ещё раз. Если ошибка будет повторяться - сообщите нам об этом.";
+                    else if (!res.reCaptcha.success)
                     {
                         res.Message = string.Join(";", res.reCaptcha?.ErrorСodes ?? Array.Empty<string>());
                     }
@@ -333,8 +332,9 @@ namespace SrvMetaApp.Repositories
             }
             _session_service.GuidToken = Guid.NewGuid().ToString();
             _session_service.SessionMarker = new SessionMarkerModel(login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
-            await _session_service.AuthenticateAsync(login, access_level.ToString()/*, seconds_session*/);
+            await _session_service.AuthenticateAsync(login, access_level.ToString());
             await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(_session_service.GuidToken, _session_service.SessionMarker.ToString()), PrefRedisSessions, TimeSpan.FromSeconds(seconds_session));
+            await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(_session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}"), new RedisPrefixExternModel("sessions", login), TimeSpan.FromSeconds(seconds_session + 60));
         }
     }
 }

@@ -10,6 +10,7 @@ using LibMetaApp.Models.enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SrvMetaApp.Models;
 
 namespace SrvMetaApp.Repositories
@@ -36,9 +37,9 @@ namespace SrvMetaApp.Repositories
         /// Подтвердить операцию пользователя
         /// </summary>
         /// <param name="confirm_id">токен подтверждения</param>
-        public async Task<ResultRequestModel> ConfirmUserAction(string confirm_id)
+        public async Task<ResponseBaseModel> ConfirmActionAsync(string confirm_id)
         {
-            ConfirmationRequestResultModel? res = await GetConfirmation(confirm_id);
+            ConfirmationResponseModel? res = await GetConfirmationAsync(confirm_id);
 
             if (!res.IsSuccess)
             {
@@ -61,7 +62,7 @@ namespace SrvMetaApp.Repositories
 
                     res.Confirmation.User.AccessLevelUser = AccessLevelsUsersEnum.Confirmed;
                     res.Confirmation.User.ConfirmationType = ConfirmationUsersTypesEnum.Email;
-                    await _users_dt.UpdateAsync(res.Confirmation.User,false);
+                    await _users_dt.UpdateAsync(res.Confirmation.User, false);
 
                     res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
@@ -107,9 +108,9 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
-        public async Task<ConfirmationRequestResultModel> GetConfirmation(string confirm_id, bool include_user_data = true)
+        public async Task<ConfirmationResponseModel> GetConfirmationAsync(string confirm_id, bool include_user_data = true)
         {
-            ConfirmationRequestResultModel res = new ConfirmationRequestResultModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
+            ConfirmationResponseModel res = new ConfirmationResponseModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
             if (!res.IsSuccess)
             {
                 res.Message = "токен подтверждения меет не корректный формат";
@@ -125,6 +126,30 @@ namespace SrvMetaApp.Repositories
             {
                 res.Message = "токен подтверждения не найден или просрочен";
                 return res;
+            }
+
+            return res;
+        }
+
+        public async Task<ConfirmationResponseModel> CreateConfirmationAsync(UserModelDB user, ConfirmationsTypesEnum confirmation_type, bool send_email = true)
+        {
+            ConfirmationResponseModel res = new ConfirmationResponseModel() { IsSuccess = true, Message = string.Empty };
+            ConfirmationModelDb confirmation = new ConfirmationModelDb(user, confirmation_type);
+            UserManageConfigModel? user_config = _config.Value.UserManageConfig;
+
+            confirmation.Deadline = confirmation_type switch
+            {
+                ConfirmationsTypesEnum.RegistrationUser => DateTime.Now.AddMinutes(user_config.RegistrationUserConfirmDeadlineMinutes),
+                ConfirmationsTypesEnum.RestoreUser => DateTime.Now.AddMinutes(user_config.RestoreUserConfirmDeadlineMinutes),
+                _ => throw new ArgumentOutOfRangeException(nameof(confirmation_type), $"Тип подвтерждения действия '{confirmation_type}' не определён"),
+            };
+            await _confirmations_dt.AddAsync(confirmation);
+            res.Confirmation = confirmation;
+
+            if (send_email && !await _mail.SendUserConfirmationEmail(confirmation))
+            {
+                res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
+                _logger.LogError($"{res.Message} - user_db_by_email: { JsonConvert.SerializeObject(user)}");
             }
 
             return res;

@@ -4,8 +4,8 @@
 
 namespace LibMetaApp.Models
 {
-    public class SessionReadResultModel : ResultRequestModel
+    public class GetUserProfileResponseModel : FindResponseModel
     {
-        public SessionMarkerModel SessionMarker { get; set; }
+        public UserMediumModel User { get; set; }
     }
 }

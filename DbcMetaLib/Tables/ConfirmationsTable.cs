@@ -47,7 +47,7 @@ namespace DbcMetaSqliteLib.Confirmations
 
         public async Task<ConfirmationModelDb?> FirstOrDefaultActualAsync(string confirm_id, bool include_user_data = true)
         {
-            IQueryable<ConfirmationModelDb> q = _db_context.Confirmations.Where(x => x.ConfirmetAt == null && x.Guid == confirm_id && x.Deadline >= DateTime.Now);
+            IQueryable<ConfirmationModelDb> q = _db_context.Confirmations.Where(x => x.ConfirmetAt == null && x.GuidConfirmation == confirm_id && x.Deadline >= DateTime.Now);
 #if DEBUG
             var v = q.ToArray();
 #endif

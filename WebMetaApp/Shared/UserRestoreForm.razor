@@ -8,9 +8,9 @@
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
-@inject ISessionLocalStorage SessionLocalStorage
+@inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject LibMetaApp.Services.IUsersAuthApi UsersAuthService
+@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
 @inject ILogger<UserRestoreForm> Logger
 @inject ClientConfigModel Config
 
@@ -77,7 +77,7 @@ else
 }
 @code {
     private UserRestoreModel user_restore_obj = new();
-    ResultRequestModel? user_restore_result = null;
+    ResponseBaseModel? user_restore_result = null;
 
     public override void OnReCaptchaExpired() { user_restore_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
     public override void OnReCaptchaSuccess(string response_code) { user_restore_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
@@ -90,7 +90,7 @@ else
 
         try
         {
-            ApiResponse<ResultRequestModel>? rest = await UsersAuthService.RestoreUser(user_restore_obj);
+            ApiResponse<ResponseBaseModel>? rest = await UsersAuthService.RestoreUser(user_restore_obj);
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");

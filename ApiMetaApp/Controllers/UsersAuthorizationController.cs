@@ -23,36 +23,36 @@ namespace ApiMetaApp.Controllers
 
         [HttpGet]
         [SwaggerOperation(Summary = "Прочитать информацию о текущей сессии")]
-        public SessionReadResultModel Get([FromQuery] string? ReturnUrl)
+        public SessionReadResponseModel Get([FromQuery] string? ReturnUrl)
         {
             return _users_repo.ReadMainSession();
         }
 
         [HttpPost]
         [SwaggerOperation(Summary = "Регистрация нового пользователя")]
-        public async Task<AuthUserResultModel> Post([FromBody] UserRegistrationModel user)
+        public async Task<AuthUserResponseModel> Post([FromBody] UserRegistrationModel user)
         {
             return await _users_repo.UserRegisterationAsync(user, ModelState);
         }
 
         [SwaggerOperation(Summary = "Авторизация пользователя")]
         [HttpPut]
-        public async Task<AuthUserResultModel> Put([FromBody] UserAuthorizationModel user)
+        public async Task<AuthUserResponseModel> Put([FromBody] UserAuthorizationModel user)
         {
             return await _users_repo.UserLoginAsync(user, ModelState);
         }
 
         [SwaggerOperation(Summary = "Запрос восстановления доступа к учётной записи")]
         [HttpPatch]
-        public async Task<ResultRequestModel> Patch([FromBody] UserRestoreModel user)
+        public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel user)
         {
             return await _users_repo.RestoreUser(user);
         }
 
         [SwaggerOperation(Summary = "Выход из текущей сессии")]
-        [Authorize]
+        //[Authorize]
         [HttpDelete]
-        public async Task<ResultRequestModel> DeleteAsync()
+        public async Task<ResponseBaseModel> DeleteAsync()
         {
             return await _users_repo.LogOutAsync();
         }

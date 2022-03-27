@@ -4,7 +4,7 @@
 
 namespace LibMetaApp.Models
 {
-    public class ConfirmationRequestResultModel : ResultRequestModel
+    public class ConfirmationResponseModel : ResponseBaseModel
     {
         public ConfirmationModelDb? Confirmation { get; set; }
     }

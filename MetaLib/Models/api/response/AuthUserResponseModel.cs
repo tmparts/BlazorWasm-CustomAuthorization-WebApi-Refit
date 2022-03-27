@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace LibMetaApp.Models
 {
-    public class AuthUserResultModel : ResultRequestModel
+    public class AuthUserResponseModel : ResponseBaseModel
     {
         [JsonProperty("sessionMarker")]
         public SessionMarkerLiteModel SessionMarker { get; set; }

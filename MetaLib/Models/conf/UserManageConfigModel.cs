@@ -7,7 +7,7 @@ namespace LibMetaApp.Models
     /// <summary>
     /// Настройки пользователей системы
     /// </summary>
-    public class UserManageModel
+    public class UserManageConfigModel
     {
         /// <summary>
         /// Срок жизни токена подтверждение регистрации (в минутах).

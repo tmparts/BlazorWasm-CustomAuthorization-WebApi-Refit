@@ -10,17 +10,17 @@ namespace LibMetaApp.Services
     /// <summary>
     /// Регистрация/Авторизация/Вход/Выход пользователя и т.п.
     /// </summary>
-    public interface IUserAuthService
+    public interface IUserAuthRefitService
     {
-        ApiResponse<SessionReadResultModel> GetUserSession();
+        ApiResponse<SessionReadResponseModel> GetUserSession();
 
-        Task<ApiResponse<AuthUserResultModel>> RegistrationNewUser(UserRegistrationModel user);
+        Task<ApiResponse<AuthUserResponseModel>> RegistrationNewUser(UserRegistrationModel user);
 
-        Task<ApiResponse<AuthUserResultModel>> LoginUser(UserAuthorizationModel user);
+        Task<ApiResponse<AuthUserResponseModel>> LoginUser(UserAuthorizationModel user);
 
-        Task<ApiResponse<ResultRequestModel>> LogOutUser();
+        Task<ApiResponse<ResponseBaseModel>> LogOutUser();
 
-        Task<ApiResponse<ResultRequestModel>> RestoreUser(UserRestoreModel user);
+        Task<ApiResponse<ResponseBaseModel>> RestoreUser(UserRestoreModel user);
 
 #if DEBUG
         Task<ApiResponse<WeatherForecastModel[]>> DebugAccessCheck();
