@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class HostConfigModel
     {

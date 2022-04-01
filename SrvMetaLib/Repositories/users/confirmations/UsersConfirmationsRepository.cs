@@ -4,9 +4,9 @@
 
 using DbcMetaLib.Confirmations;
 using DbcMetaLib.Users;
-using LibMetaApp;
-using LibMetaApp.Models;
-using LibMetaApp.Models.enums;
+using MetaLib;
+using MetaLib.Models;
+using MetaLib.Models.enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,17 +18,17 @@ namespace SrvMetaApp.Repositories
     public class UsersConfirmationsRepository : IUsersConfirmationsInterface
     {
         readonly IOptions<ServerConfigModel> _config;
-        readonly IMailServiceInterface _mail;
+        readonly IMailServiceInterface _email;
         ILogger<UsersConfirmationsRepository> _logger;
 
         readonly IUsersTable _users_dt;
         readonly IConfirmationsTable _confirmations_dt;
 
-        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IConfirmationsTable set_confirmations_dt, IUsersTable set_users_dt, IMailServiceInterface set_mail, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersConfirmationsRepository(ILogger<UsersConfirmationsRepository> set_logger, IConfirmationsTable set_confirmations_dt, IUsersTable set_users_dt, IMailServiceInterface set_email, IOptions<ServerConfigModel> set_config, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _config = set_config;
-            _mail = set_mail;
+            _email = set_email;
             _users_dt = set_users_dt;
             _confirmations_dt = set_confirmations_dt;
         }
@@ -74,6 +74,9 @@ namespace SrvMetaApp.Repositories
                     {
                         res.Message = "Ошибка подтверждения регистрации";
                     }
+
+                    await _email.SendEmailAsync(res.Confirmation.User.Email, $"Подтверждение регистрации '{_config.Value.ClientConfig.Host}'", res.Message, MimeKit.Text.TextFormat.Plain);
+
                     break;
                 case ConfirmationsTypesEnum.RestoreUser:
 
@@ -87,7 +90,7 @@ namespace SrvMetaApp.Repositories
 
                     try
                     {
-                        await _mail.SendEmailAsync(res.Confirmation.User.Email, "Новый пароль - IQ-S.pro", $"Вам установлен новый пароль: {new_pass}", MimeKit.Text.TextFormat.Html);
+                        await _email.SendEmailAsync(res.Confirmation.User.Email, $"Новый пароль - {_config.Value.ClientConfig.Host}", $"Вам установлен новый пароль: {new_pass}", MimeKit.Text.TextFormat.Html);
                     }
                     catch
                     {
@@ -146,7 +149,7 @@ namespace SrvMetaApp.Repositories
             await _confirmations_dt.AddAsync(confirmation);
             res.Confirmation = confirmation;
 
-            if (send_email && !await _mail.SendUserConfirmationEmail(confirmation))
+            if (send_email && !await _email.SendUserConfirmationEmail(confirmation))
             {
                 res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
                 _logger.LogError($"{res.Message} - user_db_by_email: { JsonConvert.SerializeObject(user)}");

@@ -2,9 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models.enums;
+using MetaLib.Models.enums;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class ReCaptchaConfigClientModel
     {

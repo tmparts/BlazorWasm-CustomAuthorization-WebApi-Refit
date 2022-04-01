@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace LibMetaApp.Services
+namespace MetaLib.Services
 {
     public abstract class BlazorReCaptchaComponentBaseModel : BlazorBusyComponentBaseModel
     {

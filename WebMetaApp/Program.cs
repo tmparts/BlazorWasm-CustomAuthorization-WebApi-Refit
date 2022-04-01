@@ -3,9 +3,9 @@
 ////////////////////////////////////////////////
 
 using Blazored.LocalStorage;
-using LibMetaApp;
-using LibMetaApp.Models;
-using LibMetaApp.Services;
+using MetaLib;
+using MetaLib.Models;
+using MetaLib.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

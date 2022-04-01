@@ -2,10 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 using Refit;
 
-namespace LibMetaApp.Services
+namespace MetaLib.Services
 {
     /// <summary>
     /// Регистрация/Авторизация/Вход/Выход пользователя и т.п.

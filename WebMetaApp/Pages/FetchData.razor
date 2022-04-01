@@ -1,13 +1,13 @@
 ﻿@page "/fetchdata"
 @using Microsoft.AspNetCore.Authorization
-@using LibMetaApp.Models
+@using MetaLib.Models
 @inject HttpClient Http
-@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
+@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
 @inject ILogger<FetchData> Logger
 
-@inherits LibMetaApp.Services.BlazorBusyComponentBaseModel
+@inherits MetaLib.Services.BlazorBusyComponentBaseModel
 
-@attribute [Authorize(Policy = "AccessMinLevelAuth")]
+@attribute [Authorize(Policy = "AccessMinLevelTrusted")]
 
 <PageTitle>Weather forecast</PageTitle>
 

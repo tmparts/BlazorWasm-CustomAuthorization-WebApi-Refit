@@ -4,7 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     [Index(nameof(Email), IsUnique = true)]
     [Index(nameof(Login), IsUnique = true)]

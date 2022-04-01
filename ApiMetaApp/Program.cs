@@ -8,12 +8,12 @@ using NLog.Web;
 using ApiMetaApp;
 using SrvMetaApp.Repositories;
 using SrvMetaApp;
-using LibMetaApp.Models;
+using MetaLib.Models;
 using SrvMetaApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Net;
-using LibMetaApp;
+using MetaLib;
 using SrvMetaApp.Repositories.mail;
 using DbcMetaLib.Confirmations;
 using DbcMetaSqliteLib.Confirmations;
@@ -23,6 +23,7 @@ using DbcMetaSqliteLib.UsersGroups;
 using DbcMetaLib.UsersGroups;
 using DbcMetaLib.Projects;
 using DbcMetaSqliteLib.Projects;
+using MetaLib.MemCash;
 
 Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 logger.Info("init main");
@@ -71,8 +72,8 @@ builder.WebHost.UseKestrel(options =>
     }
 });
 
-builder.Services.AddScoped<SessionService>();
-builder.Services.AddScoped<RedisUtil>();
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<IMemoryCashe, RedisMemoryCasheService>();
 
 // Add services to the container.
 builder.Services.AddScoped<IUsersAuthenticateRepositoryInterface, UsersAuthenticateRepository>();

@@ -2,10 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models.enums;
+using MetaLib.Models.enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     /// <summary>
     /// Подтверждение намерений пользователя

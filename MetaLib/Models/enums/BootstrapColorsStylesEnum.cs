@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace LibMetaApp.Models.enums
+namespace MetaLib.Models.enums
 {
     public enum BootstrapColorsStylesEnum
     {

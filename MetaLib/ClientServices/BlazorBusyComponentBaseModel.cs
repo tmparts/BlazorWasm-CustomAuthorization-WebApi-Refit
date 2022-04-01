@@ -2,10 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models.enums;
+using MetaLib.Models.enums;
 using Microsoft.AspNetCore.Components;
 
-namespace LibMetaApp.Services
+namespace MetaLib.Services
 {
     public abstract class BlazorBusyComponentBaseModel : ComponentBase
     {

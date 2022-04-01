@@ -5,7 +5,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public abstract class IdModel
     {

@@ -3,12 +3,12 @@
 ////////////////////////////////////////////////
 
 using Blazored.LocalStorage;
-using LibMetaApp.Models;
-using LibMetaApp.Services;
+using MetaLib.Models;
+using MetaLib.Services;
 using Microsoft.Extensions.Logging;
 using Refit;
 
-namespace LibMetaApp
+namespace MetaLib
 {
     public class ClientSession : IClientSession
     {

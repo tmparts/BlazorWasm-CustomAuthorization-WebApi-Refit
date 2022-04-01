@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 using DbcMetaLib.Confirmations;
-using LibMetaApp.Models;
+using MetaLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

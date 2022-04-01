@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 using DbcMetaLib.UsersGroups;
-using LibMetaApp.Models;
+using MetaLib.Models;
 using Microsoft.Extensions.Logging;
 using SrvMetaApp;
 

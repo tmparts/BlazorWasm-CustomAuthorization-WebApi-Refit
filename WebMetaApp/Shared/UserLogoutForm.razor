@@ -1,13 +1,13 @@
-﻿@using LibMetaApp.Models
+﻿@using MetaLib.Models
 @using Refit
 @using Microsoft.Extensions.Logging
-@using LibMetaApp
-@inherits LibMetaApp.Services.BlazorBusyComponentBaseModel
+@using MetaLib
+@inherits MetaLib.Services.BlazorBusyComponentBaseModel
 
 @inject CustomAuthStateProvider authState
 @inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
+@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
 @inject ILogger<UserLogoutForm> Logger
 
 <h3>Выход</h3>

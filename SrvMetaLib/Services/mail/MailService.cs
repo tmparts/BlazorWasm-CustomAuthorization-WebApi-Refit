@@ -2,12 +2,13 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using MetaLib.MemCash;
 
 namespace SrvMetaApp.Repositories.mail
 {
@@ -16,14 +17,14 @@ namespace SrvMetaApp.Repositories.mail
         readonly IHttpContextAccessor _http_context;
         readonly ILogger<MailService> _logger;
         readonly IOptions<ServerConfigModel> _config;
-        readonly RedisUtil _redis;
+        readonly IMemoryCashe _mem_cashe;
 
-        public MailService(IHttpContextAccessor set_http_context, ILogger<MailService> set_logger, IOptions<ServerConfigModel> set_config, RedisUtil set_redis)
+        public MailService(IHttpContextAccessor set_http_context, ILogger<MailService> set_logger, IOptions<ServerConfigModel> set_config, IMemoryCashe set_mem_cashe)
         {
             _http_context = set_http_context;
             _logger = set_logger;
             _config = set_config;
-            _redis = set_redis;
+            _mem_cashe = set_mem_cashe;
         }
 
         public async Task<bool> SendUserConfirmationEmail(ConfirmationModelDb confirm_db)
@@ -32,12 +33,12 @@ namespace SrvMetaApp.Repositories.mail
 
             switch (confirm_db.ConfirmationType)
             {
-                case LibMetaApp.Models.enums.ConfirmationsTypesEnum.RegistrationUser:
+                case MetaLib.Models.enums.ConfirmationsTypesEnum.RegistrationUser:
                     subject = $"Подтверждение регистрации: {_config.Value.ClientConfig.Host}";
                     message = $"Доброго времени суток, {confirm_db.User.Name}. Вы зарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.GuidConfirmation}")}'>подтвердить</a>.";
 
                     break;
-                case LibMetaApp.Models.enums.ConfirmationsTypesEnum.RestoreUser:
+                case MetaLib.Models.enums.ConfirmationsTypesEnum.RestoreUser:
                     subject = $"Восстановление доступа к учётной записи. {_config.Value.ClientConfig.Host}";
                     message = $"Доброго времени суток, {confirm_db.User.Name}. Мы получили запрос на восстановление доступа к вашей учётной записи. Напоминаем вам, что ваш логин '{confirm_db.User.Login}'. Для сброса пароля перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.GuidConfirmation}")}'>создать новый пароль</a>.";
 

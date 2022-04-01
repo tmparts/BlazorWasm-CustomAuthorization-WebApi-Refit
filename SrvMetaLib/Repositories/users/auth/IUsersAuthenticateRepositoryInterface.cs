@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace SrvMetaApp.Repositories

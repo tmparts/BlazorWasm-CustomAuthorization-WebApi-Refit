@@ -4,7 +4,7 @@
 
 using Newtonsoft.Json;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class ResponseBaseModel
     {

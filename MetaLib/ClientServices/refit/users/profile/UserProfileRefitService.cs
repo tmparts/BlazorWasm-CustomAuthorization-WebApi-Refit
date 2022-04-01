@@ -2,11 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
 using MetaLib.Models;
 using Refit;
 
-namespace LibMetaApp.Services
+namespace MetaLib.Services
 {
     public class UserProfileRefitService : IUserProfileRefitService
     {

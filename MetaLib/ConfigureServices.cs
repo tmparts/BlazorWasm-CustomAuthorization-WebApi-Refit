@@ -2,12 +2,12 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using SrvMetaApp;
 
-namespace LibMetaApp
+namespace MetaLib
 {
     public static class ConfigureServices
     {

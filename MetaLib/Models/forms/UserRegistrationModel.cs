@@ -5,7 +5,7 @@
 using MetaLib;
 using System.ComponentModel.DataAnnotations;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class UserRegistrationModel : UserAuthorizationLiteModel
     {

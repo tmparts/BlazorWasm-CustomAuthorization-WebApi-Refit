@@ -2,8 +2,8 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
-using LibMetaApp.Models.enums;
+using MetaLib.Models;
+using MetaLib.Models.enums;
 
 namespace SrvMetaApp.Repositories
 {

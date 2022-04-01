@@ -4,7 +4,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class UserAuthorizationLiteModel
     {

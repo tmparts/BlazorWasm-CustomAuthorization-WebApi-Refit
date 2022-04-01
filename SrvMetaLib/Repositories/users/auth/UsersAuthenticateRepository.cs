@@ -2,17 +2,15 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using DbcMetaLib.Confirmations;
 using DbcMetaLib.Users;
-using LibMetaApp;
-using LibMetaApp.Models;
-using LibMetaApp.Models.enums;
+using MetaLib;
+using MetaLib.MemCash;
+using MetaLib.Models;
 using MetaLib.Models.enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -28,8 +26,8 @@ namespace SrvMetaApp.Repositories
         readonly IHttpContextAccessor? _http_context;
         readonly ILogger<UsersAuthenticateRepository> _logger;
         readonly IOptions<ServerConfigModel> _config;
-        readonly SessionService _session_service;
-        readonly RedisUtil _redis;
+        readonly ISessionService _session_service;
+        readonly IMemoryCashe _mem_cashe;
 
         readonly IUsersTable _users_dt;
         readonly IUsersConfirmationsInterface _confirmations_repo;
@@ -38,13 +36,13 @@ namespace SrvMetaApp.Repositories
 
         IPAddress? RemoteIpAddress => _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
 
-        public static readonly RedisPrefixExternModel PrefRedisSessions = new RedisPrefixExternModel("sessions", string.Empty);
+        public static readonly MemCashePrefixModel PrefRedisSessions = new MemCashePrefixModel("sessions", string.Empty);
 
-        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsInterface set_confirmations_repo, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, SessionService set_session_service, RedisUtil set_redisUtil, IHttpContextAccessor set_http_context)
+        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsInterface set_confirmations_repo, IUsersConfirmationsInterface set_user_confirmation, IMailServiceInterface set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, ISessionService set_session_service, IMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _session_service = set_session_service;
-            _redis = set_redisUtil;
+            _mem_cashe = set_mem_cashe;
             _http_context = set_http_context;
             _config = set_config;
             _users_dt = set_users_dt;
@@ -79,7 +77,7 @@ namespace SrvMetaApp.Repositories
             string token = _session_service.ReadTokenFromRequest().ToString();
             if (!string.IsNullOrEmpty(token) && token != Guid.Empty.ToString())
             {
-                await _redis.RemoveKeyAsync(new RedisCompKeyExternModel(token, PrefRedisSessions));
+                await _mem_cashe.RemoveKeyAsync(new MemCasheComplexKeyModel(token, PrefRedisSessions));
             }
 
             return new ResponseBaseModel() { IsSuccess = true, Message = "Выход выполнен" };
@@ -92,7 +90,7 @@ namespace SrvMetaApp.Repositories
                 throw new ArgumentNullException();
             }
 
-            string? session_json_raw = await _redis.ValueAsync(new RedisCompKeyExternModel(token, PrefRedisSessions));
+            string? session_json_raw = await _mem_cashe.GetStringValueAsync(new MemCasheComplexKeyModel(token, PrefRedisSessions));
 
             _logger.LogDebug(session_json_raw);
 
@@ -333,8 +331,8 @@ namespace SrvMetaApp.Repositories
             _session_service.GuidToken = Guid.NewGuid().ToString();
             _session_service.SessionMarker = new SessionMarkerModel(login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
             await _session_service.AuthenticateAsync(login, access_level.ToString());
-            await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(_session_service.GuidToken, _session_service.SessionMarker.ToString()), PrefRedisSessions, TimeSpan.FromSeconds(seconds_session));
-            await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(_session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}"), new RedisPrefixExternModel("sessions", login), TimeSpan.FromSeconds(seconds_session + 60));
+            await _mem_cashe.UpdateValueAsync(PrefRedisSessions, _session_service.GuidToken, _session_service.SessionMarker.ToString(), TimeSpan.FromSeconds(seconds_session));
+            await _mem_cashe.UpdateValueAsync(new MemCashePrefixModel("sessions", login), _session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}", TimeSpan.FromSeconds(seconds_session + 60));
         }
     }
 }

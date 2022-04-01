@@ -4,7 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     [Index(nameof(UserId))]
     [Index(nameof(GroupId))]

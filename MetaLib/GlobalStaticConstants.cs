@@ -27,15 +27,17 @@ public static class GlobalStaticConstants
     /// Имя заголовка для пердачи токена от клиента к серверу
     /// </summary>
     public const string SESSION_TOKEN_NAME = "token";
-    
+
     #region имена контроллеров и действий
 
+    public const string PROFILE_ACTION_NAME = "profile";
     public const string LOGOUT_ACTION_NAME = "logout";
     public const string LOGIN_ACTION_NAME = "login";
     public const string RESTORE_ACTION_NAME = "restore";
     public const string REGISTRATION_ACTION_NAME = "registration";
 
     public const string AUTHENTICATION_CONTROLLER_NAME = "authentication";
+    public const string USERS_CONTROLLER_NAME = "users";
 
     #endregion
 }

@@ -2,9 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 
-namespace LibMetaApp
+namespace MetaLib
 {
     /// <summary>
     /// Хранение сессии пользователя в Storage браузера

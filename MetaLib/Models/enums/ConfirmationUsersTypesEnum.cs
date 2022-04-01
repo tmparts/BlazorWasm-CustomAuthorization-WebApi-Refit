@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     /// <summary>
     /// Тип подтверждения учётной записи пользователя

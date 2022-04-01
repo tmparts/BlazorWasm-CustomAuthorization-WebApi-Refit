@@ -15,7 +15,7 @@ namespace ApiMetaApp
             _next = next;
         }
 
-        public async Task Invoke(HttpContext _http_context, SessionService _session, ILogger<PassageMiddleware> _logger)
+        public async Task Invoke(HttpContext _http_context, ISessionService _session, ILogger<PassageMiddleware> _logger)
         {
             //CultureInfo.CurrentCulture = GlobalUtils.RU;
             //CultureInfo.CurrentUICulture = GlobalUtils.RU;

@@ -1,19 +1,19 @@
-﻿@using LibMetaApp.Models
+﻿@using MetaLib.Models
 @using Refit
 @using Microsoft.Extensions.Logging
-@using LibMetaApp
-@using LibMetaApp.Services
-@using LibMetaApp.Models.enums
+@using MetaLib
+@using MetaLib.Services
+@using MetaLib.Models.enums
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject ILogger<UserLoginForm> Logger
 @inject IClientSession SessionLocalStorage
-@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
+@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
 
 <h3>Вход</h3>
-<EditForm Model="@user_auth_obj" OnValidSubmit="@HandleValidSubmit">
+<EditForm Model="@user_auth_obj" OnValidSubmit="@HandleValidSubmitAsync">
     <fieldset disabled="@IsBusyProgress">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -64,7 +64,7 @@
     public override void OnReCaptchaSuccess(string response_code) { user_auth_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
     public override void OnReCaptchaFailure(string response_code) { user_auth_obj.ResponseReCAPTCHA = string.Empty; Logger.LogError($"{nameof(OnReCaptchaFailure)}! response code: {response_code}"); }
 
-    private async Task HandleValidSubmit()
+    private async Task HandleValidSubmitAsync()
     {
         IsBusyProgress = true;
         await SessionLocalStorage.RemoveSessionAsync();

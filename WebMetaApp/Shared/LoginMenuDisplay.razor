@@ -1,11 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using LibMetaApp.Models
+@using MetaLib.Models
 @inject NavigationManager Navigation
 
 <AuthorizeView>
     <Authorized>
-       <a href="/users/profile/"> Hello, @context.User.Identity?.Name!</a>
+       <a href=@($"/{GlobalStaticConstants.USERS_CONTROLLER_NAME}/{GlobalStaticConstants.PROFILE_ACTION_NAME}/")> Hello, @context.User.Identity?.Name!</a>
         <button class="nav-link btn btn-link" @onclick="BeginLogout">Log out</button>
     </Authorized>
     <NotAuthorized>

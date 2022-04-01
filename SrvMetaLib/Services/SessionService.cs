@@ -2,8 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp;
-using LibMetaApp.Models;
+using MetaLib;
+using MetaLib.MemCash;
+using MetaLib.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -14,19 +15,19 @@ using System.Security.Claims;
 
 namespace SrvMetaApp.Models
 {
-    public class SessionService : SessionServiceLiteModel
+    public class SessionService : SessionServiceLiteModel, ISessionService
     {
         readonly IOptions<ServerConfigModel> _config;
         readonly IHttpContextAccessor _httpContext;
-        readonly RedisUtil _redis;
+        readonly IMemoryCashe _mem_cashe;
 
-        public SessionMarkerModel? SessionMarker { get; set; } = new SessionMarkerModel(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty, false);
+        public SessionMarkerModel SessionMarker { get; set; } = new SessionMarkerModel(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty, false);
 
-        public SessionService(IHttpContextAccessor set_http_context, IOptions<ServerConfigModel> set_config, RedisUtil set_redis)
+        public SessionService(IHttpContextAccessor set_http_context, IOptions<ServerConfigModel> set_config, IMemoryCashe set_mem_cashe)
         {
             _httpContext = set_http_context;
             _config = set_config;
-            _redis = set_redis;
+            _mem_cashe = set_mem_cashe;
         }
 
         public async Task InitSession()
@@ -46,7 +47,7 @@ namespace SrvMetaApp.Models
             }
             GuidToken = token.ToString();
 
-            string token_marker = await _redis.ValueAsync(new RedisCompKeyExternModel(GuidToken, UsersAuthenticateRepository.PrefRedisSessions));
+            string token_marker = await _mem_cashe.GetStringValueAsync(new MemCasheComplexKeyModel(GuidToken, UsersAuthenticateRepository.PrefRedisSessions));
 
             if (string.IsNullOrEmpty(token_marker))
             {
@@ -71,7 +72,7 @@ namespace SrvMetaApp.Models
                 if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated != true)
                 {
                     await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());
-                    await _redis.UpdateKeyAsync(new KeyValuePair<string, string>(SessionMarker.Token, SessionMarker.ToString()), UsersAuthenticateRepository.PrefRedisSessions, TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
+                    await _mem_cashe.UpdateValueAsync(UsersAuthenticateRepository.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
                 }
             }
         }

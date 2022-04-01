@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace LibMetaApp
+namespace MetaLib
 {
     public class SessionServiceLiteModel
     {

@@ -1,16 +1,16 @@
-﻿@using LibMetaApp.Models
+﻿@using MetaLib.Models
 @using Refit
 @using Microsoft.Extensions.Logging
-@using LibMetaApp
+@using MetaLib
 @using Microsoft.Extensions.Options
-@using LibMetaApp.Services
-@using LibMetaApp.Models.enums
+@using MetaLib.Services
+@using MetaLib.Models.enums
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
 @inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject LibMetaApp.Services.IUsersAuthRefitApi UsersAuthService
+@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
 @inject ILogger<UserRestoreForm> Logger
 @inject ClientConfigModel Config
 

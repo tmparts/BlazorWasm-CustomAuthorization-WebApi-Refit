@@ -1,17 +1,19 @@
 ﻿@page "/users/profile/{id:int?}"
-@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 
-@using LibMetaApp.Services
+@using MetaLib.Services
 @using Refit
-@using LibMetaApp.Models
-@using LibMetaApp
+@using MetaLib.Models
+@using MetaLib
 
+@inject NavigationManager MyNavigationManager
 @inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
-@inject LibMetaApp.Services.IUsersProfileRefitApi UsersProfileService
+@inject MetaLib.Services.IUsersProfileRefitApi UsersProfileService
 @inject ILogger<UserProfile> Logger
 @inherits BlazorBusyComponentBaseModel
+
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AccessMinLevelAuth")]
 
 @{
     if (IsBusyProgress == true)
@@ -24,54 +26,124 @@
     }
     else
     {
-        if (user_profile_result.ConfirmationType == ConfirmationUsersTypesEnum.None)
+        if (user_profile_result?.ConfirmationType == ConfirmationUsersTypesEnum.None)
         {
             <div class="alert alert-danger" role="alert">
                 <h4 class="alert-heading">Не подтверждено!</h4>
                 <p>Email вашей учётной записи не подвтерждён. Ваша учётная запись будет ограничена до тех пор, пока вы не подвтерджите свою электроную почту.</p>
                 <hr>
-                <p>После регистрации учётной записи - вам было отправлено предложение подвтердить её. Если вы не получали письма, можете <a href="#" @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
+                <p>После регистрации учётной записи - вам было отправлено предложение подвтердить её. Если вы не получали письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
             </div>
         }
-
-        <EditForm Model="@user_profile_result">
-            <fieldset>
-                <legend><h3>Профиль <sup># @user_profile_result.Id</sup></h3></legend>
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Email</label>
-                    <InputText type="email" class="form-control" id="exampleInputEmail1" @bind-Value="user_profile_result.Email" aria-describedby="emailHelp" readonly />
-                    <div id="emailHelp" class="form-text">Контактный Email. Не отображается публично.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleInputLogin" class="form-label">Login</label>
-                    <InputText class="form-control" id="exampleInputLogin" @bind-Value="user_profile_result.Login" aria-describedby="loginHelp" readonly />
-                    <div id="loginHelp" class="form-text">Login для входа. Не отображается публично.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleInputName" class="form-label">Имя</label>
-                    <InputText class="form-control" id="exampleInputName" @bind-Value="user_profile_result.Name" aria-describedby="nameHelp" readonly />
-                    <div id="nameHelp" class="form-text">Публичное имя. Как видят вас другие пользователи.</div>
-                </div>
-                <div class="input-group">
-                    <span class="input-group-text">Статус</span>
-                    <InputText class="form-control" id="exampleInputLevel" aria-label="Уровень доступа пользователя" title="Уровень доступа пользователя" @bind-Value="@AccessLevelUser" readonly />
-                    <InputText class="form-control" id="exampleConfirmationType" aria-label="Метод подтверждения статуса" title="Метод подтверждения статуса" @bind-Value="@ConfirmationType" readonly />
-                </div>
-            </fieldset>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1">
-            </div>
-
-
-        </EditForm>
+        <fieldset disabled="@IsBusyProgress">
+            <TabSet>
+                <Tab Title="Основные">
+                    <h4>Профиль <sup># @user_profile_result?.Id</sup></h4>
+                    <EditForm Model="@user_profile_result">
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Email</label>
+                            <InputText type="email" class="form-control" id="exampleInputEmail1" @bind-Value="user_profile_result.Email" aria-describedby="emailHelp" readonly />
+                            <div id="emailHelp" class="form-text">Контактный Email. Не отображается публично.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputLogin" class="form-label">Login</label>
+                            <InputText class="form-control" id="exampleInputLogin" @bind-Value="user_profile_result.Login" aria-describedby="loginHelp" readonly />
+                            <div id="loginHelp" class="form-text">Login для входа. Не отображается публично.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputName" class="form-label">Имя</label>
+                            <InputText class="form-control" id="exampleInputName" @bind-Value="user_profile_result.Name" aria-describedby="nameHelp" readonly />
+                            <div id="nameHelp" class="form-text">Публичное имя. Как видят вас другие пользователи.</div>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">Статус</span>
+                            <InputText class="form-control" id="exampleInputLevel" aria-label="Уровень доступа пользователя" title="@ConfirmationType" @bind-Value="@AccessLevelUser" readonly />
+                        </div>
+                    </EditForm>
+                </Tab>
+                <Tab Title="Пароль">
+                    <h4>Изменение пароля</h4>
+                    <EditForm Model="@change_password" OnValidSubmit="@HandleValidSubmitAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-3 row">
+                            <label for="inputPasswordCurrent" class="col-sm-1 col-form-label">Текущий</label>
+                            <div class="col-sm-10">
+                                <InputText @bind-Value="change_password.PasswordCurrent" type="password" class="form-control" id="inputPasswordCurrent"></InputText>
+                                <div id="inputPasswordCurrentHelp" class="form-text">Введите действующий пароль от учётной записи</div>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="inputPasswordNew" class="col-sm-1 col-form-label">Новый</label>
+                            <div class="col-sm-10">
+                                <InputText @bind-Value="change_password.PasswordNew" type="password" class="form-control" id="inputPasswordNew"></InputText>
+                                <div id="inputPasswordNewHelp" class="form-text">Введите новый пароль.</div>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="inputPasswordConfirm" class="col-sm-1 col-form-label">Повтор</label>
+                            <div class="col-sm-10">
+                                <InputText @bind-Value="change_password.PasswordConfirm" type="password" class="form-control" id="inputPasswordConfirm"></InputText>
+                                <div id="inputPasswordConfirmHelp" class="form-text">Подтверждение нового пароля.</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
+                            @{
+                                if (IsBusyProgress == true)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <text> Загрузка...</text>
+                                }
+                                else
+                                {
+                                    <text>Сохранить</text>
+                                }
+                            }
+                        </button>
+                    </EditForm>
+                </Tab>
+                <Tab Title="Сессии">
+                    <h4>Текущие/активные сессии пользователя</h4>
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">29.03.2022 12:34:40 || 127.0.0.1</div>
+                                <small>AD8EB63C52E94875878B5C7041EF912B</small>
+                                <span class="badge bg-danger rounded-pill">завершить</span>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">30.03.2022 20:22:54 || 127.0.0.1</div>
+                                <small>24CBA5EF130C4A088A1821480451DEA3</small>
+                                <span class="badge bg-danger rounded-pill">завершить</span>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">24.03.2022 14:10:02 || 127.0.0.1</div>
+                                <small>4F2839595FEC4994AB7C36452F8DD0E7</small>
+                                <span class="badge bg-secondary rounded-pill">текущая</span>
+                            </div>
+                        </li>
+                    </ol>
+                </Tab>
+            </TabSet>
+        </fieldset>
     }
 }
 @code {
     [Parameter] public int? id { get; set; }
     private UserLiteModel? user_profile_result = null;
+    private PasswordsPairModel change_password = new PasswordsPairModel();
+
     string AccessLevelUser;
     string ConfirmationType;
+
+    private async Task HandleValidSubmitAsync()
+    {
+
+    }
 
     private async Task RenewConfirmRegistration()
     {
@@ -110,8 +182,47 @@
                 return;
             }
             user_profile_result = result.User;
-            AccessLevelUser = $"Level: {user_profile_result.AccessLevelUser}";
-            ConfirmationType = $"Confirm: {user_profile_result.ConfirmationType}";
+
+            switch (user_profile_result.AccessLevelUser)
+            {
+                case AccessLevelsUsersEnum.Auth:
+                    AccessLevelUser = "Начальный";
+                    break;
+                case AccessLevelsUsersEnum.Confirmed:
+                    AccessLevelUser = "Подтверждён";
+                    break;
+                case AccessLevelsUsersEnum.Trusted:
+                    AccessLevelUser = "Проверенный";
+                    break;
+                case AccessLevelsUsersEnum.Manager:
+                    AccessLevelUser = "Менеджер";
+                    break;
+                case AccessLevelsUsersEnum.Admin:
+                    AccessLevelUser = "Администратор";
+                    break;
+                case AccessLevelsUsersEnum.ROOT:
+                    AccessLevelUser = "ROOT";
+                    break;
+                default:
+                    AccessLevelUser = "<ОШИБКА!>";
+                    break;
+            }
+            //AccessLevelUser = $"{user_profile_result.AccessLevelUser}";
+
+
+            switch (user_profile_result.ConfirmationType)
+            {
+                case ConfirmationUsersTypesEnum.None:
+                    ConfirmationType = "Учётная запись не подвтерждена. Ограниченый функуионал";
+                    break;
+                case ConfirmationUsersTypesEnum.Email:
+                    ConfirmationType = "Подтверждён по Email";
+                    break;
+                case ConfirmationUsersTypesEnum.Manual:
+                    ConfirmationType = "Подтверждён администраторм";
+                    break;
+            }
+            //ConfirmationType = $"{user_profile_result.ConfirmationType}";
         }
         catch (Exception ex)
         {

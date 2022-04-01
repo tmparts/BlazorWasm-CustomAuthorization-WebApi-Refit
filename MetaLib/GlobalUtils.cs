@@ -2,12 +2,12 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
+using MetaLib.Models;
 using System.Collections;
 using System.Globalization;
 using System.Text;
 
-namespace LibMetaApp
+namespace MetaLib
 {
     public static class GlobalUtils
     {

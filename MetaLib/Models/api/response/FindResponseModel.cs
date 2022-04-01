@@ -2,9 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using MetaLib.Models;
-
-namespace LibMetaApp.Models
+namespace MetaLib.Models
 {
     public class FindResponseModel : ResponseBaseModel
     {

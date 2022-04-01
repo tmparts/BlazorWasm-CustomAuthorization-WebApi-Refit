@@ -2,8 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using LibMetaApp.Models;
-
 namespace MetaLib.Models
 {
     public class FindUsersProfilesRequestModel : PaginationRequestModel
