@@ -10,7 +10,7 @@ using Refit;
 
 namespace MetaLib
 {
-    public class ClientSession : IClientSession
+    public class ClientSession : IClientSessionStorage
     {
         readonly ILocalStorageService _local_store;
         readonly ILogger<ClientSession> _logger;

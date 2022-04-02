@@ -21,7 +21,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
-builder.Services.AddScoped<IClientSession, ClientSession>();
+builder.Services.AddScoped<IClientSessionStorage, ClientSession>();
 
 builder.Services.AddBlazoredLocalStorage();
 
@@ -103,7 +103,7 @@ builder.Services.InitAccessMinLevelHandler();
 
 WebAssemblyHost WebHost = builder.Build();
 
-IClientSession SessionLocalStorage = WebHost.Services.GetService<IClientSession>();
+IClientSessionStorage SessionLocalStorage = WebHost.Services.GetService<IClientSessionStorage>();
 SessionMarkerLiteModel set_marker = await SessionLocalStorage.ReadSessionAsync();
 http.DefaultRequestHeaders.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, set_marker.Token);
 

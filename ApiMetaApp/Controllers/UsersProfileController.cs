@@ -2,8 +2,8 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using CustomPolicyProvider;
 using MetaLib.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SrvMetaApp.Repositories;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,7 +12,7 @@ namespace ApiMetaApp.Controllers
 {
     [Route("api/[controller]/")]
     [ApiController]
-    [Authorize]
+    [MinimumLevelAuthorize(AccessLevelsUsersEnum.Auth)]
     public class UsersProfilesController : ControllerBase
     {
         IUsersProfilesRepositoryInterface _profiles_repo;

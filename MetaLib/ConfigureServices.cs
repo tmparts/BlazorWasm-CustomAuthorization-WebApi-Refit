@@ -2,10 +2,9 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using MetaLib.Models;
+using CustomPolicyProvider;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using SrvMetaApp;
 
 namespace MetaLib
 {
@@ -13,23 +12,11 @@ namespace MetaLib
     {
         public static void InitAccessMinLevelHandler(this IServiceCollection services)
         {
-            services.AddScoped<IAuthorizationHandler, AccessMinLevelHandler>();
+            services.AddSingleton<IAuthorizationPolicyProvider, MinimumLevelPolicyProvider>();
+            services.AddSingleton<IAuthorizationHandler, MinimumLevelAuthorizationHandler>();
 
             services.AddAuthorizationCore(opts =>
             {
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Auth.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Auth)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Confirmed.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Confirmed)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Trusted.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Trusted)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Manager.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Manager)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.Admin.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.Admin)));
-                opts.AddPolicy("AccessMinLevel" + AccessLevelsUsersEnum.ROOT.ToString(),
-                    policy => policy.Requirements.Add(new AccessMinLevelRequirement(AccessLevelsUsersEnum.ROOT)));
-                //
                 opts.DefaultPolicy = new AuthorizationPolicyBuilder()
                   .RequireAuthenticatedUser()
                   .Build();

@@ -4,16 +4,17 @@
 @using Refit
 @using MetaLib.Models
 @using MetaLib
+@using CustomPolicyProvider
 
 @inject NavigationManager MyNavigationManager
-@inject IClientSession SessionLocalStorage
+@inject IClientSessionStorage SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
 @inject MetaLib.Services.IUsersProfileRefitApi UsersProfileService
 @inject ILogger<UserProfile> Logger
 @inherits BlazorBusyComponentBaseModel
 
-@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AccessMinLevelAuth")]
+@attribute [MinimumLevelAuthorize(AccessLevelsUsersEnum.Auth)]
 
 @{
     if (IsBusyProgress == true)
@@ -30,9 +31,9 @@
         {
             <div class="alert alert-danger" role="alert">
                 <h4 class="alert-heading">Не подтверждено!</h4>
-                <p>Email вашей учётной записи не подвтерждён. Ваша учётная запись будет ограничена до тех пор, пока вы не подвтерджите свою электроную почту.</p>
+                <p>Email вашей учётной записи не подвтерждён. </p>
                 <hr>
-                <p>После регистрации учётной записи - вам было отправлено предложение подвтердить её. Если вы не получали письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
+                <p>Ваша учётная запись будет ограничена до тех пор, пока вы не подвтердите свою электроную почту. После регистрации учётной записи - вам было отправлено предложение подвтердить её. Проверьте <a target="_blank" href="https://@user_email_addr.Host">свою почту</a>. Если вы не получали письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
             </div>
         }
         <fieldset disabled="@IsBusyProgress">
@@ -139,6 +140,7 @@
 
     string AccessLevelUser;
     string ConfirmationType;
+    System.Net.Mail.MailAddress user_email_addr;
 
     private async Task HandleValidSubmitAsync()
     {
@@ -158,10 +160,13 @@
     private async Task GetUserProfile()
     {
         IsBusyProgress = true;
+        int client_id = SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin
+        ? 0
+        : id.GetValueOrDefault(0);
 
         try
         {
-            ApiResponse<GetUserProfileResponseModel> rest = await UsersProfileService.GetUserProfileAsync(id.GetValueOrDefault(0));
+            ApiResponse<GetUserProfileResponseModel> rest = await UsersProfileService.GetUserProfileAsync(client_id);
             if (rest.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
@@ -183,46 +188,6 @@
             }
             user_profile_result = result.User;
 
-            switch (user_profile_result.AccessLevelUser)
-            {
-                case AccessLevelsUsersEnum.Auth:
-                    AccessLevelUser = "Начальный";
-                    break;
-                case AccessLevelsUsersEnum.Confirmed:
-                    AccessLevelUser = "Подтверждён";
-                    break;
-                case AccessLevelsUsersEnum.Trusted:
-                    AccessLevelUser = "Проверенный";
-                    break;
-                case AccessLevelsUsersEnum.Manager:
-                    AccessLevelUser = "Менеджер";
-                    break;
-                case AccessLevelsUsersEnum.Admin:
-                    AccessLevelUser = "Администратор";
-                    break;
-                case AccessLevelsUsersEnum.ROOT:
-                    AccessLevelUser = "ROOT";
-                    break;
-                default:
-                    AccessLevelUser = "<ОШИБКА!>";
-                    break;
-            }
-            //AccessLevelUser = $"{user_profile_result.AccessLevelUser}";
-
-
-            switch (user_profile_result.ConfirmationType)
-            {
-                case ConfirmationUsersTypesEnum.None:
-                    ConfirmationType = "Учётная запись не подвтерждена. Ограниченый функуионал";
-                    break;
-                case ConfirmationUsersTypesEnum.Email:
-                    ConfirmationType = "Подтверждён по Email";
-                    break;
-                case ConfirmationUsersTypesEnum.Manual:
-                    ConfirmationType = "Подтверждён администраторм";
-                    break;
-            }
-            //ConfirmationType = $"{user_profile_result.ConfirmationType}";
         }
         catch (Exception ex)
         {
@@ -230,6 +195,47 @@
             IsBusyProgress = false;
             return;
         }
+
+        switch (user_profile_result.AccessLevelUser)
+        {
+            case AccessLevelsUsersEnum.Auth:
+                AccessLevelUser = "Начальный";
+                break;
+            case AccessLevelsUsersEnum.Confirmed:
+                AccessLevelUser = "Подтверждён";
+                break;
+            case AccessLevelsUsersEnum.Trusted:
+                AccessLevelUser = "Проверенный";
+                break;
+            case AccessLevelsUsersEnum.Manager:
+                AccessLevelUser = "Менеджер";
+                break;
+            case AccessLevelsUsersEnum.Admin:
+                AccessLevelUser = "Администратор";
+                break;
+            case AccessLevelsUsersEnum.ROOT:
+                AccessLevelUser = "ROOT";
+                break;
+            default:
+                AccessLevelUser = "<ОШИБКА!>";
+                break;
+        }
+
+        switch (user_profile_result.ConfirmationType)
+        {
+            case ConfirmationUsersTypesEnum.None:
+                ConfirmationType = "Учётная запись не подвтерждена. Ограниченый функуионал";
+                break;
+            case ConfirmationUsersTypesEnum.Email:
+                ConfirmationType = "Подтверждён по Email";
+                break;
+            case ConfirmationUsersTypesEnum.Manual:
+                ConfirmationType = "Подтверждён администраторм";
+                break;
+        }
+
+        user_email_addr = new System.Net.Mail.MailAddress(user_profile_result.Email);
+
 
         IsBusyProgress = false;
         StateHasChanged();
