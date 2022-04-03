@@ -6,14 +6,13 @@
 @using Microsoft.Extensions.Options
 @using MetaLib.Services
 @using MetaLib.Models.enums
+@using MetaLib.ClientServices.refit
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IClientSessionStorage SessionLocalStorage
-@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
-@inject SessionMarkerLiteModel SessionMarker
-@inject ILogger<UserRegistrationForm> Logger
+@inject IUsersAuthRefitService usersAuthRefitService
+@inject ILogger<UserRegistrationFormComponent> Logger
 @inject ClientConfigModel Config
 
 <h3>Регистрация</h3>
@@ -44,7 +43,7 @@
             <InputText type="name" class="form-control" id="name" aria-describedby="loginName" @bind-Value="user_registration_obj.PublicName" />
             <div class="form-text" id="loginName">Ваше публичное имя</div>
         </div>
-        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+        <ReCAPTCHAComponent ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
 
         <div class="alert alert-secondary" role="alert">Есть учётная запись? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Success)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}")>Войти</a>. Забыли логин/пароль? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Info)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ</a>.</div>
 
@@ -74,7 +73,7 @@
 </EditForm>
 @code {
     private UserRegistrationModel user_registration_obj = new();
-    private AuthUserResponseModel? user_registration_result = null;
+    private AuthUserResponseRefitModel? user_registration_result = null;
 
     public override void OnReCaptchaExpired() { user_registration_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
     public override void OnReCaptchaSuccess(string response_code) { user_registration_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
@@ -83,30 +82,14 @@
     private async Task HandleValidSubmit()
     {
         IsBusyProgress = true;
-        await SessionLocalStorage.RemoveSessionAsync();
 
-        try
+        user_registration_result = await usersAuthRefitService.RegistrationNewUser(user_registration_obj);
+        if (user_registration_result.StatusCode != System.Net.HttpStatusCode.OK || !user_registration_result.IsSuccess)
         {
-            ApiResponse<AuthUserResponseModel> rest = await UsersAuthService.RegistrationNewUser(user_registration_obj);
-            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                IsBusyProgress = false;
-                return;
-            }
-            user_registration_result = rest?.Content;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, $"Error {nameof(UsersAuthService.RegistrationNewUser)}");
-            IsBusyProgress = false;
-            return;
-        }
-
-        if (user_registration_result?.IsSuccess == true)
-        {
-            SessionMarker.Reload(user_registration_result.SessionMarker.Login, user_registration_result.SessionMarker.AccessLevelUser, user_registration_result.SessionMarker.Token);
-            await SessionLocalStorage.SaveSessionAsync(user_registration_result.SessionMarker);
+            if (!string.IsNullOrEmpty(user_registration_result.Message))
+                Logger.LogError(user_registration_result.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LoginUser)}");
         }
 
         authState.AuthenticationStateChanged();

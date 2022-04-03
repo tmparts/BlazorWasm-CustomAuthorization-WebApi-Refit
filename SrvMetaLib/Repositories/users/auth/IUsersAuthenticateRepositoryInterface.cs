@@ -44,5 +44,9 @@ namespace SrvMetaApp.Repositories
         /// </summary>
         public Task<ResponseBaseModel> RestoreUser(UserRestoreModel user);
 
+        /// <summary>
+        /// Запрос восстановления доступа к учётной записи
+        /// </summary>
+        public Task<ResponseBaseModel> RestoreUser(string user_login);
     }
 }

@@ -11,7 +11,7 @@ namespace MetaLib.Services
     /// Refit коннектор к API/UsersAuthorization
     /// </summary>
     [Headers("Content-Type: application/json")]
-    public interface IUsersAuthRefitApi
+    public interface IUsersAuthRefitModel
     {
         [Get("/api/UsersAuthorization")]
         ApiResponse<SessionReadResponseModel> GetUserSession();

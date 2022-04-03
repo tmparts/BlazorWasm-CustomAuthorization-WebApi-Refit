@@ -4,7 +4,7 @@
 @using MetaLib.Models
 
 @inject NavigationManager Navigation
-@inject ILogger<Authentication> Logger
+@inject ILogger<AuthenticationPage> Logger
 
 <AuthorizeView>
     <Authorized>
@@ -14,7 +14,7 @@
             string? action_name = Action?.ToLower();
             if (action_name == GlobalStaticConstants.LOGOUT_ACTION_NAME)
             {
-                <UserLogoutForm />
+                <UserLogoutFormComponent />
             }
             else
             {
@@ -27,15 +27,15 @@
             string? action_name = Action?.ToLower();
             if (action_name == GlobalStaticConstants.LOGIN_ACTION_NAME)
             {
-                <UserLoginForm />
+                <UserLoginFormComponent />
             }
             else if (action_name == GlobalStaticConstants.RESTORE_ACTION_NAME)
             {
-                <UserRestoreForm />
+                <UserRestoreFormComponent />
             }
             else
             {
-                <UserRegistrationForm />
+                <UserRegistrationFormComponent />
             }
         }
     </NotAuthorized>

@@ -9,7 +9,7 @@ namespace MetaLib
     /// <summary>
     /// Хранение сессии пользователя в Storage браузера
     /// </summary>
-    public interface IClientSessionStorage
+    public interface IClientSession
     {
         public Task SaveSessionAsync(SessionMarkerLiteModel set_session_marker);
         public Task<SessionMarkerLiteModel> ReadSessionAsync();

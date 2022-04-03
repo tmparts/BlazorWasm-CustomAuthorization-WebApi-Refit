@@ -35,7 +35,7 @@ namespace SrvMetaApp.Repositories.mail
             {
                 case MetaLib.Models.enums.ConfirmationsTypesEnum.RegistrationUser:
                     subject = $"Подтверждение регистрации: {_config.Value.ClientConfig.Host}";
-                    message = $"Доброго времени суток, {confirm_db.User.Name}. Вы зарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.GuidConfirmation}")}'>подтвердить</a>.";
+                    message = $"Доброго времени суток, {confirm_db.User.Name}. Вы зарегистрировались в системе. Ваш логин '{confirm_db.User.Login}'. Для подтверждения этого действия и активации акаунта, перейдите по ссылке: <a href='{_config.Value.ApiConfig.GetFullUrl($"mvc/ConfirmView?confirm_id={confirm_db.GuidConfirmation}")}'>подтвердить</a>.";
 
                     break;
                 case MetaLib.Models.enums.ConfirmationsTypesEnum.RestoreUser:
@@ -44,10 +44,19 @@ namespace SrvMetaApp.Repositories.mail
 
                     break;
                 default:
-                    throw new ArgumentException($"Тип подвтерждения '{confirm_db.ConfirmationType}' не определён", nameof(confirm_db.ConfirmationType));
+                    _logger.LogError($"Ошибка отправки Email подтверждения '{confirm_db.GuidConfirmation}'. Тип подвтерждения '{confirm_db.ConfirmationType}' не определён", nameof(confirm_db.ConfirmationType));
+                    return false;
+            }
+            try
+            {
+                await SendEmailAsync(confirm_db.User.Email, subject, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Ошибка отправки Email подтверждения '{confirm_db.GuidConfirmation}'.");
+                return false;
             }
 
-            await SendEmailAsync(confirm_db.User.Email, subject, message);
             return true;
         }
 

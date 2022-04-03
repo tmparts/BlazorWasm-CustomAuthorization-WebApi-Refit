@@ -5,12 +5,10 @@
 using Blazored.LocalStorage;
 using MetaLib;
 using MetaLib.Models;
-using MetaLib.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Newtonsoft.Json;
-using Refit;
 using System.Net.Http.Headers;
 using WebMetaApp;
 
@@ -18,10 +16,11 @@ WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+//builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
+
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
-builder.Services.AddScoped<IClientSessionStorage, ClientSession>();
+builder.Services.AddScoped<IClientSession, ClientSessionService>();
 
 builder.Services.AddBlazoredLocalStorage();
 
@@ -83,27 +82,17 @@ builder.Services.AddScoped(sp => http);
 
 #endregion
 
-TimeSpan RefitHandlerLifetime = TimeSpan.FromMinutes(2);
-if (remote_conf.RefitHandlerLifetimeMinutes > 0)
-    RefitHandlerLifetime = TimeSpan.FromMinutes(remote_conf.RefitHandlerLifetimeMinutes);
-
-builder.Services.AddScoped<IUserAuthRefitService, UserAuthRefitService>();
-
-builder.Services.AddRefitClient<IUsersAuthRefitApi>()
-        .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
-        .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
-        .SetHandlerLifetime(RefitHandlerLifetime);
-
-builder.Services.AddRefitClient<IUsersProfileRefitApi>()
-        .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
-        .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
-        .SetHandlerLifetime(RefitHandlerLifetime);
-
 builder.Services.InitAccessMinLevelHandler();
+
+TimeSpan refit_handler_lifetime = TimeSpan.FromMinutes(2);
+if (remote_conf.RefitHandlerLifetimeMinutes > 0)
+    refit_handler_lifetime = TimeSpan.FromMinutes(remote_conf.RefitHandlerLifetimeMinutes);
+//
+builder.Services.InitRefit(conf, marker, refit_handler_lifetime);
 
 WebAssemblyHost WebHost = builder.Build();
 
-IClientSessionStorage SessionLocalStorage = WebHost.Services.GetService<IClientSessionStorage>();
+IClientSession SessionLocalStorage = WebHost.Services.GetService<IClientSession>();
 SessionMarkerLiteModel set_marker = await SessionLocalStorage.ReadSessionAsync();
 http.DefaultRequestHeaders.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, set_marker.Token);
 

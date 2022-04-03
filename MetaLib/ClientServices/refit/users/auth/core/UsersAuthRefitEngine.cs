@@ -7,11 +7,11 @@ using Refit;
 
 namespace MetaLib.Services
 {
-    public class UserAuthRefitService : IUserAuthRefitService
+    public class UsersAuthRefitEngine : IUsersAuthRefitEngine
     {
-        private readonly IUsersAuthRefitApi _api;
+        private readonly IUsersAuthRefitModel _api;
 
-        public UserAuthRefitService(IUsersAuthRefitApi set_api)
+        public UsersAuthRefitEngine(IUsersAuthRefitModel set_api)
         {
             _api = set_api;
         }

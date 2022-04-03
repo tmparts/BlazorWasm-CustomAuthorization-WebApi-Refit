@@ -46,7 +46,12 @@ namespace ApiMetaApp.Controllers
         [HttpPatch]
         public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel user)
         {
-            return await _users_repo.RestoreUser(user);
+            if (User.Identity.IsAuthenticated != true)
+            {
+                return await _users_repo.RestoreUser(user);
+            }
+
+            return await _users_repo.RestoreUser(User.Identity.Name);
         }
 
         [SwaggerOperation(Summary = "Выход из текущей сессии")]

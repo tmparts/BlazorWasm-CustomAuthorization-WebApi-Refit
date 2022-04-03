@@ -149,6 +149,39 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
+        public async Task<ResponseBaseModel> RestoreUser(string user_login)
+        {
+            ResponseBaseModel? res = new ResponseBaseModel()
+            {
+                IsSuccess = !string.IsNullOrWhiteSpace(user_login)
+            };
+            if (!res.IsSuccess)
+            {
+                res.Message = "Ошибка. Логин пользователя не может быть пустым.";
+                return res;
+            }
+            UserModelDB? user_db = await _users_dt.FirstOrDefaultByLoginAsync(user_login);
+            res.IsSuccess = user_db is not null;
+            if (!res.IsSuccess)
+            {
+                res.Message = $"Ошибка. Пользователь по логину '{user_login}' не найден в БД.";
+                return res;
+            }
+            res.Message = $"Ваш запрос принят. На Email '{user_db.Email}' отправлено сообщение для сброса пароля.";
+
+            ResponseBaseModel confirm_reset_password;
+
+            confirm_reset_password = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RestoreUser);
+            if (!confirm_reset_password.IsSuccess)
+            {
+                res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
+                _logger.LogError($"{res.Message} - user_db_by_login: {JsonConvert.SerializeObject(user_db)}");
+                res.IsSuccess = false;
+            }
+
+            return res;
+        }
+
         public async Task<ResponseBaseModel> RestoreUser(UserRestoreModel user)
         {
             user.Login = user.Login?.Trim() ?? string.Empty;
@@ -190,11 +223,11 @@ namespace SrvMetaApp.Repositories
 
             UserModelDB? user_db_by_login = string.IsNullOrEmpty(user?.Login)
                 ? null
-                : await _users_dt.FirstOrDefaultByLoginAsync(user.Login); //(new AbstractRequestProp[] { new RequestByLoginEqualModel(user.Login) });
+                : await _users_dt.FirstOrDefaultByLoginAsync(user.Login);
 
             UserModelDB? user_db_by_email = string.IsNullOrEmpty(user?.Email)
                 ? null
-                : await _users_dt.FirstOrDefaultByEmailAsync(user.Email); //(new AbstractRequestProp[] { new RequestByEmailEqualModel(user.Email) });
+                : await _users_dt.FirstOrDefaultByEmailAsync(user.Email);
 
             res.Message = "Ваш запрос принят. Если пользователь с указанными данными есть в системе, то он получит письмо на Email с инструкцией";
 
@@ -211,6 +244,7 @@ namespace SrvMetaApp.Repositories
                 {
                     res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
                     _logger.LogError($"{res.Message} - user_db_by_login: {JsonConvert.SerializeObject(user_db_by_login)}");
+                    res.IsSuccess = false;
                 }
             }
 
@@ -221,6 +255,7 @@ namespace SrvMetaApp.Repositories
                 {
                     res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
                     _logger.LogError($"{res.Message} - user_db_by_email: {JsonConvert.SerializeObject(user_db_by_email)}");
+                    res.IsSuccess = false;
                 }
             }
 
@@ -280,12 +315,6 @@ namespace SrvMetaApp.Repositories
             await _users_dt.AddAsync(user_db);
 
             ResponseBaseModel confirm_user_registeration = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RegistrationUser);
-
-            //ConfirmationModelDb confirm_registration = new ConfirmationModelDb($"Регистрация пользователя [login:'{user_db.Login}']", user_db, Guid.NewGuid().ToString(), ConfirmationsTypesEnum.RegistrationUser, DateTime.Now.AddMinutes(_config.Value.UserManageConfig.RegistrationUserConfirmDeadlineMinutes)) { };
-            //await _confirmations_dt.AddAsync(confirm_registration);
-
-            //await _mail.SendEmailRegistrationUser(confirm_registration);
-
 
             await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
             SessionReadResponseModel? current_session = ReadMainSession();

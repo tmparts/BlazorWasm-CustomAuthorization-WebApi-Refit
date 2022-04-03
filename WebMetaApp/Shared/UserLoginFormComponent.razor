@@ -4,12 +4,11 @@
 @using MetaLib
 @using MetaLib.Services
 @using MetaLib.Models.enums
+@using MetaLib.ClientServices.refit
 @inherits BlazorReCaptchaComponentBaseModel
 
-@inject ILogger<UserLoginForm> Logger
-@inject IClientSessionStorage SessionLocalStorage
-@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
-@inject SessionMarkerLiteModel SessionMarker
+@inject ILogger<UserLoginFormComponent> Logger
+@inject IUsersAuthRefitService usersAuthRefitService
 @inject CustomAuthStateProvider authState
 
 <h3>Вход</h3>
@@ -30,7 +29,7 @@
             <InputCheckbox @bind-Value="user_auth_obj.RememberMe" class="form-check-input" id="RememberMe" />
             <label class="form-check-label" for="RememberMe">Запомнить меня</label>
         </div>
-        <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+        <ReCAPTCHAComponent ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
         <div class="alert alert-secondary" role="alert">Нет учётной записи? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Primary)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a>. Забыли логин/пароль? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Success)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.RESTORE_ACTION_NAME}")>Восстановить доступ!</a></div>
         <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
             @{
@@ -56,6 +55,7 @@
         }
     </fieldset>
 </EditForm>
+
 @code {
     private UserAuthorizationModel user_auth_obj = new();
     private AuthUserResponseModel? user_auth_result = null;
@@ -67,29 +67,14 @@
     private async Task HandleValidSubmitAsync()
     {
         IsBusyProgress = true;
-        await SessionLocalStorage.RemoveSessionAsync();
-        try
-        {
-            ApiResponse<AuthUserResponseModel> rest = await UsersAuthService.LoginUser(user_auth_obj);
-            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                IsBusyProgress = false;
-                return;
-            }
-            user_auth_result = rest?.Content;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, $"Error {nameof(UsersAuthService.LoginUser)}");
-            IsBusyProgress = false;
-            return;
-        }
+        AuthUserResponseRefitModel rest = await usersAuthRefitService.LoginUser(user_auth_obj);
 
-        if (user_auth_result?.IsSuccess == true)
+        if (rest.StatusCode != System.Net.HttpStatusCode.OK || !rest.IsSuccess)
         {
-            SessionMarker.Reload(user_auth_result.SessionMarker.Login, user_auth_result.SessionMarker.AccessLevelUser, user_auth_result.SessionMarker.Token);
-            await SessionLocalStorage.SaveSessionAsync(SessionMarker);
+            if (!string.IsNullOrEmpty(rest.Message))
+                Logger.LogError(rest.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LoginUser)}");
         }
 
         authState.AuthenticationStateChanged();

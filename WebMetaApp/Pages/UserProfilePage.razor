@@ -1,0 +1,23 @@
+﻿@page "/users/profile/{id:int?}"
+
+@using Microsoft.AspNetCore.Authorization
+@using MetaLib.Services
+@using MetaLib.Models
+@using CustomPolicyProvider
+
+@attribute [Authorize]
+
+@inject SessionMarkerLiteModel SessionMarker
+
+<UserProfileComponent IdProfile="@(id)" />
+
+@code {
+    [Parameter] public int? id { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        id = SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin
+        ? 0
+        : id.GetValueOrDefault(0);
+    }
+}

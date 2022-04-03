@@ -88,6 +88,13 @@ namespace SrvMetaApp.Repositories
                     await _users_dt.UpdateAsync(res.Confirmation.User, false);
                     res.IsSuccess = await _users_dt.SaveChangesAsync() > 0;
 
+                    if (res.Confirmation.User.AccessLevelUser < AccessLevelsUsersEnum.Confirmed)
+                    {
+                        res.Confirmation.User.AccessLevelUser = AccessLevelsUsersEnum.Confirmed;
+                        res.Confirmation.User.ConfirmationType = ConfirmationUsersTypesEnum.Email;
+                        await _users_dt.UpdateAsync(res.Confirmation.User);
+                    }
+
                     try
                     {
                         await _email.SendEmailAsync(res.Confirmation.User.Email, $"Новый пароль - {_config.Value.ClientConfig.Host}", $"Вам установлен новый пароль: {new_pass}", MimeKit.Text.TextFormat.Html);
@@ -152,7 +159,10 @@ namespace SrvMetaApp.Repositories
             if (send_email && !await _email.SendUserConfirmationEmail(confirmation))
             {
                 res.Message = "Системная ошибка. Произошёл сбой отправки Email.";
-                _logger.LogError($"{res.Message} - user_db_by_email: { JsonConvert.SerializeObject(user)}");
+                _logger.LogError($"{res.Message} - confirmation: { JsonConvert.SerializeObject(confirmation)}");
+                confirmation.ErrorMessage = res.Message;
+                await _confirmations_dt.UpdateAsync(confirmation);
+                res.IsSuccess = false;
             }
 
             return res;

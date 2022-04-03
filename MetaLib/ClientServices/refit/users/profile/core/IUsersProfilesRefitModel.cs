@@ -8,12 +8,15 @@ using Refit;
 namespace MetaLib.Services
 {
     /// <summary>
-    /// 
+    /// Refit коннектор к API/UsersProfile
     /// </summary>
-    public interface IUserProfileRefitService
+    [Headers("Content-Type: application/json")]
+    public interface IUsersProfilesRefitModel
     {
+        [Get("/api/usersprofiles")]
         Task<ApiResponse<FindUsersProfilesResponseModel>> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter);
 
-        Task<ApiResponse<GetUserProfileResponseModel>> GetUserProfileAsync(int id);
+        [Get("/api/usersprofiles/{id}")]
+        Task<ApiResponse<GetUserProfileResponseModel>> GetUserProfileAsync(int? id);
     }
 }

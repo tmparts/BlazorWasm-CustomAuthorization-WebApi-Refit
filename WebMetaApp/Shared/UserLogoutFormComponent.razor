@@ -2,13 +2,14 @@
 @using Refit
 @using Microsoft.Extensions.Logging
 @using MetaLib
+
 @inherits MetaLib.Services.BlazorBusyComponentBaseModel
 
 @inject CustomAuthStateProvider authState
-@inject IClientSessionStorage SessionLocalStorage
+@inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
-@inject ILogger<UserLogoutForm> Logger
+@inject MetaLib.Services.IUsersAuthRefitModel UsersAuthService
+@inject ILogger<UserLogoutFormComponent> Logger
 
 <h3>Выход</h3>
 <button class="btn btn-primary" onclick="@LogoutAsync" disabled="@IsBusyProgress">

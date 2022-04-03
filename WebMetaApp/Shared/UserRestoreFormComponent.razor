@@ -5,13 +5,14 @@
 @using Microsoft.Extensions.Options
 @using MetaLib.Services
 @using MetaLib.Models.enums
+@using MetaLib.ClientServices.refit
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
-@inject IClientSessionStorage SessionLocalStorage
+@inject IClientSession SessionLocalStorage
 @inject SessionMarkerLiteModel SessionMarker
-@inject MetaLib.Services.IUsersAuthRefitApi UsersAuthService
-@inject ILogger<UserRestoreForm> Logger
+@inject IUsersAuthRefitService usersAuthRefitService
+@inject ILogger<UserRestoreFormComponent> Logger
 @inject ClientConfigModel Config
 
 <h4>Запрос восстановления доступа!</h4>
@@ -41,7 +42,7 @@
                 <InputText type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-Value="user_restore_obj.Email" />
                 <div class="form-text" id="emailHelp">Enter your email</div>
             </div>
-            <ReCAPTCHA ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
+            <ReCAPTCHAComponent ReCaptchaExpiredCallback="@OnReCaptchaExpired" ReCaptchaSuccessCallback="@OnReCaptchaSuccess" />
             <div class="alert alert-secondary" role="alert">Нет учётной записи? <a class="@PrimaryButtonClass(BootstrapColorsStylesEnum.Primary)" style="@PrimaryButtonStyle" href=@($"/{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.REGISTRATION_ACTION_NAME}")>Регистрация!</a></div>
             <button class="btn btn-primary" type="submit" disabled="@IsBusyProgress">
                 @{
@@ -86,24 +87,14 @@ else
     private async Task HandleValidSubmit()
     {
         IsBusyProgress = true;
-        await SessionLocalStorage.RemoveSessionAsync();
+        ResponseBaseRefitModel rest = await usersAuthRefitService.LogOutUser();
 
-        try
+        if (rest.StatusCode != System.Net.HttpStatusCode.OK || !rest.IsSuccess)
         {
-            ApiResponse<ResponseBaseModel>? rest = await UsersAuthService.RestoreUser(user_restore_obj);
-            if (rest.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                Logger.LogError($"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}");
-                IsBusyProgress = false;
-                return;
-            }
-            user_restore_result = rest?.Content;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, $"Error {nameof(UsersAuthService.RestoreUser)}");
-            IsBusyProgress = false;
-            return;
+            if (!string.IsNullOrEmpty(rest.Message))
+                Logger.LogError(rest.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LogOutUser)}");
         }
 
         authState.AuthenticationStateChanged();

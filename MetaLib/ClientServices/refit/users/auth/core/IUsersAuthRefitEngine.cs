@@ -10,7 +10,7 @@ namespace MetaLib.Services
     /// <summary>
     /// Регистрация/Авторизация/Вход/Выход пользователя и т.п.
     /// </summary>
-    public interface IUserAuthRefitService
+    public interface IUsersAuthRefitEngine
     {
         ApiResponse<SessionReadResponseModel> GetUserSession();
 

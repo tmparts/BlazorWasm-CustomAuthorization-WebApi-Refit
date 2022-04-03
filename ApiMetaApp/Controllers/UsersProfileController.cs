@@ -35,6 +35,7 @@ namespace ApiMetaApp.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(Summary = "Получить профиль пользователя")]
+        [MinimumLevelAuthorize(AccessLevelsUsersEnum.Confirmed)]
         public async Task<GetUserProfileResponseModel> Get([FromRoute] int id)
         {
             if (id > 0)

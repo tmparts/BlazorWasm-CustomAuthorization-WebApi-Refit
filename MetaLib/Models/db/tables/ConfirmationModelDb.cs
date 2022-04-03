@@ -28,6 +28,12 @@ namespace MetaLib.Models
         /// </summary>
         public DateTime? ConfirmetAt { get; set; }
 
+        /// <summary>
+        /// Если при создании уведомления и последующей отправке произошёл сбой, то он будет записан сюда.
+        /// В проивном случае (если ошибок не возникнет) поле будет пустым
+        /// </summary>
+        public string? ErrorMessage { get; set; }
+
         public ConfirmationModelDb() { }
 
         public ConfirmationModelDb(UserModelDB user, ConfirmationsTypesEnum confirmation_type)
