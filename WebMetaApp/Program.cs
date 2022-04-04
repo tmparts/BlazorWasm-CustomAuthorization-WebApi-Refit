@@ -40,9 +40,9 @@ http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
 
 HttpResponseMessage? response = await http.GetAsync("clientconfig.json");
 string json_raw;
-#if DEBUG
-json_raw = await response.Content.ReadAsStringAsync();
-#endif
+//#if DEBUG
+//json_raw = await response.Content.ReadAsStringAsync();
+//#endif
 
 Stream? stream = await response.Content.ReadAsStreamAsync();
 IConfigurationRoot? config = new ConfigurationBuilder()
@@ -76,7 +76,7 @@ await stream.DisposeAsync();
 
 conf.ReCaptchaConfig = remote_conf.ReCaptchaConfig;
 
-builder.Services.AddSingleton<ClientConfigModel>(sp => conf);
+builder.Services.AddSingleton<ClientConfigModel>(sp => remote_conf);
 
 builder.Services.AddScoped(sp => http);
 

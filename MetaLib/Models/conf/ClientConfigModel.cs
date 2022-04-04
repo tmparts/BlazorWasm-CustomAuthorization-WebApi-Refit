@@ -18,6 +18,11 @@ namespace MetaLib.Models
         /// </summary>
         public int RefitHandlerLifetimeMinutes { get; set; } = 2;
 
+        /// <summary>
+        /// Адрес отправителя Email (системные сообщения)
+        /// </summary>
+        public string EmailSenderAddress { get; set; } = string.Empty;
+
         public static explicit operator ClientConfigModel(ServerConfigModel v)
         {
             ClientConfigModel res = new ClientConfigModel()
@@ -25,7 +30,8 @@ namespace MetaLib.Models
                 ApiConfig = v.ApiConfig,
                 ClientConfig = v.ClientConfig,
                 ReCaptchaConfig = v.ReCaptchaConfig,
-                RefitHandlerLifetimeMinutes = v.RefitHandlerLifetimeMinutes
+                RefitHandlerLifetimeMinutes = v.RefitHandlerLifetimeMinutes,
+                EmailSenderAddress = v.SmtpConfig.Email
             };
 
             return res;

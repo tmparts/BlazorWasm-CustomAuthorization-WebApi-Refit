@@ -87,12 +87,12 @@ else
     private async Task HandleValidSubmit()
     {
         IsBusyProgress = true;
-        ResponseBaseModel rest = await usersAuthRefitService.LogOutUser();
+        user_restore_result = await usersAuthRefitService.LogOutUser();
 
-        if (!rest.IsSuccess)
+        if (!user_restore_result.IsSuccess)
         {
-            if (!string.IsNullOrEmpty(rest.Message))
-                Logger.LogError(rest.Message);
+            if (!string.IsNullOrEmpty(user_restore_result.Message))
+                Logger.LogError(user_restore_result.Message);
             else
                 Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LogOutUser)}");
         }

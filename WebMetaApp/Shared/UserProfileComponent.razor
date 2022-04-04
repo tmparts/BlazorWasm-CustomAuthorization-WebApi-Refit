@@ -12,8 +12,9 @@
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
 @inject IUsersProfilesRefitService usersProfilesRefitService
-@inject IUsersAuthRefitService usersAuthRefitService 
+@inject IUsersAuthRefitService usersAuthRefitService
 @inject ILogger<UserProfileComponent> Logger
+@inject ClientConfigModel conf
 
 @{
     if (IsBusyProgress == true)
@@ -71,7 +72,7 @@
                                         </div>
                                     }
                                 }
-                                
+
                                 <div class="mb-3 row">
                                     <label for="inputPasswordNew" class="col-sm-1 col-form-label">Новый</label>
                                     <div class="col-sm-10">
@@ -131,12 +132,24 @@
                 </fieldset>
             </Authorized>
             <NotAuthorized>
-                <div class="alert alert-danger" role="alert">
-                    <h4 class="alert-heading">Email не подтверждён!</h4>
-                    <p>Ваш акаунт будет ограничен до тех пор, пока вы не подвтердите свою электроную почту.</p>
-                    <hr>
-                    <p>После регистрации учётной записи - вам было отправлено предложение подвтердить её, перейдя по ссылке активации. Если по какой-то причине вы не получили письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
-                </div>
+                @{
+                    if (!re_activate_is_sended)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">Email не подтверждён!</h4>
+                            <p>Ваш акаунт будет ограничен до тех пор, пока вы не подвтердите свою электроную почту.</p>
+                            <hr>
+                            <p>После регистрации учётной записи - вам было отправлено предложение (от <u>@conf.EmailSenderAddress</u>) подвтердить её, перейдя по ссылке активации. Если по какой-то причине вы не получили письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <h4 class="alert-heading">Повторная активация!</h4>
+                            <p>Вам повторно отправлена ссылка для активации вашей учётной записи (от <u>@conf.EmailSenderAddress</u>). Проверьте свой Email</p>
+                        </div>
+                    }
+                }
             </NotAuthorized>
         </AuthorizeView>
     }
@@ -151,6 +164,8 @@
     string ConfirmationType;
     string user_email_host;
 
+    bool re_activate_is_sended = false;
+
     private async Task NewPasswordHandleValidSubmitAsync()
     {
 
@@ -159,11 +174,12 @@
     private async Task RenewConfirmRegistration()
     {
         usersAuthRefitService.RestoreUser(new UserRestoreModel());
+        re_activate_is_sended = true;
     }
 
     protected override async void OnInitialized()
     {
-        if(SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin)
+        if (SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin)
         {
             change_password.PasswordCurrent = "admin";
         }
