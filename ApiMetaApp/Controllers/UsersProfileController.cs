@@ -5,6 +5,7 @@
 using CustomPolicyProvider;
 using MetaLib.Models;
 using Microsoft.AspNetCore.Mvc;
+using SrvMetaApp.Models;
 using SrvMetaApp.Repositories;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,15 +16,17 @@ namespace ApiMetaApp.Controllers
     [MinimumLevelAuthorize(AccessLevelsUsersEnum.Auth)]
     public class UsersProfilesController : ControllerBase
     {
+        ISessionService _session_service;
         IUsersProfilesRepositoryInterface _profiles_repo;
         IUsersAuthenticateRepositoryInterface _users_auth_repo;
         ILogger<UsersProfilesController> _logger;
 
-        public UsersProfilesController(IUsersProfilesRepositoryInterface set_profiles_repo, IUsersAuthenticateRepositoryInterface set_users_auth_repo, ILogger<UsersProfilesController> set_logger)
+        public UsersProfilesController(IUsersProfilesRepositoryInterface set_profiles_repo, ISessionService set_session_service, IUsersAuthenticateRepositoryInterface set_users_auth_repo, ILogger<UsersProfilesController> set_logger)
         {
             _profiles_repo = set_profiles_repo;
             _users_auth_repo = set_users_auth_repo;
             _logger = set_logger;
+            _session_service = set_session_service;
         }
 
         [HttpGet]
@@ -38,6 +41,9 @@ namespace ApiMetaApp.Controllers
         [MinimumLevelAuthorize(AccessLevelsUsersEnum.Confirmed)]
         public async Task<GetUserProfileResponseModel> Get([FromRoute] int id)
         {
+            if (_session_service.SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin)
+                id = 0;
+
             if (id > 0)
                 return await _profiles_repo.GetUserProfileAsync(id);
             else

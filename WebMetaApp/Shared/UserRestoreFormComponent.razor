@@ -87,9 +87,9 @@ else
     private async Task HandleValidSubmit()
     {
         IsBusyProgress = true;
-        ResponseBaseRefitModel rest = await usersAuthRefitService.LogOutUser();
+        ResponseBaseModel rest = await usersAuthRefitService.LogOutUser();
 
-        if (rest.StatusCode != System.Net.HttpStatusCode.OK || !rest.IsSuccess)
+        if (!rest.IsSuccess)
         {
             if (!string.IsNullOrEmpty(rest.Message))
                 Logger.LogError(rest.Message);

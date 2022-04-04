@@ -87,17 +87,16 @@ namespace MetaLib
             return res;
         }
 
-        private async Task<ResponseBaseRefitModel> LogOutUser()
+        private async Task<ResponseBaseModel> LogOutUser()
         {
-            ResponseBaseRefitModel result = new ResponseBaseRefitModel();
+            ResponseBaseModel result = new ResponseBaseModel();
 
             try
             {
                 ApiResponse<ResponseBaseModel>? rest = await _users_auth_service.LogOutUser();
                 await RemoveSessionAsync();
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -114,9 +113,6 @@ namespace MetaLib
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.LogOutUser)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;

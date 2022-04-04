@@ -17,6 +17,6 @@ namespace SrvMetaApp.Repositories
 
         public Task<ConfirmationResponseModel> GetConfirmationAsync(string confirm_id, bool include_user_data = true);
 
-        public Task<ConfirmationResponseModel> CreateConfirmationAsync(UserModelDB user, ConfirmationsTypesEnum ConfirmationType, bool send_email = true);
+        public Task<ConfirmationResponseModel> CreateConfirmationAsync(UserModelDB user, ConfirmationsTypesEnum ConfirmationType, bool send_email = true);        
     }
 }

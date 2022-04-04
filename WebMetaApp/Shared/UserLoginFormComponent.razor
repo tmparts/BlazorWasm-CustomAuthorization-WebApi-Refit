@@ -67,12 +67,12 @@
     private async Task HandleValidSubmitAsync()
     {
         IsBusyProgress = true;
-        AuthUserResponseRefitModel rest = await usersAuthRefitService.LoginUser(user_auth_obj);
+        user_auth_result = await usersAuthRefitService.LoginUser(user_auth_obj);
 
-        if (rest.StatusCode != System.Net.HttpStatusCode.OK || !rest.IsSuccess)
+        if (!user_auth_result.IsSuccess)
         {
-            if (!string.IsNullOrEmpty(rest.Message))
-                Logger.LogError(rest.Message);
+            if (!string.IsNullOrEmpty(user_auth_result.Message))
+                Logger.LogError(user_auth_result.Message);
             else
                 Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LoginUser)}");
         }

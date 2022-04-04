@@ -2,7 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using MetaLib.ClientServices.refit.users.profile;
 using MetaLib.Models;
 using MetaLib.Services;
 using Microsoft.Extensions.Logging;
@@ -21,16 +20,15 @@ namespace MetaLib.ClientServices.refit
             _logger = set_logger;
         }
 
-        public async Task<GetUserProfileResponseRefitModel> GetUserProfileAsync(int client_id)
+        public async Task<GetUserProfileResponseModel> GetUserProfileAsync(int client_id)
         {
-            GetUserProfileResponseRefitModel result = new GetUserProfileResponseRefitModel();
+            GetUserProfileResponseModel result = new GetUserProfileResponseModel();
 
             try
             {
                 ApiResponse<GetUserProfileResponseModel> rest = await _users_profile_service.GetUserProfileAsync(client_id);
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -48,24 +46,20 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_profile_service.GetUserProfileAsync)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;
         }
 
-        public async Task<FindUsersProfilesResponseRefitModel> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter)
+        public async Task<FindUsersProfilesResponseModel> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter)
         {
-            FindUsersProfilesResponseRefitModel result = new FindUsersProfilesResponseRefitModel();
+            FindUsersProfilesResponseModel result = new FindUsersProfilesResponseModel();
 
             try
             {
                 ApiResponse<FindUsersProfilesResponseModel> rest = await _users_profile_service.FindUsersProfilesAsync(filter);
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
                     result.Message = $"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}";
@@ -74,16 +68,13 @@ namespace MetaLib.ClientServices.refit
                     return result;
                 }
                 result.IsSuccess = true;
-                result = (FindUsersProfilesResponseRefitModel)rest.Content;
+                result = rest.Content;
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_profile_service.GetUserProfileAsync)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;

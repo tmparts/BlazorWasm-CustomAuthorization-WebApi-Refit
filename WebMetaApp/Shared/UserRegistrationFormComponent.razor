@@ -73,7 +73,7 @@
 </EditForm>
 @code {
     private UserRegistrationModel user_registration_obj = new();
-    private AuthUserResponseRefitModel? user_registration_result = null;
+    private AuthUserResponseModel? user_registration_result = null;
 
     public override void OnReCaptchaExpired() { user_registration_obj.ResponseReCAPTCHA = string.Empty; Logger.LogDebug(nameof(OnReCaptchaExpired)); }
     public override void OnReCaptchaSuccess(string response_code) { user_registration_obj.ResponseReCAPTCHA = response_code; Logger.LogDebug(nameof(OnReCaptchaSuccess)); }
@@ -84,7 +84,7 @@
         IsBusyProgress = true;
 
         user_registration_result = await usersAuthRefitService.RegistrationNewUser(user_registration_obj);
-        if (user_registration_result.StatusCode != System.Net.HttpStatusCode.OK || !user_registration_result.IsSuccess)
+        if (!user_registration_result.IsSuccess)
         {
             if (!string.IsNullOrEmpty(user_registration_result.Message))
                 Logger.LogError(user_registration_result.Message);

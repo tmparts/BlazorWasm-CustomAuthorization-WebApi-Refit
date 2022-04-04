@@ -44,7 +44,7 @@ namespace ApiMetaApp.Controllers
 
         [SwaggerOperation(Summary = "Запрос восстановления доступа к учётной записи")]
         [HttpPatch]
-        public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel user)
+        public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel? user)
         {
             if (User.Identity.IsAuthenticated != true)
             {

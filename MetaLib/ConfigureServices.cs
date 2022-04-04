@@ -4,8 +4,6 @@
 
 using CustomPolicyProvider;
 using MetaLib.ClientServices.refit;
-using MetaLib.ClientServices.refit.users;
-using MetaLib.ClientServices.refit.users.auth;
 using MetaLib.Models;
 using MetaLib.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -41,11 +39,11 @@ namespace MetaLib
                 .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
                 .SetHandlerLifetime(handler_lifetime);
             //
+            services.AddScoped<IUsersProfilesRefitEngine, UsersProfilesRefitEngine>();
             services.AddScoped<IUsersProfilesRefitService, UsersProfilesRefitService>();
-            services.AddScoped<IUsersAuthRefitService, UsersAuthRefitService>();
 
             services.AddScoped<IUsersAuthRefitEngine, UsersAuthRefitEngine>();
-            services.AddScoped<IUsersProfilesRefitEngine, UsersProfilesRefitEngine>();
+            services.AddScoped<IUsersAuthRefitService, UsersAuthRefitService>();
         }
     }
 }

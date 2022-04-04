@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SrvMetaApp.Models;
 
 namespace SrvMetaApp.Repositories
 {
@@ -123,7 +122,7 @@ namespace SrvMetaApp.Repositories
             ConfirmationResponseModel res = new ConfirmationResponseModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
             if (!res.IsSuccess)
             {
-                res.Message = "токен подтверждения меет не корректный формат";
+                res.Message = "Токен подтверждения имеет не корректный формат";
                 return res;
             }
 
@@ -134,7 +133,7 @@ namespace SrvMetaApp.Repositories
             res.IsSuccess = res.Confirmation is not null;
             if (!res.IsSuccess)
             {
-                res.Message = "токен подтверждения не найден или просрочен";
+                res.Message = "Токен подтверждения не найден. Данный токен просрочен, либо аннулирован";
                 return res;
             }
 
@@ -153,7 +152,10 @@ namespace SrvMetaApp.Repositories
                 ConfirmationsTypesEnum.RestoreUser => DateTime.Now.AddMinutes(user_config.RestoreUserConfirmDeadlineMinutes),
                 _ => throw new ArgumentOutOfRangeException(nameof(confirmation_type), $"Тип подвтерждения действия '{confirmation_type}' не определён"),
             };
+
             await _confirmations_dt.AddAsync(confirmation);
+            await _confirmations_dt.ReNewAsync(confirmation);
+
             res.Confirmation = confirmation;
 
             if (send_email && !await _email.SendUserConfirmationEmail(confirmation))

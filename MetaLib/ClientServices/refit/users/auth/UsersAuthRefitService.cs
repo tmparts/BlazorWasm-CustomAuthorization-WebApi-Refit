@@ -1,5 +1,4 @@
-﻿using MetaLib.ClientServices.refit.users.auth.models;
-using MetaLib.Models;
+﻿using MetaLib.Models;
 using MetaLib.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -22,16 +21,15 @@ namespace MetaLib.ClientServices.refit
             _session_marker = set_session_marker;
         }
 
-        public SessionReadResponseRefitModel GetUserSession()
+        public SessionReadResponseModel GetUserSession()
         {
-            SessionReadResponseRefitModel result = new SessionReadResponseRefitModel();
+            SessionReadResponseModel result = new SessionReadResponseModel();
 
             try
             {
                 ApiResponse<SessionReadResponseModel>? rest = _users_auth_service.GetUserSession();
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -40,33 +38,27 @@ namespace MetaLib.ClientServices.refit
 
                     return result;
                 }
-                result.IsSuccess = true;
-                result.SessionMarker = rest.Content.SessionMarker;
-                result.Message = rest.Content.Message;
+                result = rest.Content;
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.GetUserSession)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;
         }
 
-        public async Task<AuthUserResponseRefitModel> LoginUser(UserAuthorizationModel user)
+        public async Task<AuthUserResponseModel> LoginUser(UserAuthorizationModel user)
         {
-            AuthUserResponseRefitModel result = new AuthUserResponseRefitModel();
+            AuthUserResponseModel result = new AuthUserResponseModel();
             await _session_local_storage.RemoveSessionAsync();
             try
             {
                 ApiResponse<AuthUserResponseModel> rest = await _users_auth_service.LoginUser(user);
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -75,18 +67,13 @@ namespace MetaLib.ClientServices.refit
 
                     return result;
                 }
-                result.IsSuccess = true;
-                result.SessionMarker = rest.Content.SessionMarker;
-                result.Message = rest.Content.Message;
+                result = rest.Content;
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.LoginUser)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             if (result.IsSuccess)
@@ -98,17 +85,16 @@ namespace MetaLib.ClientServices.refit
             return result;
         }
 
-        public async Task<ResponseBaseRefitModel> LogOutUser()
+        public async Task<ResponseBaseModel> LogOutUser()
         {
-            ResponseBaseRefitModel result = new ResponseBaseRefitModel();
+            ResponseBaseModel result = new ResponseBaseModel();
 
             try
             {
                 ApiResponse<ResponseBaseModel>? rest = await _users_auth_service.LogOutUser();
                 await _session_local_storage.RemoveSessionAsync();
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -125,25 +111,21 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.LogOutUser)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;
         }
 
-        public async Task<AuthUserResponseRefitModel> RegistrationNewUser(UserRegistrationModel user)
+        public async Task<AuthUserResponseModel> RegistrationNewUser(UserRegistrationModel user)
         {
-            AuthUserResponseRefitModel result = new AuthUserResponseRefitModel();
+            AuthUserResponseModel result = new AuthUserResponseModel();
 
             try
             {
                 ApiResponse<AuthUserResponseModel> rest = await _users_auth_service.RegistrationNewUser(user);
                 await _session_local_storage.RemoveSessionAsync();
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -161,25 +143,21 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.RegistrationNewUser)} > {JsonConvert.SerializeObject(user)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
             _session_marker.Reload(result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
             await _session_local_storage.SaveSessionAsync(_session_marker);
             return result;
         }
 
-        public async Task<ResponseBaseRefitModel> RestoreUser(UserRestoreModel user)
+        public async Task<ResponseBaseModel> RestoreUser(UserRestoreModel user)
         {
-            ResponseBaseRefitModel result = new ResponseBaseRefitModel();
+            ResponseBaseModel result = new ResponseBaseModel();
 
             try
             {
-                var rest = await _users_auth_service.RestoreUser(user);
-                result.StatusCode = rest.StatusCode;
-                result.Error = rest.Error;
-                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                ApiResponse<ResponseBaseModel>? rest = await _users_auth_service.RestoreUser(user);
+                
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     result.IsSuccess = false;
 
@@ -197,9 +175,6 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.RestoreUser)} > {JsonConvert.SerializeObject(user)}";
                 _logger.LogError(ex, result.Message);
-
-                result.StatusCode = null;
-                result.Error = ex;
             }
 
             return result;

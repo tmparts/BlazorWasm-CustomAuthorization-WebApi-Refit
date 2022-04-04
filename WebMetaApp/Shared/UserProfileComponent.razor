@@ -12,6 +12,7 @@
 @inject SessionMarkerLiteModel SessionMarker
 @inject CustomAuthStateProvider authState
 @inject IUsersProfilesRefitService usersProfilesRefitService
+@inject IUsersAuthRefitService usersAuthRefitService 
 @inject ILogger<UserProfileComponent> Logger
 
 @{
@@ -55,16 +56,22 @@
                         </TabComponent>
                         <TabComponent Title="Пароль">
                             <h4>Изменение пароля</h4>
-                            <EditForm Model="@change_password" OnValidSubmit="@HandleValidSubmitAsync">
+                            <EditForm Model="@change_password" OnValidSubmit="@NewPasswordHandleValidSubmitAsync">
                                 <DataAnnotationsValidator />
                                 <ValidationSummary />
-                                <div class="mb-3 row">
-                                    <label for="inputPasswordCurrent" class="col-sm-1 col-form-label">Текущий</label>
-                                    <div class="col-sm-10">
-                                        <InputText @bind-Value="change_password.PasswordCurrent" type="password" class="form-control" id="inputPasswordCurrent"></InputText>
-                                        <div id="inputPasswordCurrentHelp" class="form-text">Введите действующий пароль от учётной записи</div>
-                                    </div>
-                                </div>
+                                @{
+                                    if (SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin)
+                                    {
+                                        <div class="mb-3 row">
+                                            <label for="inputPasswordCurrent" class="col-sm-1 col-form-label">Текущий</label>
+                                            <div class="col-sm-10">
+                                                <InputText @bind-Value="change_password.PasswordCurrent" type="password" class="form-control" id="inputPasswordCurrent"></InputText>
+                                                <div id="inputPasswordCurrentHelp" class="form-text">Введите действующий пароль от учётной записи</div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                
                                 <div class="mb-3 row">
                                     <label for="inputPasswordNew" class="col-sm-1 col-form-label">Новый</label>
                                     <div class="col-sm-10">
@@ -144,18 +151,22 @@
     string ConfirmationType;
     string user_email_host;
 
-    private async Task HandleValidSubmitAsync()
+    private async Task NewPasswordHandleValidSubmitAsync()
     {
 
     }
 
     private async Task RenewConfirmRegistration()
     {
-
+        usersAuthRefitService.RestoreUser(new UserRestoreModel());
     }
 
     protected override async void OnInitialized()
     {
+        if(SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin)
+        {
+            change_password.PasswordCurrent = "admin";
+        }
         if (SessionMarker.AccessLevelUser > AccessLevelsUsersEnum.Auth)
             await GetUserProfile();
     }
@@ -168,8 +179,8 @@
         ? 0
         : IdProfile.GetValueOrDefault(0);
 
-        GetUserProfileResponseRefitModel rest = await usersProfilesRefitService.GetUserProfileAsync(client_id);
-        if (rest.StatusCode != System.Net.HttpStatusCode.OK || !rest.IsSuccess)
+        GetUserProfileResponseModel rest = await usersProfilesRefitService.GetUserProfileAsync(client_id);
+        if (!rest.IsSuccess)
         {
             if (!string.IsNullOrEmpty(rest.Message))
                 Logger.LogError(rest.Message);

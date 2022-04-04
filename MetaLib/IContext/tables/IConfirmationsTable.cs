@@ -15,6 +15,7 @@ namespace DbcMetaLib.Confirmations
         public Task<ConfirmationModelDb?> FirstOrDefaultActualAsync(string confirm_id, bool include_user_data = true);
 
         public Task AddAsync(ConfirmationModelDb confirmation, bool auto_save = true);
+        public Task ReNewAsync(ConfirmationModelDb confirmation, bool auto_save = true);
 
         public Task UpdateAsync(ConfirmationModelDb confirmation, bool auto_save = true);
 
