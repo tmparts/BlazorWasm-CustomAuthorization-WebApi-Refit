@@ -16,5 +16,7 @@ namespace SrvMetaApp.Repositories
         public Task<GetUserProfileResponseModel> GetUserProfileAsync(int id);
 
         public Task<GetUserProfileResponseModel> GetUserProfileAsync(string login);
+
+        public Task<UpdateUserProfileResponseModel> UpdateUserProfileAsync(UserLiteModel user);
     }
 }

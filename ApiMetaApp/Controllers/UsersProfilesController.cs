@@ -65,5 +65,14 @@ namespace ApiMetaApp.Controllers
                 return res;
             }
         }
+
+        [HttpPut]
+        [SwaggerOperation(Summary = "Обновить профиль пользователя")]
+        [MinimumLevelAuthorize(AccessLevelsUsersEnum.Confirmed)]
+        public async Task<UpdateUserProfileResponseModel> Put([FromBody] UserLiteModel user)
+        {
+            UpdateUserProfileResponseModel? res = await _profiles_repo.UpdateUserProfileAsync(user);
+            return res;
+        }
     }
 }

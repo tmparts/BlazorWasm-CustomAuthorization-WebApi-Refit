@@ -22,6 +22,8 @@ namespace DbcMetaLib.Users
 
         public Task UpdateAsync(UserModelDB user, bool auto_save = true);
 
+        //public Task<GetUserProfileResponseModel> UpdateMediumAsync(UserMediumModel user, bool auto_save = true);
+
         /// <summary>
         /// Поиск профилей пользовтелей
         /// </summary>

@@ -11,3 +11,14 @@
 Welcome to your new app.
 
 <SurveyPromptComponent Title="How is Blazor working for you?" />
+
+@*<ModalWindowComponent @ref="Modal">
+    <p>Modal body text goes here.</p>
+</ModalWindowComponent>
+
+<button @onclick="() => Modal.Open(ModalTitle)">Open Modal</button>
+
+@code {
+    private ModalWindowComponent Modal { get; set; }
+    private string ModalTitle = "Modal title";
+}*@

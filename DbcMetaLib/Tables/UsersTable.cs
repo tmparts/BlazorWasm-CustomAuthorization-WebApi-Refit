@@ -133,7 +133,7 @@ namespace DbcMetaSqliteLib.Users
             }
 
             res.User = await _db_context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            res.IsSuccess = res.User != null;
+            res.IsSuccess = res.User is not null;
 
             if (!res.IsSuccess)
             {
@@ -153,7 +153,15 @@ namespace DbcMetaSqliteLib.Users
             }
 
             res.User = await _db_context.Users.FirstOrDefaultAsync(x => x.Login == login);
-            res.IsSuccess = res.User != null;
+
+            res.IsSuccess = res.User is not null;
+            if (!res.IsSuccess)
+            {
+                res.Message = $"Пользователь не найден (login:{login})";
+                return res;
+            }
+
+            res.IsSuccess = res.User is not null;
 
             if (!res.IsSuccess)
             {

@@ -4,8 +4,8 @@
 
 namespace MetaLib.Models
 {
-    public class GetUserProfileResponseModel : ResponseBaseModel
+    public class UpdateUserProfileResponseModel : FindResponseModel
     {
-        public UserMediumModel User { get; set; }
+        public UserLiteModel User { get; set; }
     }
 }

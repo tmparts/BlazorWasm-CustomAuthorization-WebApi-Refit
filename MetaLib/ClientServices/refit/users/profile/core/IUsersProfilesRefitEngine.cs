@@ -15,5 +15,7 @@ namespace MetaLib.Services
         Task<ApiResponse<FindUsersProfilesResponseModel>> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter);
 
         Task<ApiResponse<GetUserProfileResponseModel>> GetUserProfileAsync(int id);
+
+        Task<ApiResponse<UpdateUserProfileResponseModel>> UpdateUserProfileAsync(UserLiteModel user);
     }
 }

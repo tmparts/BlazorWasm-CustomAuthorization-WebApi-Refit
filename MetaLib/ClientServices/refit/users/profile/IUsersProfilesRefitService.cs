@@ -10,5 +10,6 @@ namespace MetaLib.ClientServices.refit
     {
         public Task<GetUserProfileResponseModel> GetUserProfileAsync(int client_id);
         public Task<FindUsersProfilesResponseModel> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter);
+        public Task<UpdateUserProfileResponseModel> UpdateUserProfileAsync(UserLiteModel user);
     }
 }

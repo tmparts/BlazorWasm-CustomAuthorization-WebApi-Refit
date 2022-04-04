@@ -35,5 +35,10 @@ namespace MetaLib.Services
 #endif
             return await _api.GetUserProfileAsync(id);
         }
+
+        public async Task<ApiResponse<UpdateUserProfileResponseModel>> UpdateUserProfileAsync(UserLiteModel user)
+        {
+            return await _api.UpdateUserProfileAsync(user);
+        }
     }
 }

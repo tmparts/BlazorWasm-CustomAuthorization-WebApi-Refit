@@ -24,6 +24,7 @@ using DbcMetaLib.UsersGroups;
 using DbcMetaLib.Projects;
 using DbcMetaSqliteLib.Projects;
 using MetaLib.MemCash;
+using System.Text.Json.Serialization;
 
 Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 logger.Info("init main");
@@ -83,7 +84,10 @@ builder.Services.AddScoped<IMailServiceInterface, MailService>();
 
 builder.Services.InitAccessMinLevelHandler();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();

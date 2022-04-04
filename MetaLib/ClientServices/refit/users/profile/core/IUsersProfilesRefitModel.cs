@@ -18,5 +18,8 @@ namespace MetaLib.Services
 
         [Get("/api/usersprofiles/{id}")]
         Task<ApiResponse<GetUserProfileResponseModel>> GetUserProfileAsync(int? id);
+
+        [Put("/api/usersprofiles/")]
+        Task<ApiResponse<UpdateUserProfileResponseModel>> UpdateUserProfileAsync(UserLiteModel user);
     }
 }
