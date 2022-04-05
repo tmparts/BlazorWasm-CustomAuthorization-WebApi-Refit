@@ -80,9 +80,6 @@ public AccessLevelsUsersEnum AccessLevelUser { get; set; } = AccessLevelsUsersEn
 
 »м€ политики формируетс€ из ```MinimumLevel``` и имени уровн€ доступа. Ќапример: ```MinimumLevelConfirmed``` или ```MinimumLevelManager```
 
-
-
-
 дл€ поддержки данного хоз€йства на клиенте Blazor (wasm) регистрируетс€ требуема€ оснаска:
 
 ```c#
@@ -102,6 +99,12 @@ public static void InitAccessMinLevelHandler(this IServiceCollection services)
             .Build();
     });
 }
+```
+
+а так же
+
+```c#
+builder.Services.AddScoped<CustomAuthStateProvider>();
 ```
 
 на серверной стороне регистрировать ни чего не требуетс€. ‘ильтр выполн€ет всЄ что требуетс€
@@ -168,11 +171,11 @@ ResponseBaseModel()
 - reCaptcha v2 (в т.ч. Invisible)
 - сесси€ от Blazor Wasm к WEB Api пробрасыветс€ через Refit/HTTP Header. Ќа стороне браузера сесси€ хранитс€ в Storage.
 
-P.S.
-ƒа простит мен€ великий и могучий IT за этот велосипед, но инструмент годный.
-
 Ќа старте работает с Redis, но легко переводитс€ на другие рельсы через реализацию интерфейса
 ```c#
 builder.Services.AddScoped<ISessionService, SessionService>();
 ```
 ќтныне сессии € буду хранить где угодно, хоть в бд, хоть Mongo хоть в записной книжке.
+
+P.S.
+ƒа простит мен€ великий и могучий IT за этот велосипед, но инструмент годный.
