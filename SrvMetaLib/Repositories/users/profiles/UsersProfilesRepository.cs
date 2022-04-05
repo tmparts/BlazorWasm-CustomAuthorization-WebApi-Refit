@@ -101,7 +101,7 @@ namespace SrvMetaApp.Repositories
             }
             else
             {
-                res.IsSuccess = user_db.AccessLevelUser <= user.AccessLevelUser && user.AccessLevelUser <= user.AccessLevelUser;
+                res.IsSuccess = user_db.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser && user.AccessLevelUser <  _session_service.SessionMarker.AccessLevelUser;
             }
 
             if (!res.IsSuccess)
@@ -110,7 +110,7 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            res.IsSuccess = user_db.AccessLevelUser == user.AccessLevelUser ||  _session_service.SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin;
+            res.IsSuccess = user_db.AccessLevelUser == user.AccessLevelUser || _session_service.SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin;
             if (!res.IsSuccess)
             {
                 res.Message = "Не достаточно прав для изменения статуса пользователя.";

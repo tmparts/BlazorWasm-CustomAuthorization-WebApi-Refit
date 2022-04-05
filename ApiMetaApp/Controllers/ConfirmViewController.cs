@@ -17,6 +17,11 @@ namespace ApiMetaApp.Controllers
             _users_confirmations_repo = set_confirmations_repo;
         }
 
+        /// <summary>
+        /// Получить токен подтверждения действия пользователя
+        /// </summary>
+        /// <param name="confirm_id"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Index(string confirm_id)
         {
@@ -25,6 +30,11 @@ namespace ApiMetaApp.Controllers
             return View(res);
         }
 
+        /// <summary>
+        /// Подтверждение дейтсвия пользователя
+        /// </summary>
+        /// <param name="confirm_id"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> ConfirmAction(string confirm_id)
         {

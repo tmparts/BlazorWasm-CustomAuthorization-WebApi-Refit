@@ -71,7 +71,7 @@ namespace SrvMetaApp.Models
                 SessionMarker.Token = token.ToString();
                 if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated != true)
                 {
-                    await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());
+                    //await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());
                     await _mem_cashe.UpdateValueAsync(UsersAuthenticateRepository.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
                 }
             }
@@ -92,22 +92,22 @@ namespace SrvMetaApp.Models
             return Guid.Empty;
         }
 
-        public async Task AuthenticateAsync(string set_login, string set_role)
-        {
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, set_login),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, set_role)
-            };
+        //public async Task AuthenticateAsync(string set_login, string set_role)
+        //{
+        //    List<Claim> claims = new List<Claim>
+        //    {
+        //        new Claim(ClaimsIdentity.DefaultNameClaimType, set_login),
+        //        new Claim(ClaimsIdentity.DefaultRoleClaimType, set_role)
+        //    };
 
-            ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            ClaimsPrincipal id_claim = new ClaimsPrincipal(id);
-            if (_httpContext.HttpContext is not null)
-            {
-                _httpContext.HttpContext.User = id_claim;
-                await _httpContext.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, id_claim);
-                AuthenticateResult? res_auth = await _httpContext.HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
-        }
+        //    ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+        //    ClaimsPrincipal id_claim = new ClaimsPrincipal(id);
+        //    if (_httpContext.HttpContext is not null)
+        //    {
+        //        _httpContext.HttpContext.User = id_claim;
+        //        await _httpContext.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, id_claim);
+        //        AuthenticateResult? res_auth = await _httpContext.HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        //    }
+        //}
     }
 }

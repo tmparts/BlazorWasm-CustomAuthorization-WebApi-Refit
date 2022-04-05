@@ -20,35 +20,35 @@ namespace MetaLib.Models
         /// Зарегистрированный (но НЕ подтверждённый)
         /// </summary>
         [Display(Name = "Зарегистрированый", Description = "Рядовой зарегистрированный пользователь (не подтверждённый)")]
-        Auth = 1,
+        Auth = 10,
 
         /// <summary>
         /// Подтверждён (подтвердил по Email и/или Telegram)
         /// </summary>
         [Display(Name = "Проверенный", Description = "Подтверждённый пользователь (подтвердил по Email и/или Telegram)")]
-        Confirmed = 2,
+        Confirmed = 20,
 
         /// <summary>
         /// Привилегированный
         /// </summary>
         [Display(Name = "Привилегированный", Description = "Особые разрешения, но не администрация")]
-        Trusted = 3,
+        Trusted = 30,
 
         /// <summary>
         /// 4.Менеджер (управляющий/модератор)
         /// </summary>
         [Display(Name = "Менеджер/Модератор", Description = "Младший администратор")]
-        Manager = 10,
+        Manager = 40,
 
         /// <summary>
         /// Администратор
         /// </summary>
-        Admin = 20,
+        Admin = 50,
 
         /// <summary>
         /// Владелец (суперпользователь)
         /// </summary>
         [Display(Name = "ROOT/Суперпользователь")]
-        ROOT = 30
+        ROOT = 60
     }
 }

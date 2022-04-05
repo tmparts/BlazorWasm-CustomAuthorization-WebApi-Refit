@@ -82,31 +82,32 @@ builder.Services.AddScoped<IUsersProfilesRepositoryInterface, UsersProfilesRepos
 builder.Services.AddScoped<IUsersConfirmationsInterface, UsersConfirmationsRepository>();
 builder.Services.AddScoped<IMailServiceInterface, MailService>();
 
-builder.Services.InitAccessMinLevelHandler();
+//builder.Services.InitAccessMinLevelHandler();
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
 {
     opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/api/UsersAuthorization";//api/<UsersController>/ReturnUrl=/api/UsersAuthorization
-        options.AccessDeniedPath = "/AccessDenied";
-        options.LogoutPath = $"/{GlobalStaticConstants.LOGOUT_ACTION_NAME}";
-    });
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddMemoryCache();
 
-builder.Services.AddSession(options =>
-{
-    options.Cookie.Name = ".MyApp.Session";
-    options.IdleTimeout = TimeSpan.FromMinutes(60);
-});
+//builder.Services.AddSwaggerGen();
+//builder.Services.AddAuthorization();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        options.LoginPath = "/api/UsersAuthorization";//api/<UsersController>/ReturnUrl=/api/UsersAuthorization
+//        options.AccessDeniedPath = "/AccessDenied";
+//        options.LogoutPath = $"/{GlobalStaticConstants.LOGOUT_ACTION_NAME}";
+//    });
+
+//builder.Services.AddSession(options =>
+//{
+//    options.Cookie.Name = ".MyApp.Session";
+//    options.IdleTimeout = TimeSpan.FromMinutes(60);
+//});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -128,6 +129,9 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://github.com/badhitman/DesignerMetaApp/blob/main/LICENSE")
         }
     });
+
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 // NLog: Setup NLog for Dependency injection
@@ -161,8 +165,8 @@ try
         app.UseMiddleware<PassageMiddleware>();
     });
 
-    app.UseAuthentication(); // аутентификация
-    app.UseAuthorization();  // авторизация
+    //app.UseAuthentication(); // аутентификация
+    //app.UseAuthorization();  // авторизация
 
     app.MapControllers();
 

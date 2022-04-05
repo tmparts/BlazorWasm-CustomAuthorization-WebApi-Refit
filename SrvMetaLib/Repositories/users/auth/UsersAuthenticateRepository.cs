@@ -69,10 +69,10 @@ namespace SrvMetaApp.Repositories
                 return new ResponseBaseModel() { IsSuccess = false, Message = "HttpContext is null" };
             }
 
-            if (!string.IsNullOrEmpty(_session_service.SessionMarker?.Login))
-            {
-                await _http_context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
+            //if (!string.IsNullOrEmpty(_session_service.SessionMarker?.Login))
+            //{
+            //    await _http_context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //}
 
             string token = _session_service.ReadTokenFromRequest().ToString();
             if (!string.IsNullOrEmpty(token) && token != Guid.Empty.ToString())
@@ -360,7 +360,7 @@ namespace SrvMetaApp.Repositories
             }
             _session_service.GuidToken = Guid.NewGuid().ToString();
             _session_service.SessionMarker = new SessionMarkerModel(login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
-            await _session_service.AuthenticateAsync(login, access_level.ToString());
+            //await _session_service.AuthenticateAsync(login, access_level.ToString());
             await _mem_cashe.UpdateValueAsync(PrefRedisSessions, _session_service.GuidToken, _session_service.SessionMarker.ToString(), TimeSpan.FromSeconds(seconds_session));
             await _mem_cashe.UpdateValueAsync(new MemCashePrefixModel("sessions", login), _session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}", TimeSpan.FromSeconds(seconds_session + 60));
         }

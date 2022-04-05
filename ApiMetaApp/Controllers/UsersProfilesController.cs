@@ -2,18 +2,17 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using CustomPolicyProvider;
+using ApiMetaApp.Filters;
 using MetaLib.Models;
 using Microsoft.AspNetCore.Mvc;
 using SrvMetaApp.Models;
 using SrvMetaApp.Repositories;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiMetaApp.Controllers
 {
     [Route("api/[controller]/")]
     [ApiController]
-    [MinimumLevelAuthorize(AccessLevelsUsersEnum.Auth)]
+    [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Auth })]
     public class UsersProfilesController : ControllerBase
     {
         ISessionService _session_service;
@@ -29,16 +28,24 @@ namespace ApiMetaApp.Controllers
             _session_service = set_session_service;
         }
 
+        /// <summary>
+        /// Получить список пользователей
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         [HttpGet]
-        [SwaggerOperation(Summary = "Получить список пользователей")]
         public async Task<FindUsersProfilesResponseModel> Get([FromQuery] FindUsersProfilesRequestModel filter)
         {
             return await _profiles_repo.FindUsersProfilesAsync(filter);
         }
 
+        /// <summary>
+        /// Получить профиль пользователя
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
-        [SwaggerOperation(Summary = "Получить профиль пользователя")]
-        [MinimumLevelAuthorize(AccessLevelsUsersEnum.Confirmed)]
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public async Task<GetUserProfileResponseModel> Get([FromRoute] int id)
         {
             if (_session_service.SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin)
@@ -48,16 +55,16 @@ namespace ApiMetaApp.Controllers
                 return await _profiles_repo.GetUserProfileAsync(id);
             else
             {
-                GetUserProfileResponseModel? res = await _profiles_repo.GetUserProfileAsync(User.Identity.Name);
+                GetUserProfileResponseModel? res = await _profiles_repo.GetUserProfileAsync(_session_service.SessionMarker.Login);
                 if (!res.IsSuccess)
                 {
-                    string msg = $"Ошибка поиска текущей сессии по имени '{User.Identity.Name}'.";
+                    string msg = $"Ошибка поиска текущей сессии по имени '{_session_service.SessionMarker.Login}'.";
                     res.Message += msg;
                     _logger.LogError(msg);
                     ResponseBaseModel? logout = await _users_auth_repo.LogOutAsync();
                     if (!logout.IsSuccess)
                     {
-                        msg = $"Ошибка закрытия текущей сессии (Name: '{User.Identity.Name}').";
+                        msg = $"Ошибка закрытия текущей сессии (Name: '{_session_service.SessionMarker.Login}').";
                         res.Message += msg;
                         _logger.LogError(msg);
                     }
@@ -66,9 +73,13 @@ namespace ApiMetaApp.Controllers
             }
         }
 
+        /// <summary>
+        /// Обновить профиль пользователя
+        /// </summary>
+        /// <param name="user">Объект пользователя для записи в БД</param>
         [HttpPut]
-        [SwaggerOperation(Summary = "Обновить профиль пользователя")]
-        [MinimumLevelAuthorize(AccessLevelsUsersEnum.Confirmed)]
+        //[Authorize]
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public async Task<UpdateUserProfileResponseModel> Put([FromBody] UserLiteModel user)
         {
             UpdateUserProfileResponseModel? res = await _profiles_repo.UpdateUserProfileAsync(user);

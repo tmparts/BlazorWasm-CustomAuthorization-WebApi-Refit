@@ -13,6 +13,6 @@ namespace SrvMetaApp.Models
 
         public Task InitSession();
         public Guid ReadTokenFromRequest();
-        public Task AuthenticateAsync(string set_login, string set_role);
+        //public Task AuthenticateAsync(string set_login, string set_role);
     }
 }

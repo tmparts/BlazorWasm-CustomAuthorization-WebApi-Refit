@@ -5,6 +5,7 @@
 using MetaLib.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiMetaApp.Controllers
 {
@@ -19,7 +20,10 @@ namespace ApiMetaApp.Controllers
             _config = set_config;
         }
 
-        // GET: api/<ClientConfigController>
+        /// <summary>
+        /// Получить настройки клиента Blazor
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ClientConfigModel Get()
         {

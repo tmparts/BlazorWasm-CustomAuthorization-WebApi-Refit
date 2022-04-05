@@ -2,11 +2,11 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using ApiMetaApp.Filters;
 using MetaLib.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SrvMetaApp.Models;
 using SrvMetaApp.Repositories;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiMetaApp.Controllers
 {
@@ -15,46 +15,67 @@ namespace ApiMetaApp.Controllers
     public class UsersAuthorizationController : ControllerBase
     {
         IUsersAuthenticateRepositoryInterface _users_repo;
-
-        public UsersAuthorizationController(IUsersAuthenticateRepositoryInterface set_users_repo)
+        ISessionService _session_service;
+        public UsersAuthorizationController(IUsersAuthenticateRepositoryInterface set_users_repo, ISessionService set_session_service)
         {
             _users_repo = set_users_repo;
+            _session_service = set_session_service;
         }
 
+        /// <summary>
+        /// Прочитать информацию о текущей сессии
+        /// </summary>
+        /// <param name="ReturnUrl"></param>
+        /// <returns></returns>
         [HttpGet]
-        [SwaggerOperation(Summary = "Прочитать информацию о текущей сессии")]
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public SessionReadResponseModel Get([FromQuery] string? ReturnUrl)
         {
             return _users_repo.ReadMainSession();
         }
 
+        /// <summary>
+        /// Регистрация нового пользователя
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost]
-        [SwaggerOperation(Summary = "Регистрация нового пользователя")]
         public async Task<AuthUserResponseModel> Post([FromBody] UserRegistrationModel user)
         {
             return await _users_repo.UserRegisterationAsync(user, ModelState);
         }
 
-        [SwaggerOperation(Summary = "Авторизация пользователя")]
+        /// <summary>
+        /// Авторизация пользователя
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPut]
         public async Task<AuthUserResponseModel> Put([FromBody] UserAuthorizationModel user)
         {
             return await _users_repo.UserLoginAsync(user, ModelState);
         }
 
-        [SwaggerOperation(Summary = "Запрос восстановления доступа к учётной записи")]
+        /// <summary>
+        /// Запрос восстановления доступа к учётной записи
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPatch]
         public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel? user)
         {
-            if (User.Identity.IsAuthenticated != true)
+            if (string.IsNullOrEmpty(_session_service.SessionMarker.Login))
             {
                 return await _users_repo.RestoreUser(user);
             }
 
-            return await _users_repo.RestoreUser(User.Identity.Name);
+            return await _users_repo.RestoreUser(_session_service.SessionMarker.Login);
         }
 
-        [SwaggerOperation(Summary = "Выход из текущей сессии")]
+        /// <summary>
+        /// Выход из текущей сессии
+        /// </summary>
+        /// <returns></returns>
         //[Authorize]
         [HttpDelete]
         public async Task<ResponseBaseModel> DeleteAsync()
@@ -66,8 +87,11 @@ namespace ApiMetaApp.Controllers
 
         private Random gen = new Random();
 
-        [SwaggerOperation(Summary = "Проврерка работоспособности")]
-        [Authorize]
+        /// <summary>
+        /// Проврерка работоспособности
+        /// </summary>
+        /// <returns></returns>
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Auth })]
         [HttpOptions]
         public WeatherForecastModel[] Options()
         {
