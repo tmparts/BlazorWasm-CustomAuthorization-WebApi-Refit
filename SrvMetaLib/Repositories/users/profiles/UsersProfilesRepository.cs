@@ -101,7 +101,7 @@ namespace SrvMetaApp.Repositories
             }
             else
             {
-                res.IsSuccess = user_db.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser && user.AccessLevelUser <  _session_service.SessionMarker.AccessLevelUser;
+                res.IsSuccess = user_db.AccessLevelUser == _session_service.SessionMarker.AccessLevelUser || (user_db.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser && user.AccessLevelUser <  _session_service.SessionMarker.AccessLevelUser);
             }
 
             if (!res.IsSuccess)
@@ -123,6 +123,7 @@ namespace SrvMetaApp.Repositories
                 user_db.Login = user.Login;
             }
             user_db.Name = user.Name;
+            user_db.About = user.About;
             try
             {
                 await _users_dt.UpdateAsync(user_db);

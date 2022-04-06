@@ -11,14 +11,17 @@
 Welcome to your new app.
 
 <SurveyPromptComponent Title="How is Blazor working for you?" />
-
+<EditForm Model="@_obj">
+    <InputRichTextComponent @bind-Value="ModalTitle" />
+</EditForm>
 @*<ModalWindowComponent @ref="Modal">
     <p>Modal body text goes here.</p>
-</ModalWindowComponent>
+    </ModalWindowComponent>
 
-<button @onclick="() => Modal.Open(ModalTitle)">Open Modal</button>
-
+    <button @onclick="() => Modal.Open(ModalTitle)">Open Modal</button>
+*@
 @code {
-    private ModalWindowComponent Modal { get; set; }
+    private object _obj = new object();
+    //private ModalWindowComponent Modal { get; set; }
     private string ModalTitle = "Modal title";
-}*@
+}

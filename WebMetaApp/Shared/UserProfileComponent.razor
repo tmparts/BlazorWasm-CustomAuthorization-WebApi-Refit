@@ -46,8 +46,13 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleInputName" class="form-label">Имя</label>
-                                    <InputText class="form-control" id="exampleInputName" @bind-Value="user_profile_result.Name" @oninput="OnPasswordChanged" aria-describedby="nameHelp" readonly="@(!CanEditPublicName)" />
+                                    <InputText class="form-control" id="exampleInputName" @bind-Value="user_profile_result.Name" @oninput="OnNameChanged" aria-describedby="nameHelp" readonly="@(!CanEditPublicName)" />
                                     <div id="nameHelp" class="form-text">Публичное имя. Как видят вас другие пользователи.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="exampleInputAbout" class="form-label">Информация</label>
+                                    <InputRichTextComponent Id="exampleInputAbout" @bind-Value="user_profile_result.About" readonly="@(!CanEditAbout)"/>
+                                    <div id="nameAbout" class="form-text">Коротко о себе / Подпись</div>
                                 </div>
                                 <div class="input-group">
                                     <span class="input-group-text">Статус</span>
@@ -189,6 +194,7 @@
 
     bool CanEditAccessLevel => IdProfile.GetValueOrDefault(0) > 0 && (user_profile_result?.AccessLevelUser).GetValueOrDefault(AccessLevelsUsersEnum.Blocked) < SessionMarker.AccessLevelUser;
     bool CanEditPublicName => IdProfile.GetValueOrDefault(0) == 0 || SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin;
+    bool CanEditAbout => IdProfile.GetValueOrDefault(0) == 0 || SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin;
 
     AccessLevelsUsersEnum? old_value_access_level = null;
     bool CanSaveNewAccessLavel => CanEditAccessLevel && old_value_access_level != null && old_value_access_level != user_profile_result.AccessLevelUser && user_profile_result.AccessLevelUser != AccessLevelsUsersEnum.ROOT;
@@ -196,14 +202,17 @@
     string old_public_name = null;
     bool CanSaveNewPublicName => CanEditPublicName && !string.IsNullOrWhiteSpace(user_profile_result.Name) && old_public_name != user_profile_result.Name;
 
-    bool CanSaveUserProfile => CanSaveNewAccessLavel || CanSaveNewPublicName;
+    string old_about = null;
+    bool CanSaveNewAbout => CanEditAbout && !string.IsNullOrWhiteSpace(user_profile_result.About) && old_about != user_profile_result.About;
+
+    bool CanSaveUserProfile => CanSaveNewAccessLavel || CanSaveNewPublicName || CanSaveNewAbout;
 
     string user_email_host;
 
     bool re_activate_is_sended = false;
 
 
-    private async Task OnPasswordChanged(ChangeEventArgs e)
+    private async Task OnNameChanged(ChangeEventArgs e)
     {
         user_profile_result.Name = e?.Value?.ToString();
 

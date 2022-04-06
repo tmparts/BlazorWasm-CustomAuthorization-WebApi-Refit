@@ -18,6 +18,8 @@ namespace MetaLib.Models
 
         public string Email { get; set; } = string.Empty;
 
+        public string About { get; set; } = string.Empty;
+
         public AccessLevelsUsersEnum AccessLevelUser { get; set; } = AccessLevelsUsersEnum.Anonim;
 
         public ConfirmationUsersTypesEnum ConfirmationType { get; set; } = ConfirmationUsersTypesEnum.None;
@@ -29,7 +31,8 @@ namespace MetaLib.Models
                 && user1.Email == user2.Email
                 && user1.ConfirmationType == user2.ConfirmationType
                 && user1.Login == user2.Login
-                && user1.Name == user2.Name;
+                && user1.Name == user2.Name
+                && user1.About == user2.About;
         }
         public static bool operator !=(UserLiteModel user1, UserLiteModel user2) => !(user1 == user2);
 
@@ -40,7 +43,8 @@ namespace MetaLib.Models
                 && user1.Email == user2.Email
                 && user1.ConfirmationType == user2.ConfirmationType
                 && user1.Login == user2.Login
-                && user1.Name == user2.Name;
+                && user1.Name == user2.Name
+                && user1.About == user2.About;
         }
         public static bool operator !=(UserLiteModel user1, UserMediumModel user2) => !(user1 == user2);
     }
