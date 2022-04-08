@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DbcPostgre\DbcPostgre.csproj" />
+    <ProjectReference Include="..\DbcMetaLib\DbcMetaSqliteLib.csproj" />
     <ProjectReference Include="..\MetaLib\MetaLib.csproj" />
     <ProjectReference Include="..\reCaptchaLib\reCaptchaLib.csproj" />
   </ItemGroup>
