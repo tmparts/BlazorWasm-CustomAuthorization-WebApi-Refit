@@ -14,10 +14,10 @@ namespace DbcMetaSqliteLib.Projects
     /// </summary>
     public class ProjectsTable : IProjectsTable
     {
-        readonly MetaAppSqliteContext _db_context;
+        readonly DbAppContext _db_context;
         readonly ILogger<ProjectsTable> _logger;
 
-        public ProjectsTable(MetaAppSqliteContext set_db_context, ILogger<ProjectsTable> set_logger)
+        public ProjectsTable(DbAppContext set_db_context, ILogger<ProjectsTable> set_logger)
         {
             _db_context = set_db_context;
             _logger = set_logger;

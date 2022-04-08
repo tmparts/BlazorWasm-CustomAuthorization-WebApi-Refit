@@ -216,6 +216,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MetaLib\MetaLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="wwwroot\clientconfig.Development.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -243,10 +247,6 @@
     <Content Update="wwwroot\js\site.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DbcMetaLib\DbcMetaSqliteLib.csproj" />
   </ItemGroup>
 
 </Project>

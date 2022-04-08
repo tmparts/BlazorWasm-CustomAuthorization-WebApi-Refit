@@ -33,7 +33,7 @@ WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
 #region db context
 
-builder.Services.AddScoped<MetaAppSqliteContext>();
+builder.Services.AddScoped<DbAppContext>();
 
 builder.Services.AddScoped<IConfirmationsTable, ConfirmationsTable>();
 builder.Services.AddScoped<IUsersTable, UsersTable>();
@@ -143,7 +143,7 @@ builder.Services.AddControllersWithViews();
 try
 {
     WebApplication app = builder.Build();
-
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     app.UseCors(x => x.AllowAnyMethod().AllowAnyHeader().SetIsOriginAllowed(origin => { return conf.WebConfig.ClientOrignsCORS.Contains(origin); }).AllowCredentials());
 
     app.UseSwagger();

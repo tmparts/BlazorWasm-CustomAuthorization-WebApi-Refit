@@ -13,7 +13,7 @@
     <PackageReference Include="Refit" Version="6.3.2" />
     <PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="6.3.2" />
-    <PackageReference Include="StackExchange.Redis" Version="2.5.43" />
+    <PackageReference Include="StackExchange.Redis" Version="2.5.61" />
   </ItemGroup>
 
 </Project>

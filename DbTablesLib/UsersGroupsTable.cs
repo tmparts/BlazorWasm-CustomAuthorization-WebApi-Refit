@@ -14,10 +14,10 @@ namespace DbcMetaSqliteLib.UsersGroups
     /// </summary>
     public class UsersGroupsTable : IUsersGroupsTable
     {
-        readonly MetaAppSqliteContext _db_context;
+        readonly DbAppContext _db_context;
         readonly ILogger<UsersGroupsTable> _logger;
 
-        public UsersGroupsTable(MetaAppSqliteContext set_db_context, ILogger<UsersGroupsTable> set_logger)
+        public UsersGroupsTable(DbAppContext set_db_context, ILogger<UsersGroupsTable> set_logger)
         {
             _db_context = set_db_context;
             _logger = set_logger;

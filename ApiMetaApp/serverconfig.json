@@ -9,7 +9,7 @@
     "ReCaptchaV2InvisibleConfig": {
       "PublicKey": "6Ld5eLgUAAAAAImQ1H3X1GkBgfZI-g_ojri1Gk3z",
       "PrivateKey": "6Ld5eLgUAAAAAGIqamBF-6Otg2dlU6Fc4L--OW6U"
-    }/*,
+    } /*,
     "ReCaptchaV3Config": {
       "PublicKey": "",
       "PrivateKey": ""
@@ -18,7 +18,8 @@
   "DatabaseConfig": {
     "Connect": {
       "SqLiteFileName": "designer_meta_app.db",
-      "ConnectionString": null
+      "ConnectionString": "Host=localhost;Port=5432;Database=edb;Username=postgres;Password=555555555"
+      //"ConnectionString": "Data Source=./bin/mydb.db;"
     },
     "SqlLogDebug": true,
     "EnableSensitiveDataLoggingDebug": true
@@ -46,7 +47,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "*",
+    "Password": "hjlcttsefnldyudv",
     "UseSsl": true
   },
   "RedisConfig": {
@@ -89,5 +90,6 @@
       "Message": ""
     },
     "ConfirmHistoryDays": 60
-  }
+  },
+  "RefitHandlerLifetimeMinutes": 0
 }

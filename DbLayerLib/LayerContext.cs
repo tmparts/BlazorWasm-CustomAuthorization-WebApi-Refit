@@ -6,51 +6,42 @@ using MetaLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MetaLib;
+using System.Data.Entity.Infrastructure;
+using DbLayerLib;
 
 namespace SrvMetaApp
 {
-    public class MetaAppSqliteContext : DbContext
+    public class LayerContext : DbContext
     {
-        private DatabaseConfigModel _config;
-        private static bool IsEnsureCreated = false;
+        protected DatabaseConfigModel _config;
+        protected static bool IsEnsureCreated = false;
 
-        public string DbPath { get; } = string.Empty;
+
 
         public static string DbFileName { get; set; } = string.Empty;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            if (string.IsNullOrWhiteSpace(_config.Connect.ConnectionString))
-            {
-#if DEBUG
-                if (!IsEnsureCreated)
-                {
-                    IsEnsureCreated = true;
-                    File.Delete(DbPath);
-                }
-#endif
-                options.UseSqlite($"Data Source={DbPath}");
-            }
-            else
-            {
-                options.UseSqlite(_config.Connect.ConnectionString);
-            }
-        }
+        //        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        //        {
+        //            if (string.IsNullOrWhiteSpace(_config.Connect.ConnectionString))
+        //            {
+        //#if DEBUG
+        //                if (!IsEnsureCreated)
+        //                {
+        //                    IsEnsureCreated = true;
+        //                    File.Delete(DbPath);
+        //                }
+        //#endif
+        //                options.UseSqlite($"Data Source={DbPath}");
+        //            }
+        //            else
+        //            {
+        //                options.UseSqlite(_config.Connect.ConnectionString);
+        //            }
+        //        }
 
-        public MetaAppSqliteContext(IOptions<ServerConfigModel> set_config)
+        public LayerContext(IOptions<ServerConfigModel> set_config)
         {
-            string? spec_path = AppDomain.CurrentDomain.BaseDirectory;
-
             _config = set_config.Value.DatabaseConfig;
-            if (string.IsNullOrWhiteSpace(_config.Connect.SqLiteFileName))
-            {
-                DbPath = Path.Join(spec_path, string.IsNullOrWhiteSpace(DbFileName) ? "designer_meta_app.db" : DbFileName);
-            }
-            else
-            {
-                DbPath = Path.Combine(spec_path, _config.Connect.SqLiteFileName);
-            }
-
             Database.EnsureCreated();
         }
 

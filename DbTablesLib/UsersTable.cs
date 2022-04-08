@@ -15,10 +15,10 @@ namespace DbcMetaSqliteLib.Users
     /// </summary>
     public class UsersTable : IUsersTable
     {
-        readonly MetaAppSqliteContext _db_context;
+        readonly DbAppContext _db_context;
         readonly ILogger<UsersTable> _logger;
 
-        public UsersTable(MetaAppSqliteContext set_db_context, ILogger<UsersTable> set_logger)
+        public UsersTable(DbAppContext set_db_context, ILogger<UsersTable> set_logger)
         {
             _db_context = set_db_context;
             _logger = set_logger;

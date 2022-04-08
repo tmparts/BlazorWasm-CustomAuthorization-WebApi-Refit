@@ -15,11 +15,11 @@ namespace DbcMetaSqliteLib.Confirmations
 {
     public class ConfirmationsTable : IConfirmationsTable
     {
-        readonly MetaAppSqliteContext _db_context;
+        readonly DbAppContext _db_context;
         readonly ILogger<ConfirmationsTable> _logger;
         readonly IOptions<ServerConfigModel> _config;
 
-        public ConfirmationsTable(MetaAppSqliteContext set_db_context, ILogger<ConfirmationsTable> set_logger, IOptions<ServerConfigModel> set_config)
+        public ConfirmationsTable(DbAppContext set_db_context, ILogger<ConfirmationsTable> set_logger, IOptions<ServerConfigModel> set_config)
         {
             _db_context = set_db_context;
             _logger = set_logger;
