@@ -18,8 +18,8 @@
   "DatabaseConfig": {
     "Connect": {
       "SqLiteFileName": "designer_meta_app.db",
-      //"ConnectionString": "Host=localhost;Port=5432;Database=edb;Username=postgres;Password=555555555"
-      "ConnectionString": "Data Source=./bin/mydb.db;"
+      "ConnectionString": "Host=localhost;Port=5432;Database=edb;Username=postgres;Password=555555555"
+      //"ConnectionString": "Data Source=./bin/mydb.db;"
     },
     "SqlLogDebug": true,
     "EnableSensitiveDataLoggingDebug": true

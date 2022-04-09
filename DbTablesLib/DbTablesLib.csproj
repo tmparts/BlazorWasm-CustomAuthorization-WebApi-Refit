@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DbcMetaLib\DbcMetaSqliteLib.csproj" />
+    <ProjectReference Include="..\DbcPostgre\DbcPostgre.csproj" />
   </ItemGroup>
 
 </Project>
