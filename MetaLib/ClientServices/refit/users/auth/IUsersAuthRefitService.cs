@@ -6,12 +6,12 @@ namespace MetaLib.ClientServices.refit
     {
         public SessionReadResponseModel GetUserSession();
 
-        public Task<AuthUserResponseModel> LoginUser(UserAuthorizationModel user);
+        public Task<AuthUserResponseModel> LoginUserAsync(UserAuthorizationModel user);
 
-        public Task<AuthUserResponseModel> RegistrationNewUser(UserRegistrationModel user);
+        public Task<AuthUserResponseModel> RegistrationNewUserAsync(UserRegistrationModel user);
 
-        public Task<ResponseBaseModel> LogOutUser();
+        public Task<ResponseBaseModel> LogOutUserAsync();
 
-        public Task<ResponseBaseModel> RestoreUser(UserRestoreModel user);
+        public Task<ResponseBaseModel> RestoreUserAsync(UserRestoreModel user);
     }
 }

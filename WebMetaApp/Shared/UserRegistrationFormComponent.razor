@@ -83,13 +83,13 @@
     {
         IsBusyProgress = true;
 
-        user_registration_result = await usersAuthRefitService.RegistrationNewUser(user_registration_obj);
+        user_registration_result = await usersAuthRefitService.RegistrationNewUserAsync(user_registration_obj);
         if (!user_registration_result.IsSuccess)
         {
             if (!string.IsNullOrEmpty(user_registration_result.Message))
                 Logger.LogError(user_registration_result.Message);
             else
-                Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LoginUser)}");
+                Logger.LogError($"Ошибка API: {nameof(usersAuthRefitService.LoginUserAsync)}");
         }
 
         authState.AuthenticationStateChanged();

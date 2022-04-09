@@ -172,7 +172,7 @@ namespace SrvMetaApp.Repositories
             ResponseBaseModel confirm_reset_password;
 
             confirm_reset_password = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RestoreUser);
-           
+
             if (!confirm_reset_password.IsSuccess)
             {
                 res.Message = $"Ошибка. Произошёл сбой отправки Email.\n{confirm_reset_password.Message}".Trim();
@@ -192,13 +192,6 @@ namespace SrvMetaApp.Repositories
             {
                 IsSuccess = !string.IsNullOrWhiteSpace(user?.Login) || !string.IsNullOrWhiteSpace(user?.Email)
             };
-
-            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None && string.IsNullOrWhiteSpace(user.ResponseReCAPTCHA))
-            {
-                res.IsSuccess = false;
-                res.Message = "Пройдите проверку reCaptcha";
-                return res;
-            }
 
             if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
             {
@@ -268,13 +261,6 @@ namespace SrvMetaApp.Repositories
             await LogOutAsync();
             AuthUserResponseModel res = new AuthUserResponseModel() { Message = string.Empty };
 
-            if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None && string.IsNullOrWhiteSpace(new_user.ResponseReCAPTCHA))
-            {
-                res.IsSuccess = false;
-                res.Message = "Пройдите проверку reCaptcha";
-                return res;
-            }
-
             if (_config.Value.ReCaptchaConfig.Mode > ReCaptchaModesEnum.None)
             {
                 res.IsSuccess = !string.IsNullOrWhiteSpace(new_user.ResponseReCAPTCHA);
@@ -309,19 +295,26 @@ namespace SrvMetaApp.Repositories
             if (await _users_dt.AnyByLoginOrEmailAsync(new_user.Login, new_user.Email))
             {
                 res.IsSuccess = false;
-                res.Message = $"'Логин' и/или 'Email' занят.";
+                res.Message = $"'Логин' и/или 'Email' занят. Если вы ранее регистрировали с таким Email, вы можете восстановить доступ к своей учётной записи.";
                 return res;
             }
             UserModelDB user_db = (UserModelDB)new_user;
             await _users_dt.AddAsync(user_db);
 
             ResponseBaseModel confirm_user_registeration = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RegistrationUser);
-
-            await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
-            SessionReadResponseModel? current_session = ReadMainSession();
-
-            res.IsSuccess = true;
-            res.SessionMarker = current_session.SessionMarker;
+            if (confirm_user_registeration.IsSuccess)
+            {
+                await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
+                SessionReadResponseModel? current_session = ReadMainSession();
+                res.IsSuccess = true;
+                res.SessionMarker = current_session.SessionMarker;
+            }
+            else
+            {
+                res.IsSuccess = false;
+                res.SessionMarker = null;
+                res.Message = $"Регистрация прошла успешно, но отправка Email с сылкой для подвтерждения учётной записи завершилась с ошибкой: {confirm_user_registeration.Message}";
+            }
             return res;
         }
 

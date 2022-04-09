@@ -161,14 +161,14 @@
                             <h4 class="alert-heading">Email не подтверждён!</h4>
                             <p>Ваш акаунт будет ограничен до тех пор, пока вы не подвтердите свою электроную почту.</p>
                             <hr>
-                            <p>После регистрации учётной записи - вам было отправлено предложение (от <u>@conf.EmailSenderAddress</u>) подвтердить её, перейдя по ссылке активации. Если по какой-то причине вы не получили письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistration">повторно запросить новый токен подвтерждения</a></p>
+                            <p>После регистрации учётной записи - вам было отправлено предложение (от <u>@conf.EmailSenderAddress</u>) подвтердить её, перейдя по ссылке активации. Если по какой-то причине вы не получили письма, можете <a href=@(MyNavigationManager.Uri) @onclick="RenewConfirmRegistrationAsync">повторно запросить новый токен подвтерждения</a></p>
                         </div>
                     }
                     else
                     {
                         <div class="alert alert-info" role="alert">
                             <h4 class="alert-heading">Повторная активация!</h4>
-                            <p>Вам повторно отправлена ссылка для активации вашей учётной записи (от <u>@conf.EmailSenderAddress</u>). Проверьте свой Email</p>
+                            <p>Вам повторно отправлена ссылка для активации вашей учётной записи (от <u>@conf.EmailSenderAddress</u>). @re_activate_info</p>
                         </div>
                     }
                 }
@@ -210,6 +210,7 @@
     string user_email_host;
 
     bool re_activate_is_sended = false;
+    string re_activate_info = string.Empty;
 
 
     private async Task OnNameChanged(ChangeEventArgs e)
@@ -224,9 +225,11 @@
 
     }
 
-    private async Task RenewConfirmRegistration()
+    private async Task RenewConfirmRegistrationAsync()
     {
-        usersAuthRefitService.RestoreUser(new UserRestoreModel());
+        ResponseBaseModel res = await usersAuthRefitService.RestoreUserAsync(new UserRestoreModel());
+        re_activate_info = res.Message;
+        re_activate_is_sended = true;
     }
 
     protected override async void OnInitialized()
