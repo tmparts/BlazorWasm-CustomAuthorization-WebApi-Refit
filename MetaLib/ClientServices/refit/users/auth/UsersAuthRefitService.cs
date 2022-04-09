@@ -143,6 +143,13 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.RegistrationNewUser)} > {JsonConvert.SerializeObject(user)}";
                 _logger.LogError(ex, result.Message);
+
+                _session_marker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+                await _session_local_storage.SaveSessionAsync(_session_marker);
+
+                result.IsSuccess = false;
+                result.Message = ex.Message;
+                return result;
             }
             _session_marker.Reload(result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
             await _session_local_storage.SaveSessionAsync(_session_marker);
