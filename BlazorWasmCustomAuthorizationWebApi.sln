@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbLayerLib", "DbLayerLib\Db
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTablesLib", "DbTablesLib\DbTablesLib.csproj", "{0BEC83ED-115E-4430-84D6-AACC533D2D3F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "db context", "db context", "{C9789F3C-2183-4D3E-8014-ACB6D4613923}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6FB1234A-4D75-4E24-BF6F-DCDE76D78C48} = {C9789F3C-2183-4D3E-8014-ACB6D4613923}
+		{C8E9C1CD-42E9-4D3B-B132-030478986061} = {C9789F3C-2183-4D3E-8014-ACB6D4613923}
+		{46EBEA83-AE15-4C6B-933A-282CACC1DF2B} = {C9789F3C-2183-4D3E-8014-ACB6D4613923}
+		{0BEC83ED-115E-4430-84D6-AACC533D2D3F} = {C9789F3C-2183-4D3E-8014-ACB6D4613923}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7418CFC7-090C-4266-AA7E-D7D9476838EC}
