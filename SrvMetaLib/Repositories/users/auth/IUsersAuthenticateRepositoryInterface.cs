@@ -32,7 +32,7 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// авторизация сессии пользователя (HttpContext)
         /// </summary>
-        public Task AuthUserAsync(string login, AccessLevelsUsersEnum access_level_user, int seconds_session);
+        public Task AuthUserAsync(int id, string login, AccessLevelsUsersEnum access_level_user, int seconds_session);
 
         /// <summary>
         /// Регистрация нового пароля

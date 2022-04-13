@@ -14,8 +14,9 @@ namespace MetaLib.Models
         public bool IsLongTimeSession { get; set; }
 
         public SessionMarkerModel() { }
-        public SessionMarkerModel(string set_login, AccessLevelsUsersEnum set_access_level_user, string set_token, bool is_long_time_session)
+        public SessionMarkerModel(int id, string set_login, AccessLevelsUsersEnum set_access_level_user, string set_token, bool is_long_time_session)
         {
+            Id = id;
             Login = set_login;
             AccessLevelUser = set_access_level_user;
             Token = set_token;
@@ -23,9 +24,11 @@ namespace MetaLib.Models
         }
 
         /// <summary>
-        /// маркер сессии. например: 020|t1|user_login
+        /// маркер сессии. например: 8|20|t1|user_login
         /// </summary>
-        /// <param name="session_marker">первые три символа - это идентификатор уровня доступа.
+        /// <param name="session_marker"> первое число - это идентификатор пользователя
+        /// потом разделитель "|".
+        /// затем - идентификатор уровня доступа.
         /// потом разделитель "|".
         /// затем признак длительности сессии: t1 - стандартная; t2 - длительная
         /// потом разделитель "|".
@@ -33,24 +36,38 @@ namespace MetaLib.Models
         /// логин</param>
         public SessionMarkerModel(string session_marker)
         {
-            if (string.IsNullOrWhiteSpace(session_marker))
-            {
-                return;
-            }
-            session_marker = session_marker.Trim();
+            session_marker = session_marker?.Trim() ?? string.Empty;
             if (session_marker.Length < 8)
             {
                 return;
             }
-            if (int.TryParse(session_marker[..3], out int access_level_user))
+            string[] segments = session_marker.Split("|");
+
+            if (segments.Length != 4)
             {
-                AccessLevelUser = (AccessLevelsUsersEnum)access_level_user;
+                return;
             }
 
-            IsLongTimeSession = session_marker.Substring(4, 2).ToLower() == "t2";
+            if (!int.TryParse(segments[0], out int user_id))
+            {
+                return;
+            }
 
-            Login = session_marker[7..];
+            if (!int.TryParse(segments[1], out int access_level_user))
+            {
+                return;
+            }
 
+            Login = segments[3];
+
+            if (string.IsNullOrEmpty(Login))
+            {
+                return;
+            }
+
+            Id = user_id;
+            IsLongTimeSession = segments[2].ToLower() == "t2";
+            AccessLevelUser = (AccessLevelsUsersEnum)access_level_user;
             IsParsed = true;
         }
 
@@ -71,14 +88,14 @@ namespace MetaLib.Models
         /// <param name="set_login">логин пользователя</param>
         /// <param name="is_long_time_session">Признак длительной сессии</param>
         /// <returns></returns>
-        public static string GetSessionMarker(AccessLevelsUsersEnum set_access_level_user, string set_login, bool is_long_time_session)
+        public static string GetSessionMarker(int id, AccessLevelsUsersEnum set_access_level_user, string set_login, bool is_long_time_session)
         {
-            return $"{((int)set_access_level_user):D3}|{(is_long_time_session ? "t2" : "t1")}|{set_login}";
+            return $"{id}|{(int)set_access_level_user}|{(is_long_time_session ? "t2" : "t1")}|{set_login}";
         }
 
         public override string ToString()
         {
-            return $"{((int)AccessLevelUser):D3}|{(IsLongTimeSession ? "t2" : "t1")}|{Login}";
+            return $"{Id}|{(int)AccessLevelUser}|{(IsLongTimeSession ? "t2" : "t1")}|{Login}";
         }
     }
 }

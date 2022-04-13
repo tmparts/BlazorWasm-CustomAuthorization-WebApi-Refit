@@ -31,6 +31,10 @@ namespace DbcMetaLib.Users
 
         public Task<GetUserProfileResponseModel> GetUserProfileAsync(int id);
 
+        public Task<bool> PasswordEqualByUserIdAsync(int user_id, string password_hash);
+
+        public Task PasswordUpdateByUserIdAsync(int user_id, string password_hash);
+
         public Task<GetUserProfileResponseModel> GetUserProfileAsync(string login);
     }
 }

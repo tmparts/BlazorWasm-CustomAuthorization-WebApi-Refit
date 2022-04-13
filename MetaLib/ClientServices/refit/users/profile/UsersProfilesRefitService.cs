@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////
 
 using MetaLib.Models;
+using MetaLib.Models.api.request;
+using MetaLib.Models.enums;
 using MetaLib.Services;
 using Microsoft.Extensions.Logging;
 using Refit;
@@ -37,7 +39,7 @@ namespace MetaLib.ClientServices.refit
 
                     return result;
                 }
-                result.IsSuccess = true;
+                result.IsSuccess = rest.Content.IsSuccess;
                 result.User = rest.Content.User;
                 result.Message = rest.Content.Message;
             }
@@ -67,13 +69,13 @@ namespace MetaLib.ClientServices.refit
 
                     return result;
                 }
-                result.IsSuccess = true;
+                result.IsSuccess = rest.Content.IsSuccess;
                 result = rest.Content;
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
-                result.Message = $"Exception {nameof(_users_profile_service.GetUserProfileAsync)}";
+                result.Message = $"Exception {nameof(_users_profile_service.FindUsersProfilesAsync)}";
                 _logger.LogError(ex, result.Message);
             }
 
@@ -96,13 +98,42 @@ namespace MetaLib.ClientServices.refit
 
                     return result;
                 }
-                result.IsSuccess = true;
+                result.IsSuccess = rest.Content.IsSuccess;
                 result = rest.Content;
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
-                result.Message = $"Exception {nameof(_users_profile_service.GetUserProfileAsync)}";
+                result.Message = $"Exception {nameof(_users_profile_service.UpdateUserProfileAsync)}";
+                _logger.LogError(ex, result.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<UpdateUserProfileResponseModel> ChangeUserProfileAsync(UserProfileAreasEnum area, ChangeUserProfileOptionsModel user_options)
+        {
+            UpdateUserProfileResponseModel result = new UpdateUserProfileResponseModel();
+
+            try
+            {
+                ApiResponse<UpdateUserProfileResponseModel>? rest = await _users_profile_service.ChangeUserProfileAsync(area, user_options);
+
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    result.IsSuccess = false;
+                    result.Message = $"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}";
+                    _logger.LogError(result.Message);
+
+                    return result;
+                }
+                result.IsSuccess = rest.Content.IsSuccess;
+                result = rest.Content;
+            }
+            catch (Exception ex)
+            {
+                result.IsSuccess = false;
+                result.Message = $"Exception {nameof(_users_profile_service.ChangeUserProfileAsync)}";
                 _logger.LogError(ex, result.Message);
             }
 

@@ -11,30 +11,34 @@ namespace SrvMetaApp
 {
     public class DbAppContext : LayerContext
     {
-        public string DbPath { get; protected set; } = string.Empty;
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (string.IsNullOrWhiteSpace(_config.Connect.ConnectionString))
+            if (!IsEnsureCreated)
             {
-#if DEBUG
-                if (!IsEnsureCreated)
+                IsEnsureCreated = true;
+                string prefix = "Data Source=";
+                string DbPath = _config.Connect.ConnectionString;
+
+                DbPath = DbPath.Substring(prefix.Length).Trim();
+                if (DbPath.EndsWith(";"))
                 {
-                    IsEnsureCreated = true;
+                    DbPath = DbPath.Substring(0, DbPath.Length - 1);
+                }
+                FileInfo? fi = new FileInfo(DbPath);
+#if DEBUG
+                if (fi.Exists)
+                {
                     File.Delete(DbPath);
                 }
-#endif
-                options.UseSqlite($"Data Source={DbPath}");
+#endif   
+                _config.Connect.ConnectionString = $"{prefix}{fi.FullName}";
             }
-            else
-            {
-                options.UseSqlite(_config.Connect.ConnectionString);
-            }
+            options.UseSqlite(_config.Connect.ConnectionString);
         }
 
         public DbAppContext(IOptions<ServerConfigModel> set_config) : base(set_config)
         {
             string? spec_path = AppDomain.CurrentDomain.BaseDirectory;
-            DbPath = Path.Combine(spec_path, _config.Connect.DatabaseFileName);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace SrvMetaApp.Models
         readonly IHttpContextAccessor _httpContext;
         readonly IMemoryCashe _mem_cashe;
 
-        public SessionMarkerModel SessionMarker { get; set; } = new SessionMarkerModel(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty, false);
+        public SessionMarkerModel SessionMarker { get; set; } = new SessionMarkerModel(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty, false);
 
         public SessionService(IHttpContextAccessor set_http_context, IOptions<ServerConfigModel> set_config, IMemoryCashe set_mem_cashe)
         {
@@ -32,17 +32,10 @@ namespace SrvMetaApp.Models
 
         public async Task InitSession()
         {
-            if (_httpContext?.HttpContext?.User.Identity is null)
-                return;
-
             Guid token = ReadTokenFromRequest();
             if (token == Guid.Empty)
             {
-                if (_httpContext.HttpContext.User.Identity.IsAuthenticated == true)
-                {
-                    await _httpContext.HttpContext.SignOutAsync();
-                }
-                SessionMarker?.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+                SessionMarker?.Reload(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
                 return;
             }
             GuidToken = token.ToString();
@@ -52,10 +45,10 @@ namespace SrvMetaApp.Models
             if (string.IsNullOrEmpty(token_marker))
             {
                 GuidToken = string.Empty;
-                if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated == true)
-                {
-                    await _httpContext.HttpContext.SignOutAsync();
-                }
+                //if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated == true)
+                //{
+                //    await _httpContext.HttpContext.SignOutAsync();
+                //}
                 return;
             }
 
@@ -63,26 +56,21 @@ namespace SrvMetaApp.Models
 
             if (string.IsNullOrEmpty(SessionMarker.Login))
             {
-                SessionMarker?.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
-                await _httpContext.HttpContext.SignOutAsync();
+                SessionMarker?.Reload(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+                //await _httpContext.HttpContext.SignOutAsync();
             }
             else
             {
                 SessionMarker.Token = token.ToString();
-                if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated != true)
-                {
-                    //await AuthenticateAsync(SessionMarker.Login, SessionMarker.AccessLevelUser.ToString());
-                    await _mem_cashe.UpdateValueAsync(UsersAuthenticateRepository.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
-                }
+                await _mem_cashe.UpdateValueAsync(UsersAuthenticateRepository.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
             }
         }
 
         public Guid ReadTokenFromRequest()
         {
-            if (_httpContext.HttpContext.Request.Headers.TryGetValue(GlobalStaticConstants.SESSION_TOKEN_NAME, out StringValues tok))
+            if (_httpContext.HttpContext.Request.Headers.TryGetValue(_config.Value.CookiesConfig.SessionTokenName, out StringValues tok))
             {
                 string raw_token = tok.FirstOrDefault() ?? string.Empty;
-
                 if (!string.IsNullOrWhiteSpace(raw_token) && Guid.TryParse(raw_token, out Guid parsed_guid))
                 {
                     return parsed_guid;
@@ -91,23 +79,5 @@ namespace SrvMetaApp.Models
 
             return Guid.Empty;
         }
-
-        //public async Task AuthenticateAsync(string set_login, string set_role)
-        //{
-        //    List<Claim> claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimsIdentity.DefaultNameClaimType, set_login),
-        //        new Claim(ClaimsIdentity.DefaultRoleClaimType, set_role)
-        //    };
-
-        //    ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-        //    ClaimsPrincipal id_claim = new ClaimsPrincipal(id);
-        //    if (_httpContext.HttpContext is not null)
-        //    {
-        //        _httpContext.HttpContext.User = id_claim;
-        //        await _httpContext.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, id_claim);
-        //        AuthenticateResult? res_auth = await _httpContext.HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        //    }
-        //}
     }
 }

@@ -78,7 +78,7 @@ namespace MetaLib.ClientServices.refit
 
             if (result.IsSuccess)
             {
-                _session_marker.Reload(result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
+                _session_marker.Reload(result.SessionMarker.Id, result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
                 await _session_local_storage.SaveSessionAsync(_session_marker);
             }
 
@@ -143,7 +143,7 @@ namespace MetaLib.ClientServices.refit
                 result.IsSuccess = false;
                 result.Message = $"Exception {nameof(_users_auth_service.RegistrationNewUser)} > {JsonConvert.SerializeObject(user)}";
                 _logger.LogError(ex, result.Message);
-                _session_marker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+                _session_marker.Reload(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
                 await _session_local_storage.SaveSessionAsync(_session_marker);
                 result.IsSuccess = false;
                 result.Message = ex.Message;
@@ -152,7 +152,7 @@ namespace MetaLib.ClientServices.refit
             }
             if (result.IsSuccess && !string.IsNullOrEmpty(result.SessionMarker.Login))
             {
-                _session_marker.Reload(result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
+                _session_marker.Reload(result.SessionMarker.Id, result.SessionMarker.Login, result.SessionMarker.AccessLevelUser, result.SessionMarker.Token);
                 await _session_local_storage.SaveSessionAsync(_session_marker);
             }
             return result;

@@ -11,6 +11,8 @@ namespace MetaLib.Models
         /// </summary>
         public HostConfigModel ApiConfig { get; set; } = new HostConfigModel() { Host = "localhost", Port = 5501, HttpSheme = "http" };
 
+        public HttpSessionCookieConfigModel CookiesConfig { get; set; } = new HttpSessionCookieConfigModel();
+
         /// <summary>
         /// Настройки хоста Blazor сервера
         /// </summary>

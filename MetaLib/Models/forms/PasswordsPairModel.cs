@@ -4,7 +4,7 @@ namespace MetaLib.Models
 {
     public class PasswordsPairModel
     {
-        [StringLength(30, MinimumLength = 8, ErrorMessage = "Длина пароля должна быть от 8 до 30 символов")]
+        [Required(ErrorMessage = "Укажите текущий пароль")]
         public string PasswordCurrent { get; set; } = string.Empty;
 
         [StringLength(30, MinimumLength = 8, ErrorMessage = "Длина пароля должна быть от 8 до 30 символов")]

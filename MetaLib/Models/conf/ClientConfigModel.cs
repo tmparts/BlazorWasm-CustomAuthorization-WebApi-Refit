@@ -31,7 +31,8 @@ namespace MetaLib.Models
                 ClientConfig = v.ClientConfig,
                 ReCaptchaConfig = v.ReCaptchaConfig,
                 RefitHandlerLifetimeMinutes = v.RefitHandlerLifetimeMinutes,
-                EmailSenderAddress = v.SmtpConfig.Email
+                EmailSenderAddress = v.SmtpConfig.Email,
+                CookiesConfig = v.CookiesConfig
             };
 
             return res;

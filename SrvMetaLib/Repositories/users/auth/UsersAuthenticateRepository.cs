@@ -69,11 +69,6 @@ namespace SrvMetaApp.Repositories
                 return new ResponseBaseModel() { IsSuccess = false, Message = "HttpContext is null" };
             }
 
-            //if (!string.IsNullOrEmpty(_session_service.SessionMarker?.Login))
-            //{
-            //    await _http_context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            //}
-
             string token = _session_service.ReadTokenFromRequest().ToString();
             if (!string.IsNullOrEmpty(token) && token != Guid.Empty.ToString())
             {
@@ -141,7 +136,7 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            await AuthUserAsync(user_db.Login, user_db.AccessLevelUser, user.RememberMe ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
+            await AuthUserAsync(user_db.Id, user_db.Login, user_db.AccessLevelUser, user.RememberMe ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
             SessionReadResponseModel? current_session = ReadMainSession();
 
             res.IsSuccess = true;
@@ -304,7 +299,7 @@ namespace SrvMetaApp.Repositories
             ResponseBaseModel confirm_user_registeration = await _confirmations_repo.CreateConfirmationAsync(user_db, ConfirmationsTypesEnum.RegistrationUser);
             if (confirm_user_registeration.IsSuccess)
             {
-                await AuthUserAsync(user_db.Login, user_db.AccessLevelUser);
+                await AuthUserAsync(user_db.Id, user_db.Login, user_db.AccessLevelUser);
                 SessionReadResponseModel? current_session = ReadMainSession();
                 res.IsSuccess = true;
                 res.SessionMarker = current_session.SessionMarker;
@@ -345,14 +340,14 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
-        public async Task AuthUserAsync(string login, AccessLevelsUsersEnum access_level, int seconds_session = 0)
+        public async Task AuthUserAsync(int id, string login, AccessLevelsUsersEnum access_level, int seconds_session = 0)
         {
             if (seconds_session <= 0)
             {
                 seconds_session = _config.Value.CookiesConfig.SessionCookieExpiresSeconds;
             }
             _session_service.GuidToken = Guid.NewGuid().ToString();
-            _session_service.SessionMarker = new SessionMarkerModel(login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
+            _session_service.SessionMarker = new SessionMarkerModel(id, login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
             //await _session_service.AuthenticateAsync(login, access_level.ToString());
             await _mem_cashe.UpdateValueAsync(PrefRedisSessions, _session_service.GuidToken, _session_service.SessionMarker.ToString(), TimeSpan.FromSeconds(seconds_session));
             await _mem_cashe.UpdateValueAsync(new MemCashePrefixModel("sessions", login), _session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}", TimeSpan.FromSeconds(seconds_session + 60));

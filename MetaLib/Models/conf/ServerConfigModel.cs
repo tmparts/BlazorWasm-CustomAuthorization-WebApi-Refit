@@ -15,8 +15,6 @@ namespace MetaLib.Models
 
         public DatabaseConfigModel DatabaseConfig { get; set; } = new DatabaseConfigModel();
 
-        public HttpSessionCookieConfigModel CookiesConfig { get; set; } = new HttpSessionCookieConfigModel();
-
         public WebConfigModel WebConfig { get; set; } = new WebConfigModel();
 
         /// <summary>

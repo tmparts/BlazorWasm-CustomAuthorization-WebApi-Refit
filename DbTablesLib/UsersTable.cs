@@ -170,5 +170,19 @@ namespace DbcMetaSqliteLib.Users
 
             return res;
         }
+
+        public async Task<bool> PasswordEqualByUserIdAsync(int user_id, string password_hash)
+        {
+            return await _db_context.Users.AnyAsync(x => x.Id == user_id && x.PasswordHash == password_hash);
+        }
+
+        public async Task PasswordUpdateByUserIdAsync(int user_id, string password_hash)
+        {
+            UserModelDB upd_user = new UserModelDB() { Id = user_id, PasswordHash = password_hash };
+            _db_context.Users.Attach(upd_user);
+            _db_context.Entry(upd_user).Property(x => x.PasswordHash).IsModified = true;
+
+            await _db_context.SaveChangesAsync();
+        }
     }
 }

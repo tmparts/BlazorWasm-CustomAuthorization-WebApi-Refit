@@ -27,7 +27,8 @@
   "CookiesConfig": {
     "SessionCookieExpiresSeconds": 86400,
     "LongSessionCookieExpiresSeconds": 172800,
-    "SessionCookieSslSecureOnly": false
+    "SessionCookieSslSecureOnly": false,
+    "SessionTokenName": "token-session-id"
   },
   "WebConfig": {
     "ClientOrignsCORS": [ "https://localhost:7222" ],
@@ -47,7 +48,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "hjlcttsefnldyudv",
+    "Password": "",
     "UseSsl": true
   },
   "RedisConfig": {

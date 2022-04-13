@@ -93,22 +93,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddMemoryCache();
 
-//builder.Services.AddSwaggerGen();
-//builder.Services.AddAuthorization();
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options =>
-//    {
-//        options.LoginPath = "/api/UsersAuthorization";//api/<UsersController>/ReturnUrl=/api/UsersAuthorization
-//        options.AccessDeniedPath = "/AccessDenied";
-//        options.LogoutPath = $"/{GlobalStaticConstants.LOGOUT_ACTION_NAME}";
-//    });
-
-//builder.Services.AddSession(options =>
-//{
-//    options.Cookie.Name = ".MyApp.Session";
-//    options.IdleTimeout = TimeSpan.FromMinutes(60);
-//});
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.EnableAnnotations();

@@ -4,6 +4,8 @@
 
 using ApiMetaApp.Filters;
 using MetaLib.Models;
+using MetaLib.Models.api.request;
+using MetaLib.Models.enums;
 using Microsoft.AspNetCore.Mvc;
 using SrvMetaApp.Models;
 using SrvMetaApp.Repositories;
@@ -78,11 +80,28 @@ namespace ApiMetaApp.Controllers
         /// </summary>
         /// <param name="user">Объект пользователя для записи в БД</param>
         [HttpPut]
-        //[Authorize]
         [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public async Task<UpdateUserProfileResponseModel> Put([FromBody] UserLiteModel user)
         {
             UpdateUserProfileResponseModel? res = await _profiles_repo.UpdateUserProfileAsync(user);
+            return res;
+        }
+
+        [HttpPut("{area}")]
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
+        public async Task<ResponseBaseModel> Put([FromRoute] UserProfileAreasEnum area, [FromBody] ChangeUserProfileOptionsModel user_options)
+        {
+            user_options.OptionAttribute ??= string.Empty;
+            ResponseBaseModel res = area switch
+            {
+                UserProfileAreasEnum.PasswordChange => await _profiles_repo.ChangeUserPasswordAsync(user_options),
+                UserProfileAreasEnum.KillSession => await _profiles_repo.KillUserSessionAsync(user_options),
+                _ => new ResponseBaseModel()
+                {
+                    IsSuccess = false,
+                    Message = $"НЕ удалось определить обработчик команды: {area}"
+                },
+            };
             return res;
         }
     }

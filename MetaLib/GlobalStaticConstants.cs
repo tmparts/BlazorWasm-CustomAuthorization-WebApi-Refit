@@ -4,8 +4,13 @@
 
 public static class GlobalStaticConstants
 {
-    #region имена полей в storage браузера для хранения информации о сессии
-    
+    #region имена полей для хранения информации о сессии
+
+    /// <summary>
+    /// имя поля в storage браузера для хранения информации о 'id пользователя' сессии
+    /// </summary>
+    public const string SESSION_STORAGE_KEY_USER_ID = "session_user_id";
+
     /// <summary>
     /// имя поля в storage браузера для хранения информации о 'логине' сессии
     /// </summary>

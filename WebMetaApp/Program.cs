@@ -5,9 +5,11 @@
 using Blazored.LocalStorage;
 using MetaLib;
 using MetaLib.Models;
+using MetaLib.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using WebMetaApp;
@@ -16,6 +18,7 @@ WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+builder.Services.AddMemoryCache();
 //builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
 
@@ -79,7 +82,7 @@ conf.ReCaptchaConfig = remote_conf.ReCaptchaConfig;
 builder.Services.AddSingleton<ClientConfigModel>(sp => remote_conf);
 
 builder.Services.AddScoped(sp => http);
-
+builder.Services.AddScoped<RefitHeadersDelegatingHandler>();
 #endregion
 
 builder.Services.InitAccessMinLevelHandler();
@@ -88,9 +91,10 @@ TimeSpan refit_handler_lifetime = TimeSpan.FromMinutes(2);
 if (remote_conf.RefitHandlerLifetimeMinutes > 0)
     refit_handler_lifetime = TimeSpan.FromMinutes(remote_conf.RefitHandlerLifetimeMinutes);
 //
-builder.Services.InitRefit(conf, marker, refit_handler_lifetime);
+builder.Services.InitRefit(conf, refit_handler_lifetime);
 
 WebAssemblyHost WebHost = builder.Build();
+
 
 IClientSession SessionLocalStorage = WebHost.Services.GetService<IClientSession>();
 SessionMarkerLiteModel set_marker = await SessionLocalStorage.ReadSessionAsync();
@@ -102,7 +106,7 @@ GetUserProfileResponseModel check_session = JsonConvert.DeserializeObject<GetUse
 if (check_session?.IsSuccess != true)
 {
     await SessionLocalStorage.RemoveSessionAsync();
-    set_marker.Reload(string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+    set_marker.Reload(0,string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
     await SessionLocalStorage.SaveSessionAsync(set_marker);
 }
 else

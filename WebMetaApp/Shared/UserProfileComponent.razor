@@ -1,9 +1,12 @@
 ﻿@using MetaLib.Services
+@using Newtonsoft.Json
 @using Refit
 @using MetaLib.Models
 @using MetaLib
 @using CustomPolicyProvider
 @using MetaLib.ClientServices.refit
+@using MetaLib.Models.api.request
+@using MetaLib.Models.enums
 
 @inherits BlazorBusyComponentBaseModel
 
@@ -51,7 +54,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleInputAbout" class="form-label">Информация</label>
-                                    <InputRichTextComponent Id="exampleInputAbout" @bind-Value="user_profile_result.About" readonly="@(!CanEditAbout)"/>
+                                    <InputRichTextComponent Id="exampleInputAbout" @bind-Value="user_profile_result.About" readonly="@(!CanEditAbout)" />
                                     <div id="nameAbout" class="form-text">Коротко о себе / Подпись</div>
                                 </div>
                                 <div class="input-group">
@@ -222,7 +225,17 @@
 
     private async Task NewPasswordHandleValidSubmitAsync()
     {
+        UpdateUserProfileResponseModel rest = await usersProfilesRefitService.ChangeUserProfileAsync(UserProfileAreasEnum.PasswordChange, new ChangeUserProfileOptionsModel() { UserId = user_profile_result.Id, OptionAttribute = JsonConvert.SerializeObject(change_password) });
+        if (!rest.IsSuccess)
+        {
+            if (!string.IsNullOrEmpty(rest.Message))
+                Logger.LogError(rest.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersProfilesRefitService.ChangeUserProfileAsync)}({nameof(UserProfileAreasEnum.PasswordChange)})");
 
+            IsBusyProgress = false;
+            return;
+        }
     }
 
     private async Task RenewConfirmRegistrationAsync()
@@ -264,7 +277,15 @@
         }
 
         user_profile_result = rest.User;
-        await ReloadFormAsync();
+        if (rest.IsSuccess)
+        {
+            await ReloadFormAsync();
+        }
+        else
+        {
+            ModalBodyText = $"Rest user is NULL! {rest.Message}".Trim();
+            Modal.Open("Ошибка!");
+        }
     }
 
     private async Task HandleValidSubmitAsync()

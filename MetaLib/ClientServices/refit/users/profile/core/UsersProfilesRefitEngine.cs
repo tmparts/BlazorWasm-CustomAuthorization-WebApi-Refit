@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////
 
 using MetaLib.Models;
+using MetaLib.Models.api.request;
+using MetaLib.Models.enums;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Refit;
@@ -20,19 +22,18 @@ namespace MetaLib.Services
             _logger = set_logger;
         }
 
+        public async Task<ApiResponse<UpdateUserProfileResponseModel>> ChangeUserProfileAsync(UserProfileAreasEnum area, ChangeUserProfileOptionsModel user_options)
+        {
+            return await _api.ChangeUserProfileAsync(area, user_options);
+        }
+
         public async Task<ApiResponse<FindUsersProfilesResponseModel>> FindUsersProfilesAsync(FindUsersProfilesRequestModel filter)
         {
-#if DEBUG
-            _logger.LogDebug($"refit request > {nameof(FindUsersProfilesAsync)}({nameof(filter)}: {JsonConvert.SerializeObject(FindUsersProfilesAsync)})");
-#endif
             return await _api.FindUsersProfilesAsync(filter);
         }
 
         public async Task<ApiResponse<GetUserProfileResponseModel>> GetUserProfileAsync(int id)
         {
-#if DEBUG
-            _logger.LogDebug($"refit request > {nameof(GetUserProfileAsync)}({nameof(id)}: {id})");
-#endif
             return await _api.GetUserProfileAsync(id);
         }
 

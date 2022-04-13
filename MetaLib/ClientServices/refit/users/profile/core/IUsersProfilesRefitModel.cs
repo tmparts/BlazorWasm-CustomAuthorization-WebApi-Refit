@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////
 
 using MetaLib.Models;
+using MetaLib.Models.api.request;
+using MetaLib.Models.enums;
 using Refit;
 
 namespace MetaLib.Services
@@ -21,5 +23,8 @@ namespace MetaLib.Services
 
         [Put("/api/usersprofiles/")]
         Task<ApiResponse<UpdateUserProfileResponseModel>> UpdateUserProfileAsync(UserLiteModel user);
+
+        [Put("/api/usersprofiles/{area}")]
+        Task<ApiResponse<UpdateUserProfileResponseModel>> ChangeUserProfileAsync(UserProfileAreasEnum area, ChangeUserProfileOptionsModel user_options);
     }
 }

@@ -27,16 +27,16 @@ namespace MetaLib
             });
         }
 
-        public static void InitRefit(this IServiceCollection services, ClientConfigModel conf, SessionMarkerLiteModel marker, TimeSpan handler_lifetime)
+        public static void InitRefit(this IServiceCollection services, ClientConfigModel conf, TimeSpan handler_lifetime)
         {
             services.AddRefitClient<IUsersAuthRefitModel>()
                 .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
-                .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
+                .AddHttpMessageHandler<RefitHeadersDelegatingHandler>()
                 .SetHandlerLifetime(handler_lifetime);
 
             services.AddRefitClient<IUsersProfilesRefitModel>()
                 .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
-                .AddHttpMessageHandler(provider => new RefitHeadersDelegatingHandler(marker))
+                .AddHttpMessageHandler<RefitHeadersDelegatingHandler>()
                 .SetHandlerLifetime(handler_lifetime);
             //
             services.AddScoped<IUsersProfilesRefitEngine, UsersProfilesRefitEngine>();

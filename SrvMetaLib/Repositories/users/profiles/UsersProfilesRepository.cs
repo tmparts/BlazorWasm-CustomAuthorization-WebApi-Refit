@@ -4,12 +4,16 @@
 
 using DbcMetaLib.Confirmations;
 using DbcMetaLib.Users;
+using MetaLib;
 using MetaLib.MemCash;
 using MetaLib.Models;
+using MetaLib.Models.api.request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SrvMetaApp.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace SrvMetaApp.Repositories
@@ -22,11 +26,11 @@ namespace SrvMetaApp.Repositories
         readonly IMemoryCashe _mem_cashe;
         readonly IMailServiceInterface _mail;
         readonly ISessionService _session_service;
-
-        IPAddress? RemoteIpAddress => _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
-
         readonly IUsersTable _users_dt;
         readonly IConfirmationsTable _confirmations_dt;
+
+
+        IPAddress? RemoteIpAddress => _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
 
         public UsersProfilesRepository(ISessionService set_session_service, ILogger<UsersProfilesRepository> set_logger, IUsersTable set_users_dt, IConfirmationsTable set_confirmations_dt, IMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context, IMailServiceInterface set_mail, IOptions<ServerConfigModel> set_config) //(, IConfirmationsTable set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation,  IUsersTable set_users_dt, SessionService set_session_service)
         {
@@ -101,7 +105,7 @@ namespace SrvMetaApp.Repositories
             }
             else
             {
-                res.IsSuccess = user_db.AccessLevelUser == _session_service.SessionMarker.AccessLevelUser || (user_db.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser && user.AccessLevelUser <  _session_service.SessionMarker.AccessLevelUser);
+                res.IsSuccess = user_db.AccessLevelUser == _session_service.SessionMarker.AccessLevelUser || (user_db.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser && user.AccessLevelUser < _session_service.SessionMarker.AccessLevelUser);
             }
 
             if (!res.IsSuccess)
@@ -137,6 +141,71 @@ namespace SrvMetaApp.Repositories
             }
 
             return res;
+        }
+
+        public async Task<ResponseBaseModel> ChangeUserPasswordAsync(ChangeUserProfileOptionsModel user_options)
+        {
+            PasswordsPairModel debug_instance;
+            try
+            {
+                debug_instance = JsonConvert.DeserializeObject<PasswordsPairModel>(user_options.OptionAttribute);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseBaseModel()
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+
+            ValidationContext? vc = new ValidationContext(debug_instance, serviceProvider: null, items: null);
+            ICollection<ValidationResult> results = new List<ValidationResult>();
+
+            ResponseBaseModel res = new ResponseBaseModel() { IsSuccess = user_options.UserId > 0 };
+            if (!res.IsSuccess)
+            {
+                res.Message = $"Ошибка. Идентификатор пользователя не корректный";
+                return res;
+            }
+
+            res.IsSuccess = Validator.TryValidateObject(debug_instance, vc, results, true);
+            if (!res.IsSuccess)
+            {
+                res.Message = $"Ошибка валидации модели: {string.Join(";", results.Select(x => $"[{x.ErrorMessage}]"))}.";
+                return res;
+            }
+
+            res.IsSuccess = debug_instance.PasswordNew == debug_instance.PasswordConfirm;
+            if (!res.IsSuccess)
+            {
+                res.Message = "Новый пароль и подтверждение пароля не совпадают";
+                return res;
+            }
+
+            res.IsSuccess = _session_service.SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Admin || (user_options.UserId == _session_service.SessionMarker.Id && _session_service.SessionMarker.AccessLevelUser >= AccessLevelsUsersEnum.Confirmed);
+            if (!res.IsSuccess)
+            {
+                res.Message = "У вас нет доступа к изменению пароля";
+                return res;
+            }
+
+            res.IsSuccess = await _users_dt.PasswordEqualByUserIdAsync(user_options.UserId, GlobalUtils.CalculateHashString(debug_instance.PasswordCurrent));
+            if (!res.IsSuccess)
+            {
+                res.Message = "Текущий пароль введён не верно";
+                return res;
+            }
+
+            await _users_dt.PasswordUpdateByUserIdAsync(user_options.UserId, GlobalUtils.CalculateHashString(debug_instance.PasswordNew));
+            res.Message = "Пароль успешно обновлён";
+
+            return res;
+        }
+
+        public async Task<ResponseBaseModel> KillUserSessionAsync(ChangeUserProfileOptionsModel user_options)
+        {
+            throw new NotImplementedException();
         }
     }
 }

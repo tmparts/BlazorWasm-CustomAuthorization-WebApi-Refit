@@ -20,5 +20,6 @@ namespace MetaLib.Models
         /// Передавать cookie через Secure Sockets Layer (SSL) - то есть только по протоколу HTTPS
         /// </summary>
         public bool SessionCookieSslSecureOnly { get; set; } = false;
+        public string SessionTokenName { get; set; } = "token-session";
     }
 }
