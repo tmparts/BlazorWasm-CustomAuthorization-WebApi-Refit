@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DbTablesLib\DbTablesLib.csproj" />
+		<ProjectReference Include="..\DatabaseContext\DbTablesLib\DbTablesLib.csproj" />
 		<ProjectReference Include="..\SrvMetaLib\SrvMetaLib.csproj" />
 	</ItemGroup>
 
