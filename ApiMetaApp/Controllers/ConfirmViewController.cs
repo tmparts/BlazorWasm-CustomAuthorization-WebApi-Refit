@@ -18,7 +18,7 @@ namespace ApiMetaApp.Controllers
         }
 
         /// <summary>
-        /// Получить токен подтверждения действия пользователя
+        /// Проверить/прочитать токен подтверждения действия пользователя.
         /// </summary>
         /// <param name="confirm_id"></param>
         /// <returns></returns>

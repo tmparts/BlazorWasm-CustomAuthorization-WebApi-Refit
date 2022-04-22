@@ -73,6 +73,7 @@ namespace SrvMetaApp.Repositories
             if (!string.IsNullOrEmpty(token) && token != Guid.Empty.ToString())
             {
                 await _mem_cashe.RemoveKeyAsync(new MemCasheComplexKeyModel(token, PrefRedisSessions));
+                _http_context.HttpContext.Response.Cookies.Delete(_config.Value.CookiesConfig.SessionTokenName);
             }
 
             return new ResponseBaseModel() { IsSuccess = true, Message = "Выход выполнен" };
@@ -310,6 +311,7 @@ namespace SrvMetaApp.Repositories
                 res.SessionMarker = null;
                 res.Message = $"Регистрация прошла успешно, но отправка Email с сылкой для подвтерждения учётной записи завершилась с ошибкой: {confirm_user_registeration.Message}";
             }
+             
             return res;
         }
 
@@ -348,7 +350,7 @@ namespace SrvMetaApp.Repositories
             }
             _session_service.GuidToken = Guid.NewGuid().ToString();
             _session_service.SessionMarker = new SessionMarkerModel(id, login, access_level, _session_service.GuidToken, seconds_session > _config.Value.CookiesConfig.SessionCookieExpiresSeconds);
-            //await _session_service.AuthenticateAsync(login, access_level.ToString());
+
             await _mem_cashe.UpdateValueAsync(PrefRedisSessions, _session_service.GuidToken, _session_service.SessionMarker.ToString(), TimeSpan.FromSeconds(seconds_session));
             await _mem_cashe.UpdateValueAsync(new MemCashePrefixModel("sessions", login), _session_service.GuidToken, $"{DateTime.Now}|{_http_context.HttpContext.Connection.RemoteIpAddress}", TimeSpan.FromSeconds(seconds_session + 60));
         }

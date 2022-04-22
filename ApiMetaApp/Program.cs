@@ -30,6 +30,7 @@ Logger logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLo
 logger.Info("init main");
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors();
 
 #region db context
 
@@ -56,19 +57,21 @@ builder.WebHost.UseKestrel(options =>
     options.Limits.MinRequestBodyDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
     options.Limits.MinResponseDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
 
+    
+
     switch (conf.WebConfig.AllowedHosts.Trim().ToLower())
     {
         case "broadcast":
-            options.Listen(IPAddress.Broadcast, conf.ApiConfig.Port);
+            options.Listen(IPAddress.Broadcast, conf.KestrelHostConfig.Port);
             break;
         case "loopback":
-            options.Listen(IPAddress.Loopback, conf.ApiConfig.Port);
+            options.Listen(IPAddress.Loopback, conf.KestrelHostConfig.Port);
             break;
         case "None":
-            options.Listen(IPAddress.None, conf.ApiConfig.Port);
+            options.Listen(IPAddress.None, conf.KestrelHostConfig.Port);
             break;
         default:
-            options.Listen(IPAddress.Any, conf.ApiConfig.Port);
+            options.Listen(IPAddress.Any, conf.KestrelHostConfig.Port);
             break;
     }
 });
@@ -148,9 +151,6 @@ try
     {
         app.UseMiddleware<PassageMiddleware>();
     });
-
-    //app.UseAuthentication(); // аутентификация
-    //app.UseAuthorization();  // авторизация
 
     app.MapControllers();
 

@@ -207,5 +207,10 @@ namespace SrvMetaApp.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public async Task<UserSessionsPaginationResponseModel> GetUserSessions(int user_id, PaginationRequestModel query)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

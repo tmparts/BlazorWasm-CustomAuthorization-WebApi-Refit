@@ -18,14 +18,14 @@ WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddMemoryCache();
-//builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+//builder.Services.AddMemoryCache();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
-
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
+
 builder.Services.AddScoped<IClientSession, ClientSessionService>();
 
-builder.Services.AddBlazoredLocalStorage();
+//builder.Services.AddBlazoredLocalStorage();
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
 builder.Services.AddScoped<SessionMarkerLiteModel>(sp => marker);
@@ -96,26 +96,24 @@ builder.Services.InitRefit(conf, refit_handler_lifetime);
 WebAssemblyHost WebHost = builder.Build();
 
 
-IClientSession SessionLocalStorage = WebHost.Services.GetService<IClientSession>();
-SessionMarkerLiteModel set_marker = await SessionLocalStorage.ReadSessionAsync();
-http.DefaultRequestHeaders.Add(GlobalStaticConstants.SESSION_TOKEN_NAME, set_marker.Token);
+IClientSession clientSessionService = WebHost.Services.GetService<IClientSession>();
+SessionMarkerLiteModel set_marker = await clientSessionService.ReadSessionAsync();
+http.DefaultRequestHeaders.Add(remote_conf.CookiesConfig.SessionTokenName, set_marker.Token);
 
 response = await http.GetAsync("api/UsersProfiles/0");
 json_raw = await response.Content.ReadAsStringAsync();
 GetUserProfileResponseModel check_session = JsonConvert.DeserializeObject<GetUserProfileResponseModel>(json_raw);
 if (check_session?.IsSuccess != true)
 {
-    await SessionLocalStorage.RemoveSessionAsync();
+    await clientSessionService.RemoveSessionAsync();
     set_marker.Reload(0,string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
-    await SessionLocalStorage.SaveSessionAsync(set_marker);
+    await clientSessionService.SaveSessionAsync(set_marker);
 }
 else
 {
-    response = await http.GetAsync("api/UsersAuthorization");
-    json_raw = await response.Content.ReadAsStringAsync();
-    SessionReadResponseModel? session_token_online_object = JsonConvert.DeserializeObject<SessionReadResponseModel>(json_raw);
-    if (session_token_online_object.SessionMarker != null)
-        marker.Reload(session_token_online_object.SessionMarker);
+    marker.Reload(set_marker);
+    //CustomAuthStateProvider authState = WebHost.Services.GetService<CustomAuthStateProvider>();
+    //authState.AuthenticationStateChanged();
 }
 http.DefaultRequestHeaders.Clear();
 

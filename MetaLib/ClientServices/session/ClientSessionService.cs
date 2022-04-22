@@ -8,44 +8,67 @@ using MetaLib.Models;
 using MetaLib.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using Refit;
 
 namespace MetaLib
 {
     public class ClientSessionService : IClientSession
     {
-        readonly IMemoryCache _memory_cache;
+        readonly IJSRuntime _js_runtime;
         readonly ILogger<ClientSessionService> _logger;
         readonly SessionMarkerLiteModel _session_marker;
         readonly IUsersAuthRefitModel _users_auth_service;
+        readonly ClientConfigModel _config;
 
-        public ClientSessionService(IMemoryCache set_memory_cache, SessionMarkerLiteModel set_session_marker, IUsersAuthRefitModel set_users_auth_service, ILogger<ClientSessionService> set_logger)
+        public ClientSessionService(IJSRuntime set_js_runtime, SessionMarkerLiteModel set_session_marker, ClientConfigModel set_config, IUsersAuthRefitModel set_users_auth_service, ILogger<ClientSessionService> set_logger)
         {
-            _memory_cache = set_memory_cache;
+            _js_runtime = set_js_runtime;
             _session_marker = set_session_marker;
             _users_auth_service = set_users_auth_service;
             _logger = set_logger;
+            _config = set_config;
         }
 
         public async Task SaveSessionAsync(SessionMarkerLiteModel set_session_marker)
         {
             if (set_session_marker is null)
                 return;
+            // name, value, seconds, path
+            await _js_runtime.InvokeVoidAsync("methods.CreateCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID, set_session_marker.Id, _config.CookiesConfig.LongSessionCookieExpiresSeconds, "/");
+            await _js_runtime.InvokeVoidAsync("methods.CreateCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN, set_session_marker.Login, _config.CookiesConfig.LongSessionCookieExpiresSeconds, "/");
+            await _js_runtime.InvokeVoidAsync("methods.CreateCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL, set_session_marker.AccessLevelUser, _config.CookiesConfig.LongSessionCookieExpiresSeconds, "/");
+            await _js_runtime.InvokeVoidAsync("methods.CreateCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN, set_session_marker.Token, _config.CookiesConfig.LongSessionCookieExpiresSeconds, "/");
 
-            _memory_cache.Set(GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID, set_session_marker.Id);
-            _memory_cache.Set(GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN, set_session_marker.Login);
-            _memory_cache.Set(GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL, set_session_marker.AccessLevelUser);
-            _memory_cache.Set(GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN, set_session_marker.Token);
+
+#if DEBUG
+            string? _token = await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN);
+            bool read_state_token = !string.IsNullOrEmpty(_token);
+
+            bool read_state_id = int.TryParse(await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID), out int _id);
+
+            string? _login = await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN);
+            bool read_state_login = !string.IsNullOrEmpty(_login);
+
+            bool read_state_level = Enum.TryParse(typeof(AccessLevelsUsersEnum), await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL), out object? _level_obj);
+            AccessLevelsUsersEnum? _level = read_state_level ? (AccessLevelsUsersEnum?)_level_obj : null;
+#endif
         }
 
         public async Task<SessionMarkerLiteModel> ReadSessionAsync()
         {
-            bool read_state_token = _memory_cache.TryGetValue(GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN, out string? _token);
-            bool read_state_id = _memory_cache.TryGetValue(GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID, out int? _id);
-            bool read_state_login = _memory_cache.TryGetValue(GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN, out string? _login);
-            bool read_state_level = _memory_cache.TryGetValue(GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL, out AccessLevelsUsersEnum? _level);
+            string? _token = await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN);
+            bool read_state_token = !string.IsNullOrEmpty(_token);
 
-            if (!read_state_token || !read_state_login || !read_state_level || !read_state_id || _id.GetValueOrDefault(0) <= 0 || _login.Length < 4 || _level <= AccessLevelsUsersEnum.Anonim)
+            bool read_state_id = int.TryParse(await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID), out int _id);
+
+            string? _login = await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN);
+            bool read_state_login = !string.IsNullOrEmpty(_login);
+
+            bool read_state_level = Enum.TryParse(typeof(AccessLevelsUsersEnum), await _js_runtime.InvokeAsync<string>("methods.ReadCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL), out object? _level_obj);
+            AccessLevelsUsersEnum? _level = read_state_level ? (AccessLevelsUsersEnum?)_level_obj : null;
+
+            if (!read_state_token || !read_state_login || !read_state_level || !read_state_id || _id <= 0 || _login.Length < 4 || _level <= AccessLevelsUsersEnum.Anonim)
             {
                 return new SessionMarkerLiteModel()
                 {
@@ -58,7 +81,7 @@ namespace MetaLib
 
             return new SessionMarkerLiteModel()
             {
-                Id = _id.Value,
+                Id = _id,
                 Login = _login,
                 Token = _token,
                 AccessLevelUser = _level.Value
@@ -67,10 +90,10 @@ namespace MetaLib
 
         public async Task RemoveSessionAsync()
         {
-            _memory_cache.Remove(GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN);
-            _memory_cache.Remove(GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL);
-            _memory_cache.Remove(GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN);
-            _memory_cache.Remove(GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID);
+            await _js_runtime.InvokeVoidAsync("methods.DeleteCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LOGIN);
+            await _js_runtime.InvokeVoidAsync("methods.DeleteCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_LEVEL);
+            await _js_runtime.InvokeVoidAsync("methods.DeleteCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_TOKEN);
+            await _js_runtime.InvokeVoidAsync("methods.DeleteCookie", GlobalStaticConstants.SESSION_STORAGE_KEY_USER_ID);
         }
 
         public async Task<ResponseBaseModel> LogoutAsync()

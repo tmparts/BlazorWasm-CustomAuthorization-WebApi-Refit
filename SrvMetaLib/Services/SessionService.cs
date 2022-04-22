@@ -45,10 +45,7 @@ namespace SrvMetaApp.Models
             if (string.IsNullOrEmpty(token_marker))
             {
                 GuidToken = string.Empty;
-                //if (_httpContext.HttpContext?.User.Identity?.IsAuthenticated == true)
-                //{
-                //    await _httpContext.HttpContext.SignOutAsync();
-                //}
+                
                 return;
             }
 
@@ -57,7 +54,6 @@ namespace SrvMetaApp.Models
             if (string.IsNullOrEmpty(SessionMarker.Login))
             {
                 SessionMarker?.Reload(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
-                //await _httpContext.HttpContext.SignOutAsync();
             }
             else
             {

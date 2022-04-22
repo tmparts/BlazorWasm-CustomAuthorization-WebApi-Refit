@@ -47,7 +47,6 @@ namespace ApiMetaApp.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public async Task<GetUserProfileResponseModel> Get([FromRoute] int id)
         {
             if (_session_service.SessionMarker.AccessLevelUser < AccessLevelsUsersEnum.Admin)
@@ -60,7 +59,7 @@ namespace ApiMetaApp.Controllers
                 GetUserProfileResponseModel? res = await _profiles_repo.GetUserProfileAsync(_session_service.SessionMarker.Login);
                 if (!res.IsSuccess)
                 {
-                    string msg = $"Ошибка поиска текущей сессии по имени '{_session_service.SessionMarker.Login}'.";
+                    string msg = $"Ошибка поиска текущей сессии по логину '{_session_service.SessionMarker.Login}'.";
                     res.Message += msg;
                     _logger.LogError(msg);
                     ResponseBaseModel? logout = await _users_auth_repo.LogOutAsync();
@@ -87,6 +86,12 @@ namespace ApiMetaApp.Controllers
             return res;
         }
 
+        /// <summary>
+        /// Обновить опции пользователя
+        /// </summary>
+        /// <param name="area">Область обновления (пароль, сессии и т.д.)</param>
+        /// <param name="user_options">Параметры для применения</param>
+        /// <returns></returns>
         [HttpPut("{area}")]
         [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public async Task<ResponseBaseModel> Put([FromRoute] UserProfileAreasEnum area, [FromBody] ChangeUserProfileOptionsModel user_options)
@@ -103,6 +108,16 @@ namespace ApiMetaApp.Controllers
                 },
             };
             return res;
+        }
+
+        /// <summary>
+        /// Получить сессии пользователя
+        /// </summary>
+        [HttpPatch("user_id")]
+        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
+        public async Task<UserSessionsPaginationResponseModel> Patch([FromRoute] int user_id, [FromQuery] PaginationRequestModel query)
+        {
+            return await _profiles_repo.GetUserSessions(user_id, query);
         }
     }
 }

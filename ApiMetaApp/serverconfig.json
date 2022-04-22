@@ -1,7 +1,7 @@
 {
   "RootFolderName": "./storage-files",
   "ReCaptchaConfig": {
-    "Mode": 1,
+    "Mode": 0,
     "ReCaptchaV2Config": {
       "PublicKey": "6LdIhEcUAAAAAMO-wXB9GLQCK1UJyj6OV47yjRXo",
       "PrivateKey": "6LdIhEcUAAAAAJWS2SfCIrmYPDkeP-u7rvONbC-9"
@@ -48,7 +48,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "",
+    "Password": "dfmtpjfnyipzsdym",
     "UseSsl": true
   },
   "RedisConfig": {
@@ -74,10 +74,15 @@
     "Port": 5501,
     "HttpSheme": "http"
   },
+  "KestrelHostConfig": {
+    "Host": "localhost",
+    "Port": 5501,
+    "HttpSheme": "http"
+  },
   "ClientConfig": {
     "Host": "localhost",
     "Port": 7222,
-    "HttpSheme": "https"
+    "HttpSheme": "http"
   },
   "UserManageConfig": {
     "RegistrationUserConfirmDeadlineMinutes": 180,

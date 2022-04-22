@@ -87,7 +87,7 @@ else
     private async Task HandleValidSubmit()
     {
         IsBusyProgress = true;
-        user_restore_result = await usersAuthRefitService.LogOutUserAsync();
+        user_restore_result = await usersAuthRefitService.RestoreUserAsync(user_restore_obj);
 
         if (!user_restore_result.IsSuccess)
         {

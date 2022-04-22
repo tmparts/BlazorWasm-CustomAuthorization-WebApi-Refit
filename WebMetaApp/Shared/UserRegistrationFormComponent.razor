@@ -10,10 +10,10 @@
 @inherits BlazorReCaptchaComponentBaseModel
 
 @inject CustomAuthStateProvider authState
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IUsersAuthRefitService usersAuthRefitService
 @inject ILogger<UserRegistrationFormComponent> Logger
 @inject ClientConfigModel Config
+@*@inject NavigationManager Navigation*@
 
 <h3>Регистрация</h3>
 <EditForm Model="@user_registration_obj" OnValidSubmit="@HandleValidSubmit">
@@ -93,6 +93,8 @@
         }
 
         authState.AuthenticationStateChanged();
+
         IsBusyProgress = false;
+        this.StateHasChanged();
     }
 }

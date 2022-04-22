@@ -38,5 +38,10 @@ namespace SrvMetaApp.Repositories
         /// Удалить сессию пользователя
         /// </summary>
         public Task<ResponseBaseModel> KillUserSessionAsync(ChangeUserProfileOptionsModel user_options);
+
+        /// <summary>
+        /// Получить сессии пользователя
+        /// </summary>
+        public Task<UserSessionsPaginationResponseModel> GetUserSessions(int user_id, PaginationRequestModel query);
     }
 }
