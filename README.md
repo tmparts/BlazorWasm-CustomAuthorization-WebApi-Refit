@@ -164,7 +164,7 @@ ResponseBaseModel()
 
 > если быть точным, то сессии обслуживаются мемкешем, который сейчас реализован на движке Redis.
 ```c#
-builder.Services.AddScoped<IMemoryCashe, RedisMemoryCasheService>();
+builder.Services.AddScoped<IManualMemoryCashe, RedisMemoryCasheService>();
 ```
 если мемкеш реализовать на другом сервисе, то сессии будут жить в этом новом месте.
 
@@ -184,7 +184,7 @@ builder.Services.AddScoped<IMemoryCashe, RedisMemoryCasheService>();
     "EnableSensitiveDataLoggingDebug": true
   }
  ```
- - Для проекта **DbTablesLib** установите одну из зависимостей от целевого проекта. Если выбрана *SQLite*, то необходима зависимость от проекта **DbcMetaSqliteLib**. В то же время, убедитесь что бы небыло зависимости на проект **DbcPostgre**. Если же выбрана *Postgre*, то проекту (DbTablesLib) потребуется зависимость на **DbTablesLib**, НО НЕ **DbcMetaSqliteLib** (зависимость от двух сразу не допускается)
+ - Для проекта **DbTablesLib** установите одну из зависимостей от целевого проекта. Если выбрана *SQLite*, то необходима зависимость от проекта **DbSqliteLib**. В то же время, убедитесь что бы небыло зависимости на проект **DbPostgreLib**. Если же выбрана *Postgre*, то проекту (DbPostgreLib) потребуется зависимость на **DbPostgreLib**, НО НЕ **DbSqliteLib** (зависимость от двух сразу не допускается)
  - Для проекта **ServerLib** установите зависимости так же и для проекта **DbTablesLib**
 
 ###### Базовый функционал системы авторизации/регистрации
@@ -196,7 +196,7 @@ builder.Services.AddScoped<IMemoryCashe, RedisMemoryCasheService>();
 
 На старте работает с Redis, но легко переводится на другие рельсы через реализацию интерфейса
 ```c#
-builder.Services.AddScoped<IMemoryCashe, RedisMemoryCasheService>();
+builder.Services.AddScoped<IManualMemoryCashe, RedisMemoryCasheService>();
 ```
 
 сессии целиком обрабатываются в
