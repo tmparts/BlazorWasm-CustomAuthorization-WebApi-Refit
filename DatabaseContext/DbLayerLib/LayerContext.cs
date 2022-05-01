@@ -2,43 +2,26 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using MetaLib.Models;
+using SharedLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MetaLib;
-using System.Data.Entity.Infrastructure;
-using DbLayerLib;
 
-namespace SrvMetaApp
+namespace DbLayerLib
 {
+    /// <summary>
+    /// Промежуточный/общий слой контекста базы данных
+    /// </summary>
     public class LayerContext : DbContext
     {
         protected DatabaseConfigModel _config;
         protected static bool IsEnsureCreated = false;
 
-
-
         public static string DbFileName { get; set; } = string.Empty;
 
-        //        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        //        {
-        //            if (string.IsNullOrWhiteSpace(_config.Connect.ConnectionString))
-        //            {
-        //#if DEBUG
-        //                if (!IsEnsureCreated)
-        //                {
-        //                    IsEnsureCreated = true;
-        //                    File.Delete(DbPath);
-        //                }
-        //#endif
-        //                options.UseSqlite($"Data Source={DbPath}");
-        //            }
-        //            else
-        //            {
-        //                options.UseSqlite(_config.Connect.ConnectionString);
-        //            }
-        //        }
-
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="set_config"></param>
         public LayerContext(IOptions<ServerConfigModel> set_config)
         {
             _config = set_config.Value.DatabaseConfig;
@@ -69,14 +52,34 @@ namespace SrvMetaApp
             );
         }
 
-        public DbSet<ConfirmationModelDb> Confirmations { get; set; }
+        /// <summary>
+        /// Подтверждение действия пользователя
+        /// </summary>
+        public DbSet<ConfirmationUserActionModelDb> ConfirmationsUsersActions { get; set; }
 
+        /// <summary>
+        /// Пользователи
+        /// </summary>
         public DbSet<UserModelDB> Users { get; set; }
 
+        /// <summary>
+        /// Группа пользователей
+        /// </summary>
         public DbSet<UserGroupModelDB> GroupsUsers { get; set; }
+
+        /// <summary>
+        /// Связи пользователей с группами
+        /// </summary>
         public DbSet<UserToGroupLinkModelDb> UsersToGroupsLinks { get; set; }
 
+        /// <summary>
+        /// Пользовательские проекты
+        /// </summary>
         public DbSet<ProjectModelDB> Projects { get; set; }
+
+        /// <summary>
+        /// Связи пользователей с пользовательскими проектами
+        /// </summary>
         public DbSet<UserToProjectLinkModelDb> UsersToProjectsLinks { get; set; }
     }
 }

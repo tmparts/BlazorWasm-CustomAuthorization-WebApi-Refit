@@ -1,9 +1,0 @@
-﻿@inject NavigationManager Navigation
-@using MetaLib.Models
-
-@code {
-    protected override void OnInitialized()
-    {
-        Navigation.NavigateTo($"{GlobalStaticConstants.AUTHENTICATION_CONTROLLER_NAME}/{GlobalStaticConstants.LOGIN_ACTION_NAME}?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
-    }
-}

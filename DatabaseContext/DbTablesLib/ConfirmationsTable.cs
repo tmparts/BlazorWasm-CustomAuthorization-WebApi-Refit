@@ -2,23 +2,32 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using DbcMetaLib.Confirmations;
-using MetaLib.Models;
-using MetaLib.Models.enums;
+using DbcLib;
+using SharedLib.Models;
+using SharedLib.Models.enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SrvMetaApp;
+using SharedLib;
 
 namespace DbcMetaSqliteLib.Confirmations
 {
+    /// <summary>
+    /// Доступ к таблице базы данных: Подтверждение действий пользователя
+    /// </summary>
     public class ConfirmationsTable : IConfirmationsTable
     {
         readonly DbAppContext _db_context;
         readonly ILogger<ConfirmationsTable> _logger;
         readonly IOptions<ServerConfigModel> _config;
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="set_db_context">Сервис доступа к контексту базы данных</param>
+        /// <param name="set_logger">Сервис логирования</param>
+        /// <param name="set_config">Конфигурация сервера</param>
         public ConfirmationsTable(DbAppContext set_db_context, ILogger<ConfirmationsTable> set_logger, IOptions<ServerConfigModel> set_config)
         {
             _db_context = set_db_context;
@@ -26,12 +35,21 @@ namespace DbcMetaSqliteLib.Confirmations
             _config = set_config;
         }
 
+        /// <summary>
+        /// Сохранить текущие изменения в БД
+        /// </summary>
+        /// <returns>Количество строк затронутых (или созданных) объектов/строк данных</returns>
         public async Task<int> SaveChangesAsync()
         {
             return await _db_context.SaveChangesAsync();
         }
 
-        public async Task AddAsync(ConfirmationModelDb confirmation, bool auto_save = true)
+        /// <summary>
+        /// Добавть в таблицу базы данных новое подвтерждение действия
+        /// </summary>
+        /// <param name="confirmation">Подвтерждение действия</param>
+        /// <param name="auto_save">Автоматическое сохранение в БД</param>
+        public async Task AddAsync(ConfirmationUserActionModelDb confirmation, bool auto_save = true)
         {
             await _db_context.AddAsync(confirmation);
 
@@ -39,7 +57,12 @@ namespace DbcMetaSqliteLib.Confirmations
                 await _db_context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(ConfirmationModelDb confirmation, bool auto_save = true)
+        /// <summary>
+        /// Обновить объект подтверждения действия пользователя
+        /// </summary>
+        /// <param name="confirmation">Существующее подтверждение действия пользователя</param>
+        /// <param name="auto_save">Автоматически сохранять данные в БД</param>
+        public async Task UpdateAsync(ConfirmationUserActionModelDb confirmation, bool auto_save = true)
         {
             _db_context.Update(confirmation);
 
@@ -47,9 +70,15 @@ namespace DbcMetaSqliteLib.Confirmations
                 await _db_context.SaveChangesAsync();
         }
 
-        public async Task<ConfirmationModelDb?> FirstOrDefaultActualAsync(string confirm_id, bool include_user_data = true)
+        /// <summary>
+        /// Поиск актуальной/непогашеной записи подтверждения действия пользователя
+        /// </summary>
+        /// <param name="confirm_id">Идентификатор пользователя-владельца подтверждения действия</param>
+        /// <param name="include_user_data">Дополнительно загрузхить связанные данные</param>
+        /// <returns>Объект подтверждения действия пользователя</returns>
+        public async Task<ConfirmationUserActionModelDb?> FirstOrDefaultActualAsync(string confirm_id, bool include_user_data = true)
         {
-            IQueryable<ConfirmationModelDb> q = _db_context.Confirmations.Where(x => x.ConfirmetAt == null && x.GuidConfirmation == confirm_id && x.Deadline >= DateTime.Now && string.IsNullOrEmpty(x.ErrorMessage));
+            IQueryable<ConfirmationUserActionModelDb> q = _db_context.ConfirmationsUsersActions.Where(x => x.ConfirmetAt == null && x.GuidConfirmation == confirm_id && x.Deadline >= DateTime.Now && string.IsNullOrEmpty(x.ErrorMessage));
 
             if (include_user_data)
                 q = q.Include(x => x.User);
@@ -57,34 +86,41 @@ namespace DbcMetaSqliteLib.Confirmations
             return await q.FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Удалить устаревшие записи журнала подтверждений действий пользователей
+        /// </summary>
+        /// <param name="auto_save">Автоматически сохранять данные в БД</param>
         public async Task RemoveOutdatedRowsAsync(bool auto_save = true)
         {
 #if DEBUG
-            var v = _db_context.Confirmations.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)).ToArray();
+            var v = _db_context.ConfirmationsUsersActions.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)).ToArray();
 #endif
-            _db_context.Confirmations.RemoveRange(_db_context.Confirmations.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)));
+            _db_context.ConfirmationsUsersActions.RemoveRange(_db_context.ConfirmationsUsersActions.Where(x => x.Deadline < DateTime.Now.AddDays(-_config.Value.UserManageConfig.ConfirmHistoryDays)));
 
             if (auto_save)
                 await _db_context.SaveChangesAsync();
         }
 
-        public async Task ReNewAsync(ConfirmationModelDb confirmation, bool auto_save = true)
+        /// <summary>
+        /// Обновить состояние актуальных подтвреждений действий пользователя. Если существуют схожие по смыслу с новым, то они будут деактивированы
+        /// </summary>
+        /// <param name="confirmation"></param>
+        /// <param name="auto_save"></param>
+        public async Task ReNewAsync(ConfirmationUserActionModelDb confirmation, bool auto_save = true)
         {
             if ((confirmation?.UserId).GetValueOrDefault(0) == 0 || (confirmation?.Id).GetValueOrDefault(0) == 0)
             {
                 return;
             }
 
-            IQueryable<ConfirmationModelDb>? old_confirmations_query = _db_context.Confirmations.AsQueryable();
-
-            old_confirmations_query = old_confirmations_query.Where(x => x.Id != confirmation.Id && x.UserId == confirmation.UserId && string.IsNullOrEmpty(x.ErrorMessage) && x.ConfirmetAt == null && x.Deadline >= DateTime.Now);
+            IQueryable<ConfirmationUserActionModelDb>? old_confirmations_query = _db_context.ConfirmationsUsersActions.Where(x => x.Id != confirmation.Id && x.UserId == confirmation.UserId && string.IsNullOrEmpty(x.ErrorMessage) && x.ConfirmetAt == null && x.Deadline >= DateTime.Now);
 
             if (confirmation.ConfirmationType == ConfirmationsTypesEnum.RestoreUser)
             {
                 old_confirmations_query = old_confirmations_query.Where(x => new ConfirmationsTypesEnum[] { ConfirmationsTypesEnum.RestoreUser, ConfirmationsTypesEnum.RegistrationUser }.Contains(x.ConfirmationType));
             }
 
-            List<ConfirmationModelDb>? old_confirmations = await old_confirmations_query.ToListAsync();
+            List<ConfirmationUserActionModelDb>? old_confirmations = await old_confirmations_query.ToListAsync();
             if (old_confirmations.Any())
             {
                 old_confirmations.ForEach(x => x.ErrorMessage = $"Создано новое подтверждение: ${JsonConvert.SerializeObject(confirmation)}");

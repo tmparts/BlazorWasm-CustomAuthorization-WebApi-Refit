@@ -2,22 +2,28 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using DbcMetaLib.Users;
-using MetaLib.Models;
+using DbcLib;
+using SharedLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SrvMetaApp;
+using SharedLib;
+using SharedLib.Models.enums;
 
 namespace DbcMetaSqliteLib.Users
 {
     /// <summary>
-    /// Доступ к таблице пользователей базы данных SQLite
+    /// Доступ к таблице пользователей базы данных
     /// </summary>
     public class UsersTable : IUsersTable
     {
         readonly DbAppContext _db_context;
         readonly ILogger<UsersTable> _logger;
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="set_db_context"></param>
+        /// <param name="set_logger"></param>
         public UsersTable(DbAppContext set_db_context, ILogger<UsersTable> set_logger)
         {
             _db_context = set_db_context;
@@ -76,16 +82,16 @@ namespace DbcMetaSqliteLib.Users
             {
                 switch (filter.FindLogin.Mode)
                 {
-                    case MetaLib.Models.enums.FindTextModesEnum.Contains:
+                    case FindTextModesEnum.Contains:
                         query = query.Where(x => x.Login.ToLower().Contains(filter.FindLogin.Text.ToLower()));
                         break;
-                    case MetaLib.Models.enums.FindTextModesEnum.NotContains:
+                    case FindTextModesEnum.NotContains:
                         query = query.Where(x => !x.Login.ToLower().Contains(filter.FindLogin.Text.ToLower()));
                         break;
-                    case MetaLib.Models.enums.FindTextModesEnum.Equal:
+                    case FindTextModesEnum.Equal:
                         query = query.Where(x => x.Login.ToLower() == filter.FindLogin.Text.ToLower());
                         break;
-                    case MetaLib.Models.enums.FindTextModesEnum.NotEqual:
+                    case FindTextModesEnum.NotEqual:
                         query = query.Where(x => x.Login.ToLower() != filter.FindLogin.Text.ToLower());
                         break;
                     default:

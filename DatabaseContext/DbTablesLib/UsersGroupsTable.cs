@@ -2,21 +2,26 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using DbcMetaLib.UsersGroups;
-using MetaLib.Models;
+using DbcLib;
+using SharedLib.Models;
 using Microsoft.Extensions.Logging;
-using SrvMetaApp;
+using SharedLib;
 
 namespace DbcMetaSqliteLib.UsersGroups
 {
     /// <summary>
-    /// Доступ к таблице групп пользователей базы данных SQLite
+    /// Доступ к таблице групп пользователей базы данных
     /// </summary>
     public class UsersGroupsTable : IUsersGroupsTable
     {
         readonly DbAppContext _db_context;
         readonly ILogger<UsersGroupsTable> _logger;
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="set_db_context"></param>
+        /// <param name="set_logger"></param>
         public UsersGroupsTable(DbAppContext set_db_context, ILogger<UsersGroupsTable> set_logger)
         {
             _db_context = set_db_context;

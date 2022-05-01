@@ -2,10 +2,10 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using DbcMetaLib.Projects;
-using MetaLib.Models;
+using DbcLib;
+using SharedLib.Models;
 using Microsoft.Extensions.Logging;
-using SrvMetaApp;
+using SharedLib;
 
 namespace DbcMetaSqliteLib.Projects
 {
@@ -17,6 +17,11 @@ namespace DbcMetaSqliteLib.Projects
         readonly DbAppContext _db_context;
         readonly ILogger<ProjectsTable> _logger;
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="set_db_context"></param>
+        /// <param name="set_logger"></param>
         public ProjectsTable(DbAppContext set_db_context, ILogger<ProjectsTable> set_logger)
         {
             _db_context = set_db_context;
