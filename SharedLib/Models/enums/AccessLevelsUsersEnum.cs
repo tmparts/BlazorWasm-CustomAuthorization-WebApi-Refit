@@ -14,13 +14,13 @@ namespace SharedLib.Models
         /// <summary>
         /// Анонимный пользователь
         /// </summary>
-        Anonim = -1,
+        Anonim = -20,
 
         /// <summary>
         /// Заблокирован
         /// </summary>
         [Display(Name = "Заблокирован", Description = "Заблокирован")]
-        Blocked = 0,
+        Blocked = -10,
 
         /// <summary>
         /// Зарегистрированный (но НЕ подтверждённый)
