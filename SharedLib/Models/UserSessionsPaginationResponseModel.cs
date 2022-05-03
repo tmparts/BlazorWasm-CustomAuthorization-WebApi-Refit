@@ -1,4 +1,8 @@
-﻿namespace SharedLib.Models
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov 
+////////////////////////////////////////////////
+
+namespace SharedLib.Models
 {
     /// <summary>
     /// Перечень сессий пользователей (результат запроса с пагинацией)

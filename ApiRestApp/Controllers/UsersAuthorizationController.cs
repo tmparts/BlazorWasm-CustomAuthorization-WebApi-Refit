@@ -16,9 +16,9 @@ namespace ApiRestApp.Controllers
     [ApiController]
     public class UsersAuthorizationController : ControllerBase
     {
-        IUsersAuthenticateRepository _users_repo;
+        IUsersAuthenticateService _users_repo;
         ISessionService _session_service;
-        public UsersAuthorizationController(IUsersAuthenticateRepository set_users_repo, ISessionService set_session_service)
+        public UsersAuthorizationController(IUsersAuthenticateService set_users_repo, ISessionService set_session_service)
         {
             _users_repo = set_users_repo;
             _session_service = set_session_service;

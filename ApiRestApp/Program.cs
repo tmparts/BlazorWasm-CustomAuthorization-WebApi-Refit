@@ -74,7 +74,7 @@ builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddSingleton<IManualMemoryCashe, RedisMemoryCasheService>();
 
 builder.Services.AddScoped<IStorageFilesService, StorageFilesService>();
-builder.Services.AddScoped<IUsersAuthenticateRepository, UsersAuthenticateRepository>();
+builder.Services.AddScoped<IUsersAuthenticateService, UsersAuthenticateService>();
 builder.Services.AddScoped<IUsersProfilesService, UsersProfilesService>();
 builder.Services.AddScoped<IUsersConfirmationsService, UsersConfirmationsService>();
 builder.Services.AddScoped<IMailProviderService, MailProviderService>();

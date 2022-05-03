@@ -4,8 +4,14 @@
 
 namespace reCaptcha.stat
 {
-    public static class reCaptchaLanguageCodes
+    /// <summary>
+    /// Языковые коды reCaptcha
+    /// </summary>
+    public static class ReCaptchaLanguageCodes
     {
+        /// <summary>
+        /// Доступные языковые коды
+        /// </summary>
         public static Dictionary<string, string> AvailableCodes = new Dictionary<string, string>()
         {
             {"ar", "Arabic"}, {"af", "Afrikaans"}, {"am", "Amharic"}, {"az", "Azerbaijani"}, {"hy", "Armenian"},

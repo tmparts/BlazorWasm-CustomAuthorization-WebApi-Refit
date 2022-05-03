@@ -2,12 +2,16 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using System.Collections.Generic;
-
 namespace reCaptcha.stat
 {
-    public static class reCaptchaVerifyingErrorCodes
+    /// <summary>
+    /// Коды ошибок reCaptcha
+    /// </summary>
+    public static class ReCaptchaVerifyingErrorCodes
     {
+        /// <summary>
+        /// Коды ошибок reCaptcha
+        /// </summary>
         public static Dictionary<string, string> AvailableCodes = new Dictionary<string, string>()
         {
             {"missing-input-secret", "Секретный параметр отсутствует"},

@@ -21,10 +21,10 @@ namespace ServerLib
     /// <summary>
     /// Сервис работы с айтентификацией пользователей
     /// </summary>
-    public class UsersAuthenticateRepository : IUsersAuthenticateRepository
+    public class UsersAuthenticateService : IUsersAuthenticateService
     {
         readonly IHttpContextAccessor? _http_context;
-        readonly ILogger<UsersAuthenticateRepository> _logger;
+        readonly ILogger<UsersAuthenticateService> _logger;
         readonly IOptions<ServerConfigModel> _config;
         readonly ISessionService _session_service;
         readonly IManualMemoryCashe _mem_cashe;
@@ -50,7 +50,7 @@ namespace ServerLib
         /// <param name="set_session_service"></param>
         /// <param name="set_mem_cashe"></param>
         /// <param name="set_http_context"></param>
-        public UsersAuthenticateRepository(ILogger<UsersAuthenticateRepository> set_logger, IUsersConfirmationsService set_confirmations_repo, IUsersConfirmationsService set_user_confirmation, IMailProviderService set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, ISessionService set_session_service, IManualMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context)
+        public UsersAuthenticateService(ILogger<UsersAuthenticateService> set_logger, IUsersConfirmationsService set_confirmations_repo, IUsersConfirmationsService set_user_confirmation, IMailProviderService set_mail, IUsersTable set_users_dt, IOptions<ServerConfigModel> set_config, ISessionService set_session_service, IManualMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context)
         {
             _logger = set_logger;
             _session_service = set_session_service;
@@ -118,7 +118,7 @@ namespace ServerLib
                     res.Message = "Пройдите проверку reCaptcha";
                     return res;
                 }
-                (reCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(user.ResponseReCAPTCHA);
+                (ReCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(user.ResponseReCAPTCHA);
                 res.IsSuccess = reCaptcha2Response.reCaptcha.success;
                 if (!res.IsSuccess)
                 {
@@ -209,7 +209,7 @@ namespace ServerLib
                     res.Message = "Пройдите проверку reCaptcha";
                     return res;
                 }
-                (reCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(user.ResponseReCAPTCHA);
+                (ReCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(user.ResponseReCAPTCHA);
                 res.IsSuccess = reCaptcha2Response.reCaptcha.success;
                 if (!res.IsSuccess)
                 {
@@ -278,7 +278,7 @@ namespace ServerLib
                     return res;
                 }
 
-                (reCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(new_user.ResponseReCAPTCHA);
+                (ReCaptcha2ResponseModel reCaptcha, string Message) reCaptcha2Response = await CheckReCaptcha(new_user.ResponseReCAPTCHA);
                 res.IsSuccess = reCaptcha2Response.reCaptcha.success;
                 if (!res.IsSuccess)
                 {
@@ -327,14 +327,14 @@ namespace ServerLib
             return res;
         }
 
-        private async Task<(reCaptcha2ResponseModel reCaptcha, string Message)> CheckReCaptcha(string ResponseReCAPTCHA)
+        private async Task<(ReCaptcha2ResponseModel reCaptcha, string Message)> CheckReCaptcha(string ResponseReCAPTCHA)
         {
-            (reCaptcha2ResponseModel reCaptcha, string Message) res = (new reCaptcha2ResponseModel(), string.Empty);
+            (ReCaptcha2ResponseModel reCaptcha, string Message) res = (new ReCaptcha2ResponseModel(), string.Empty);
 
             switch (_config.Value.ReCaptchaConfig.Mode)
             {
                 case ReCaptchaModesEnum.Version2:
-                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
+                    res.reCaptcha = await ReCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2Config.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
                     if (res.reCaptcha is null)
                         res.Message = "Сбой работы reCaptcha: res.reCaptcha is null. Попробуйте ещё раз. Если ошибка будет повторяться - сообщите нам об этом.";
                     else if (!res.reCaptcha.success)
@@ -343,7 +343,7 @@ namespace ServerLib
                     }
                     break;
                 case ReCaptchaModesEnum.Version2Invisible:
-                    res.reCaptcha = await reCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
+                    res.reCaptcha = await ReCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
 
                     if (!res.reCaptcha.success)
                     {

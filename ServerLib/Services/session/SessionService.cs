@@ -14,7 +14,7 @@ namespace ServerLib
     /// <summary>
     /// Сервис работы с сессиями 
     /// </summary>
-    public class SessionService : SessionServiceLiteModel, ISessionService
+    public class SessionService : SessionLiteService, ISessionService
     {
         readonly IOptions<ServerConfigModel> _config;
         readonly IHttpContextAccessor _httpContext;
@@ -48,7 +48,7 @@ namespace ServerLib
             }
             GuidToken = token.ToString();
 
-            string token_marker = await _mem_cashe.GetStringValueAsync(new MemCasheComplexKeyModel(GuidToken, UsersAuthenticateRepository.PrefRedisSessions));
+            string token_marker = await _mem_cashe.GetStringValueAsync(new MemCasheComplexKeyModel(GuidToken, UsersAuthenticateService.PrefRedisSessions));
 
             if (string.IsNullOrEmpty(token_marker))
             {
@@ -66,7 +66,7 @@ namespace ServerLib
             else
             {
                 SessionMarker.Token = token.ToString();
-                await _mem_cashe.UpdateValueAsync(UsersAuthenticateRepository.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
+                await _mem_cashe.UpdateValueAsync(UsersAuthenticateService.PrefRedisSessions, SessionMarker.Token, SessionMarker.ToString(), TimeSpan.FromSeconds((SessionMarker.IsLongTimeSession ? _config.Value.CookiesConfig.LongSessionCookieExpiresSeconds : _config.Value.CookiesConfig.SessionCookieExpiresSeconds)));
             }
         }
 

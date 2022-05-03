@@ -7,7 +7,10 @@ using reCaptcha.stat;
 
 namespace reCaptcha.Models.VerifyingUsersResponse
 {
-    public abstract class abstract_reCaptchaResponseModel
+    /// <summary>
+    /// Абстрактная модель результата проверки reCaptcha
+    /// </summary>
+    public abstract class Abstract_reCaptchaResponseModel
     {
         /// <summary>
         /// был ли этот запрос действительным маркером reCAPTCHA для вашего сайта
@@ -19,15 +22,22 @@ namespace reCaptcha.Models.VerifyingUsersResponse
         /// </summary>
         public DateTime challenge_ts { get; set; }
 
+        /// <summary>
+        /// Ошибки (коды ошибок)
+        /// </summary>
         [JsonProperty("error-codes")]
-        public string[] ErrorСodes { get; set; }
+        public string[]? ErrorСodes { get; set; }
 
+        /// <summary>
+        /// Преобразовать в строковое представление
+        /// </summary>
+        /// <returns>Строковое представление</returns>
         public override string ToString()
         {
             string ret_val = (success ? "Success" : "Not success") + " - " + challenge_ts.ToString() + Environment.NewLine;
             if (ErrorСodes != null)
                 foreach (string s in ErrorСodes)
-                    ret_val += "  ERR:" + (reCaptchaVerifyingErrorCodes.AvailableCodes.ContainsKey(s) ? reCaptchaVerifyingErrorCodes.AvailableCodes[s] : s);
+                    ret_val += "  ERR:" + (ReCaptchaVerifyingErrorCodes.AvailableCodes.ContainsKey(s) ? ReCaptchaVerifyingErrorCodes.AvailableCodes[s] : s);
 
             return ret_val;
         }

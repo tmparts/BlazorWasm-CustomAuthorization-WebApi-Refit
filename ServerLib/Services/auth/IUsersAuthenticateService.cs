@@ -10,7 +10,7 @@ namespace ServerLib
     /// <summary>
     /// Сервис работы с айтентификацией пользователей
     /// </summary>
-    public interface IUsersAuthenticateRepository
+    public interface IUsersAuthenticateService
     {
         /// <summary>
         /// Прочитать текущую сессию пользователя

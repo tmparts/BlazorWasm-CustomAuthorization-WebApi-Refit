@@ -21,10 +21,10 @@ namespace ApiRestApp.Controllers
     {
         ISessionService _session_service;
         IUsersProfilesService _profiles_repo;
-        IUsersAuthenticateRepository _users_auth_repo;
+        IUsersAuthenticateService _users_auth_repo;
         ILogger<UsersProfilesController> _logger;
 
-        public UsersProfilesController(IUsersProfilesService set_profiles_repo, ISessionService set_session_service, IUsersAuthenticateRepository set_users_auth_repo, ILogger<UsersProfilesController> set_logger)
+        public UsersProfilesController(IUsersProfilesService set_profiles_repo, ISessionService set_session_service, IUsersAuthenticateService set_users_auth_repo, ILogger<UsersProfilesController> set_logger)
         {
             _profiles_repo = set_profiles_repo;
             _users_auth_repo = set_users_auth_repo;

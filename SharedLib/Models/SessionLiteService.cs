@@ -7,7 +7,7 @@ namespace SharedLib
     /// <summary>
     /// Сессия (лёгкая модель)
     /// </summary>
-    public class SessionServiceLiteModel
+    public class SessionLiteService
     {
         /// <summary>
         /// Токен сессии
