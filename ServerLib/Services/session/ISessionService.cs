@@ -37,6 +37,6 @@ namespace ServerLib
         /// </summary>
         /// <param name="login">Логин пользователя, сессии которого нужны</param>
         /// <returns>Список текущий/действующих сессий пользователя</returns>
-        public Task<List<SessionStorageModel>> GetUserSessionsAsync(string login);
+        public Task<List<UserSessionModel>> GetUserSessionsAsync(string login);
     }
 }

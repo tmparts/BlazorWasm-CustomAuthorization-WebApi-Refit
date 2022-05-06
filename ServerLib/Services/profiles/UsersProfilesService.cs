@@ -74,7 +74,7 @@ namespace ServerLib
         public async Task<GetUserProfileResponseModel> GetUserProfileAsync(string login)
         {
             GetUserProfileResponseModel userProfile = await _users_dt.GetUserProfileAsync(login);
-            if(userProfile.IsSuccess && userProfile.User is not null)
+            if (userProfile.IsSuccess && userProfile.User is not null)
             {
                 userProfile.Sessions = await _session_service.GetUserSessionsAsync(userProfile.User.Login);
             }
@@ -228,12 +228,25 @@ namespace ServerLib
 
         public async Task<ResponseBaseModel> KillUserSessionAsync(ChangeUserProfileOptionsModel user_options)
         {
-            throw new NotImplementedException();
-        }
+            ResponseBaseModel res = new ResponseBaseModel();
+            GetUserProfileResponseModel? user = await GetUserProfileAsync(user_options.UserId);
+            res.IsSuccess = user?.IsSuccess == true;
+            if (!res.IsSuccess)
+            {
+                res.Message = user.Message;
+                return res;
+            }
+            res.IsSuccess = user.Sessions.Any(x => x.GuidTokenSession == user_options.OptionAttribute);
+            if (!res.IsSuccess)
+            {
+                res.Message = $"Сессия не найдена: '{user_options.OptionAttribute}'";
+                return res;
+            }
 
-        public async Task<UserSessionsPaginationResponseModel> GetUserSessions(int user_id, PaginationRequestModel query)
-        {
-            throw new NotImplementedException();
+            await _mem_cashe.RemoveKeyAsync(UsersAuthenticateService.PrefRedisSessions, user_options.OptionAttribute);
+            await _mem_cashe.RemoveKeyAsync(new MemCashePrefixModel("sessions", user.User.Login), user_options.OptionAttribute);
+
+            return res;
         }
     }
 }

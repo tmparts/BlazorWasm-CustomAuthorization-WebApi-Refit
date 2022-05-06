@@ -46,9 +46,9 @@ namespace ServerLib
         /// </summary>
         /// <param name="login">Логин пользователя, сессии которого нужны</param>
         /// <returns>Список текущий/действующих сессий пользователя</returns>
-        public async Task<List<SessionStorageModel>> GetUserSessionsAsync(string login)
+        public async Task<List<UserSessionModel>> GetUserSessionsAsync(string login)
         {
-            List<SessionStorageModel> res = new List<SessionStorageModel>();
+            List<UserSessionModel> res = new List<UserSessionModel>();
 
             string user_session_data = null;
             string[] data_segments;
@@ -69,14 +69,14 @@ namespace ServerLib
                 if (data_segments.Length != 2)
                     continue;
 
-                res.Add(new SessionStorageModel()
+                res.Add(new UserSessionModel()
                 {
-                    DateTimeOfBirth = DateTime.Parse(data_segments[0]),
-                    ClientAddress = data_segments[1],
-                    Token = user_session_key_segments[2]
+                    DateTimeStart = DateTime.Parse(data_segments[0]),
+                    IPAddressClient = data_segments[1],
+                    GuidTokenSession = user_session_key_segments[2]
                 });
             }
-            return res.OrderByDescending(x => x.DateTimeOfBirth).ToList();
+            return res.OrderByDescending(x => x.DateTimeStart).ToList();
         }
 
         public async Task InitSession()

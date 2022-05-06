@@ -111,15 +111,5 @@ namespace ApiRestApp.Controllers
             };
             return res;
         }
-
-        /// <summary>
-        /// Получить сессии пользователя
-        /// </summary>
-        [HttpPatch("user_id")]
-        [TypeFilter(typeof(AuthFilterAttributeAsync), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
-        public async Task<UserSessionsPaginationResponseModel> Patch([FromRoute] int user_id, [FromQuery] PaginationRequestModel query)
-        {
-            return await _profiles_repo.GetUserSessions(user_id, query);
-        }
     }
 }
