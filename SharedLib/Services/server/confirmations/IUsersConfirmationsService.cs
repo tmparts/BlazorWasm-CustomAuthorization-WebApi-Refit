@@ -16,7 +16,7 @@ namespace SrvMetaApp.Repositories
         /// Подтвердить действие пользователя
         /// </summary>
         /// <param name="confirm_id">ИД подтверждения</param>
-        public Task<ResponseBaseModel> ConfirmActionAsync(string confirm_id);
+        public Task<ResponseBaseModel?> ConfirmActionAsync(string confirm_id);
 
         /// <summary>
         /// Получить пдвтерждение пользователя по идентефикатору из БД

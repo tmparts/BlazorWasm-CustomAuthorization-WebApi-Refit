@@ -15,7 +15,11 @@ using System.Net.Http.Headers;
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-
+#if DEBUG
+builder.Logging.SetMinimumLevel(LogLevel.Trace);
+#else
+builder.Logging.SetMinimumLevel(LogLevel.Warning);
+#endif
 //builder.Services.AddMemoryCache();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthStateProvider>();
@@ -94,17 +98,17 @@ builder.Services.InitRefit(conf, refit_handler_lifetime);
 WebAssemblyHost WebHost = builder.Build();
 
 
-IClientSession clientSessionService = WebHost.Services.GetService<IClientSession>();
-SessionMarkerLiteModel set_marker = await clientSessionService.ReadSessionAsync();
+IClientSession? clientSessionService = WebHost.Services.GetService<IClientSession>();
+SessionMarkerLiteModel set_marker = await clientSessionService?.ReadSessionAsync();
 http.DefaultRequestHeaders.Add(remote_conf.CookiesConfig.SessionTokenName, set_marker.Token);
 
 response = await http.GetAsync("api/UsersProfiles/0");
 json_raw = await response.Content.ReadAsStringAsync();
-GetUserProfileResponseModel check_session = JsonConvert.DeserializeObject<GetUserProfileResponseModel>(json_raw);
+GetUserProfileResponseModel? check_session = JsonConvert.DeserializeObject<GetUserProfileResponseModel>(json_raw);
 if (check_session?.IsSuccess != true)
 {
     await clientSessionService.RemoveSessionAsync();
-    set_marker.Reload(0,string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
+    set_marker.Reload(0, string.Empty, AccessLevelsUsersEnum.Anonim, string.Empty);
     await clientSessionService.SaveSessionAsync(set_marker);
 }
 else

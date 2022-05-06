@@ -31,6 +31,12 @@ namespace ServerLib
         /// </summary>
         /// <returns>Уникальный токен сессии пользователя</returns>
         public Guid ReadTokenFromRequest();
-        //public Task AuthenticateAsync(string set_login, string set_role);
+
+        /// <summary>
+        /// Получить список текущий/действующих сессий пользователя по логину
+        /// </summary>
+        /// <param name="login">Логин пользователя, сессии которого нужны</param>
+        /// <returns>Список текущий/действующих сессий пользователя</returns>
+        public Task<List<SessionStorageModel>> GetUserSessionsAsync(string login);
     }
 }

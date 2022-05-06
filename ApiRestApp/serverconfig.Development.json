@@ -48,7 +48,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "õõõõõõõõõõõõõ",
+    "Password": "xxxxxxxxx",
     "UseSsl": true
   },
   "RedisConfig": {
@@ -56,7 +56,6 @@
     "Password": "",
     "User": "",
     "KeepAlive": 5,
-    "HighPrioritySocketThreads": false,
     "EndPoint": "localhost:6379",
     "AbortOnConnectFail": false,
     "ConnectTimeout": 10000,

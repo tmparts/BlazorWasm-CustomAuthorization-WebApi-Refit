@@ -9,11 +9,11 @@ using ServerLib;
 
 namespace ApiRestApp.Filters
 {
-    public class AuthAsyncFilterAttribute : Attribute, IAuthorizationFilter
+    public class AuthFilterAttributeAsync : Attribute, IAuthorizationFilter
     {
         ISessionService _session_service;
         AccessLevelsUsersEnum _minimum_access_level;
-        public AuthAsyncFilterAttribute(ISessionService set_session_service, AccessLevelsUsersEnum set_minimum_access_level)//
+        public AuthFilterAttributeAsync(ISessionService set_session_service, AccessLevelsUsersEnum set_minimum_access_level)//
         {
             _session_service = set_session_service;
             _minimum_access_level = set_minimum_access_level;

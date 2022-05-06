@@ -48,6 +48,7 @@ namespace SharedLib.ClientServices.refit
                 }
                 result.IsSuccess = rest.Content.IsSuccess;
                 result.User = rest.Content.User;
+                result.Sessions = rest.Content.Sessions;
                 result.Message = rest.Content.Message;
             }
             catch (Exception ex)

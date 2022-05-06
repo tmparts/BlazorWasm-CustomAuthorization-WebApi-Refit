@@ -124,7 +124,7 @@ namespace SharedLib.Models
         /// <summary>
         /// Конвертация объекта маркера сессии в строку
         /// </summary>
-        /// <returns>Строковое представление маркера сессии</returns>
+        /// <returns>Строковое представление маркера сессии. например: 8|20|t1|user_login</returns>
         public override string ToString()
         {
             return $"{Id}|{(int)AccessLevelUser}|{(IsLongTimeSession ? "t2" : "t1")}|{Login}";

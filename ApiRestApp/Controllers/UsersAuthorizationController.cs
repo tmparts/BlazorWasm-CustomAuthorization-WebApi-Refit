@@ -28,9 +28,9 @@ namespace ApiRestApp.Controllers
         /// Прочитать информацию о текущей сессии
         /// </summary>
         /// <param name="ReturnUrl"></param>
-        /// <returns></returns>
+        /// <returns>Сессия пользователя</returns>
         [HttpGet]
-        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
+        [TypeFilter(typeof(AuthFilterAttributeAsync), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
         public SessionReadResponseModel Get([FromQuery] string? ReturnUrl)
         {
             return _users_repo.ReadMainSession();
@@ -39,8 +39,8 @@ namespace ApiRestApp.Controllers
         /// <summary>
         /// Регистрация нового пользователя
         /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <param name="user">Пользователь для создания</param>
+        /// <returns>Результат авторизации пользователя</returns>
         [HttpPost]
         public async Task<AuthUserResponseModel> Post([FromBody] UserRegistrationModel user)
         {
@@ -50,8 +50,8 @@ namespace ApiRestApp.Controllers
         /// <summary>
         /// Авторизация пользователя
         /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <param name="user">Пользователь авторизации</param>
+        /// <returns>Результат авторизации пользователя</returns>
         [HttpPut]
         public async Task<AuthUserResponseModel> Put([FromBody] UserAuthorizationModel user)
         {
@@ -62,9 +62,9 @@ namespace ApiRestApp.Controllers
         /// Запрос восстановления доступа к учётной записи
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
+        /// <returns>Результат запроса восстановления доступа к профилю пользователя</returns>
         [HttpPatch]
-        public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel? user)
+        public async Task<ResponseBaseModel> Patch([FromBody] UserRestoreModel user)
         {
             if (string.IsNullOrEmpty(_session_service.SessionMarker.Login))
             {
@@ -93,7 +93,7 @@ namespace ApiRestApp.Controllers
         /// Проврерка работоспособности
         /// </summary>
         /// <returns></returns>
-        [TypeFilter(typeof(AuthAsyncFilterAttribute), Arguments = new object[] { AccessLevelsUsersEnum.Auth })]
+        [TypeFilter(typeof(AuthFilterAttributeAsync), Arguments = new object[] { AccessLevelsUsersEnum.Auth })]
         [HttpOptions]
         public WeatherForecastModel[] Options()
         {

@@ -34,6 +34,10 @@ namespace SrvMetaApp.Repositories.mail
             _mem_cashe = set_mem_cashe;
         }
 
+        /// <summary>
+        /// Отправить пользователю уведомление на Email, для подтверждения операции
+        /// </summary>
+        /// <param name="confirm_db">Объект подтверждения действия пользователя</param>
         public async Task<bool> SendUserConfirmationEmail(ConfirmationUserActionModelDb confirm_db)
         {
             string subject, message;

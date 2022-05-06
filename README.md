@@ -147,7 +147,6 @@ ResponseBaseModel()
     "Password": "",
     "User": "",
     "KeepAlive": 5,
-    "HighPrioritySocketThreads": false,
     "EndPoint": "localhost:6379",
     "AbortOnConnectFail": false,
     "ConnectTimeout": 10000,
@@ -192,7 +191,7 @@ builder.Services.AddSingleton<IManualMemoryCashe, RedisMemoryCasheService>();
 - ѕодтверждение регистрации (по Email пользовател€). 
 - —брос/изменение парол€ (восстановление доступа по Email).
 - reCaptcha v2 (в т.ч. Invisible)
-- сесси€ от Blazor Wasm к WEB Api пробрасыветс€ через Refit/HTTP Header. Ќа стороне браузера сесси€ хранитс€ в Microsoft.Extensions.Caching.Memory.IMemoryCache.
+- сесси€ от Blazor Wasm к WEB Api пробрасыветс€ через Refit/HTTP Header. Ќа стороне браузера сесси€ хранитс€ в  укисах.
 
 Ќа старте работает с Redis, но легко переводитс€ на другие рельсы через реализацию интерфейса
 ```c#

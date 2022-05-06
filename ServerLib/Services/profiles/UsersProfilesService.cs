@@ -62,12 +62,24 @@ namespace ServerLib
 
         public async Task<GetUserProfileResponseModel> GetUserProfileAsync(int id)
         {
-            return await _users_dt.GetUserProfileAsync(id);
+            GetUserProfileResponseModel userProfile = await _users_dt.GetUserProfileAsync(id);
+            if (userProfile.IsSuccess && userProfile.User is not null)
+            {
+                userProfile.Sessions = await _session_service.GetUserSessionsAsync(userProfile.User.Login);
+            }
+            userProfile.Message = "Ok. Пользователь получен.";
+            return userProfile;
         }
 
         public async Task<GetUserProfileResponseModel> GetUserProfileAsync(string login)
         {
-            return await _users_dt.GetUserProfileAsync(login);
+            GetUserProfileResponseModel userProfile = await _users_dt.GetUserProfileAsync(login);
+            if(userProfile.IsSuccess && userProfile.User is not null)
+            {
+                userProfile.Sessions = await _session_service.GetUserSessionsAsync(userProfile.User.Login);
+            }
+            userProfile.Message = "Ok. Пользователь получен.";
+            return userProfile;
         }
 
         public async Task<UpdateUserProfileResponseModel> UpdateUserProfileAsync(UserLiteModel user)

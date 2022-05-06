@@ -12,6 +12,6 @@ namespace reCaptcha.Models.VerifyingUsersResponse
         /// <summary>
         /// Имя пакета приложения, в котором была решена reCAPTCHA
         /// </summary>
-        public string apk_package_name { get; set; } // the package name of the app where the reCAPTCHA was solved
+        public string? apk_package_name { get; set; } // the package name of the app where the reCAPTCHA was solved
     }
 }

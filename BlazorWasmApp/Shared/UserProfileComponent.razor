@@ -16,7 +16,11 @@
 @inject ClientConfigModel conf
 
 @inherits BlazorBusyComponentBaseModel
-
+<style>
+.buton-kill-session {
+    cursor: pointer;
+}
+</style>
 @{
     if (IsBusyProgress == true)
     {
@@ -128,27 +132,17 @@
                         <TabComponent Title="Сессии">
                             <h4>Текущие/активные сессии пользователя</h4>
                             <ol class="list-group list-group-numbered">
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">29.03.2022 12:34:40 || 127.0.0.1</div>
-                                        <small>AD8EB63C52E94875878B5C7041EF912B</small>
-                                        <span class="badge bg-danger rounded-pill">завершить</span>
-                                    </div>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">30.03.2022 20:22:54 || 127.0.0.1</div>
-                                        <small>24CBA5EF130C4A088A1821480451DEA3</small>
-                                        <span class="badge bg-danger rounded-pill">завершить</span>
-                                    </div>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">24.03.2022 14:10:02 || 127.0.0.1</div>
-                                        <small>4F2839595FEC4994AB7C36452F8DD0E7</small>
-                                        <span class="badge bg-secondary rounded-pill">текущая</span>
-                                    </div>
-                                </li>
+                                @foreach (SessionStorageModel s in UserSessions)
+                                {
+                                    bool is_current_session = SessionMarker.Token == s.Token.ToString();
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">@s.DateTimeOfBirth || @s.ClientAddress</div>
+                                            <span @onclick="@(e => KillSession(e, s.Token))" class="badge bg-@(is_current_session ? "primary" : "danger") rounded-pill @(is_current_session ? string.Empty : "buton-kill-session")">@(is_current_session ? "текущая" : "завершить")</span>
+                                            <small>@s.Token.ToString().Replace("-","")</small>
+                                        </div>
+                                    </li>
+                                }
                             </ol>
                         </TabComponent>
                     </TabSetComponent>
@@ -184,6 +178,7 @@
 @code {
     [Parameter] public int? IdProfile { get; set; }
 
+    private IEnumerable<SessionStorageModel> UserSessions = Array.Empty<SessionStorageModel>();
     private ModalWindowComponent Modal { get; set; }
     private string ModalBodyText { get; set; } = string.Empty;
 
@@ -213,6 +208,10 @@
     bool re_activate_is_sended = false;
     string re_activate_info = string.Empty;
 
+    private async Task KillSession(MouseEventArgs e,string token)
+    {
+        Logger.LogDebug($"kill session -> {token}");
+    }
 
     private async Task OnNameChanged(ChangeEventArgs e)
     {
@@ -273,6 +272,9 @@
             await UserLogout();
             return;
         }
+
+        if (rest.Sessions is not null)
+            UserSessions = rest.Sessions;
 
         user_profile_result = rest.User;
         if (rest.IsSuccess)

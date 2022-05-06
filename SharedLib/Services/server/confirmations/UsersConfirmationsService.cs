@@ -44,7 +44,7 @@ namespace SrvMetaApp.Repositories
         /// Подтвердить операцию пользователя
         /// </summary>
         /// <param name="confirm_id">токен подтверждения</param>
-        public async Task<ResponseBaseModel> ConfirmActionAsync(string confirm_id)
+        public async Task<ResponseBaseModel?> ConfirmActionAsync(string confirm_id)
         {
             ConfirmationResponseModel? res = await GetConfirmationAsync(confirm_id);
 
@@ -53,7 +53,7 @@ namespace SrvMetaApp.Repositories
                 return res;
             }
 
-            switch (res.Confirmation.ConfirmationType)
+            switch (res?.Confirmation?.ConfirmationType)
             {
                 case ConfirmationsTypesEnum.RegistrationUser:
 
@@ -125,6 +125,12 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
+        /// <summary>
+        /// Получить пдвтерждение пользователя по идентефикатору из БД
+        /// </summary>
+        /// <param name="confirm_id">Идентификатор подвтерждения пользователя</param>
+        /// <param name="include_user_data">Признак необходимости загрузки связанных данных к объекту БД</param>
+        /// <returns>Объект подвтерждения действия пользователя (результат запроса)</returns>
         public async Task<ConfirmationResponseModel> GetConfirmationAsync(string confirm_id, bool include_user_data = true)
         {
             ConfirmationResponseModel res = new ConfirmationResponseModel() { IsSuccess = Guid.TryParse(confirm_id, out _) };
@@ -148,6 +154,14 @@ namespace SrvMetaApp.Repositories
             return res;
         }
 
+        /// <summary>
+        /// Создать пдвтерждение пользователя в БД
+        /// </summary>
+        /// <param name="user">Пользователь, который подтверждает действие</param>
+        /// <param name="confirmation_type">Тип подвтерждения действия пользователя</param>
+        /// <param name="send_email">Отправить уведомление о создании временной ссылки подвтерждения дейтсвия пользователя</param>
+        /// <returns>Объект подвтерждения действия пользователя (результат запроса)</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public async Task<ConfirmationResponseModel> CreateConfirmationAsync(UserModelDB user, ConfirmationsTypesEnum confirmation_type, bool send_email = true)
         {
             ConfirmationResponseModel res = new ConfirmationResponseModel() { IsSuccess = true, Message = string.Empty };

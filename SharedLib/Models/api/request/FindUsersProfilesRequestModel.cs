@@ -12,17 +12,17 @@ namespace SharedLib.Models
         /// <summary>
         /// Поиск по логину
         /// </summary>
-        public FindTextModel FindLogin { get; set; }
+        public FindTextModel? FindLogin { get; set; }
 
         /// <summary>
         /// Поиск по уровню доступа
         /// </summary>
-        public IEnumerable<AccessLevelsUsersEnum> AccessLevelsUsers { get; set; }
+        public IEnumerable<AccessLevelsUsersEnum>? AccessLevelsUsers { get; set; }
 
         /// <summary>
         /// Типы подтверждения учётной записи пользователя
         /// </summary>
-        public IEnumerable<ConfirmationUsersTypesEnum> ConfirmationUsersTypes { get; set; }
+        public IEnumerable<ConfirmationUsersTypesEnum>? ConfirmationUsersTypes { get; set; }
 
         /// <summary>
         /// Группы пользователей

@@ -36,11 +36,6 @@ namespace SharedLib.Models
         public int KeepAlive { get; set; } = 5;
 
         /// <summary>
-        /// Используйте ThreadPriority.AboveNormal для потоков чтения и записи SocketManager (по умолчанию true). Если false, будет использоваться ThreadPriority.Normal.
-        /// </summary>
-        public bool HighPrioritySocketThreads { get; set; } = true;
-
-        /// <summary>
         /// Конечные точки, определенные для этой конфигурации
         /// </summary>
         public string EndPoint { get; set; } = "localhost:6379";

@@ -33,12 +33,12 @@ namespace SharedLib
                 User = _config?.User ?? string.Empty,
                 Password = _config?.Password ?? string.Empty,
                 KeepAlive = _config?.KeepAlive ?? 5,
-                HighPrioritySocketThreads = _config?.HighPrioritySocketThreads ?? true,
                 ConfigurationChannel = _config?.ConfigurationChannel ?? string.Empty,
                 ClientName = _config?.ClientName ?? string.Empty,
                 Ssl = _config?.Ssl ?? true,
                 SslHost = _config?.SslHost ?? string.Empty
             };
+
             if (connectionMultiplexer is null)
                 connectionMultiplexer = ConnectionMultiplexer.Connect(co);
 
@@ -74,6 +74,11 @@ namespace SharedLib
             Connection?.Dispose();
         }
 
+        /// <summary>
+        /// Найти ключи по шаблону имени
+        /// </summary>
+        /// <param name="pattern">Шаблон имени для поиска ключей</param>
+        /// <returns>Ключи, совпавшие шаблону</returns>
         public List<RedisKey> FindKeys(string pattern)
         {
             List<RedisKey> res = new List<RedisKey>();
@@ -86,9 +91,80 @@ namespace SharedLib
 
             return res;
         }
+
+        /// <summary>
+        /// Найти ключи по шаблону имени
+        /// </summary>
+        /// <param name="pref">Префикс/Шаблон имени для поиска ключей</param>
+        /// <returns>Ключи, совпавшие шаблону</returns>
         public List<RedisKey> FindKeys(MemCashePrefixModel pref) => FindKeys(pref.ToString());
 
+        /// <summary>
+        /// Проверка существования ключа
+        /// </summary>
+        /// <param name="key">Ключ для проверки</param>
+        /// <param name="flags">Флаги, используемые для этой операции.</param>
+        /// <returns>true, если ключ существует. false, если ключ не существует.</returns>
+        public async Task<bool> KeyExistsAsync(MemCasheComplexKeyModel key, CommandFlags flags = CommandFlags.None)
+        {
+            ConnectionMultiplexer rc = Connection;
+            IDatabase db = rc.GetDatabase();
+
+            return await db.KeyExistsAsync(GetRedisKey(key.Pref, key.Id?.ToString() ?? string.Empty), flags);
+        }
+
+        /// <summary>
+        /// Установить тайм-аут на ключ. По истечении тайм-аута ключ будет автоматически удален. В терминологии Redis ключ с соответствующим тайм-аутом называется изменчивым.
+        /// </summary>
+        /// <param name="key">Ключ, для которого устанавливается срок действия.</param>
+        /// <param name="expiry">Тайм-аут, который нужно установить.</param>
+        /// <param name="flags">Флаги, используемые для этой операции.</param>
+        /// <returns>true, если тайм-аут был установлен. false, если ключ не существует или не удалось установить время ожидания.</returns>
+        public async Task<bool> KeyExpireAsync(MemCasheComplexKeyModel key, TimeSpan? expiry, CommandFlags flags = CommandFlags.None)
+        {
+            ConnectionMultiplexer rc = Connection;
+            IDatabase db = rc.GetDatabase();
+
+            return await db.KeyExpireAsync(GetRedisKey(key.Pref, key.Id?.ToString() ?? string.Empty), expiry, flags);
+        }
+
+        /// <summary>
+        /// Переименовывает ключ в newKey. Он возвращает ошибку, если имена источника и назначения совпадают или если ключ не существует.
+        /// </summary>
+        /// <param name="key">Ключ для переименования.</param>
+        /// <param name="newKey">Новый ключ, в который требуется переименовать</param>
+        /// <param name="when">При каких условиях переименовывать (по умолчанию всегда).</param>
+        /// <param name="flags">Флаги, используемые для этой операции.</param>
+        /// <returns>true, если ключ был переименован, в противном случае — false.</returns>
+        public async Task<bool> KeyRenameAsync(MemCasheComplexKeyModel key, MemCasheComplexKeyModel newKey, When when = When.Always, CommandFlags flags = CommandFlags.None)
+        {
+            ConnectionMultiplexer rc = Connection;
+            IDatabase db = rc.GetDatabase();
+
+            return await db.KeyRenameAsync(GetRedisKey(key.Pref, key.Id?.ToString() ?? string.Empty), GetRedisKey(newKey.Pref, newKey.Id?.ToString() ?? string.Empty), when, flags);
+        }
+
+        /// <summary>
+        /// Возвращает оставшееся время жизни ключа. Эта возможность позволяет клиенту Redis проверять, сколько секунд данный ключ будет оставаться частью набора данных.
+        /// </summary>
+        /// <param name="key">Ключ для проверки</param>
+        /// <param name="flags">Флаги, используемые для этой операции.</param>
+        /// <returns>TTL или ноль, если ключ не существует или не имеет тайм-аута.</returns>
+        public async Task<TimeSpan?> KeyTimeToLiveAsync(MemCasheComplexKeyModel key, CommandFlags flags = CommandFlags.None)
+        {
+            ConnectionMultiplexer rc = Connection;
+            IDatabase db = rc.GetDatabase();
+
+            return await db.KeyTimeToLiveAsync(GetRedisKey(key.Pref, key.Id?.ToString() ?? string.Empty), flags);
+        }
+
         #region get
+
+        /// <summary>
+        /// Прочитать из мемкеша данные в виде строки
+        /// </summary>
+        /// <param name="key">Ключ доступа к мемкеш данным</param>
+        /// <returns>Данные, прочитанные из мемкеша по полному имени ключа</returns>
         public async Task<string?> GetStringValueAsync(RedisKey key)
         {
             ConnectionMultiplexer rc = Connection;
@@ -97,6 +173,12 @@ namespace SharedLib
             RedisValue res = await db.StringGetAsync(key);
             return res.IsNull ? null : res.ToString();
         }
+
+        /// <summary>
+        /// Прочитать из мемкеша данные в виде строки
+        /// </summary>
+        /// <param name="key">Ключ доступа к мемкеш данным</param>
+        /// <returns>Данные, прочитанные из мемкеша по полному имени ключа</returns>
         public string? GetStringValue(RedisKey key)
         {
             ConnectionMultiplexer rc = Connection;

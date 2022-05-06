@@ -19,7 +19,7 @@ namespace reCaptcha.stat
         /// <param name="response">Маркер ответа пользователя, предоставляемый клиентской интеграцией reCAPTCHA на вашем сайте</param>
         /// <param name="remoteip">IP адрес удалённого клиента (который проходит проверку)</param>
         /// <returns>Ответ/результат проверки reCaptcha</returns>
-        public static ReCaptcha3ResponseModel? reCaptcha3SiteVerify(string secret, string response, string remoteip = null)
+        public static ReCaptcha3ResponseModel? reCaptcha3SiteVerify(string secret, string response, string? remoteip = null)
         {
             byte[] respBytes = ReCaptchaSiteVerify(secret, response, remoteip).Result;
             return DeserializeFromStream(new MemoryStream(respBytes), typeof(ReCaptcha3ResponseModel)) as ReCaptcha3ResponseModel;
@@ -32,7 +32,7 @@ namespace reCaptcha.stat
         /// <param name="response">Маркер ответа пользователя, предоставляемый клиентской интеграцией reCAPTCHA на вашем сайте</param>
         /// <param name="remoteip">IP адрес удалённого клиента (который проходит проверку)</param>
         /// <returns>Ответ/результат проверки reCaptcha</returns>
-        public async static Task<ReCaptcha3ResponseModel?> reCaptcha3SiteVerifyAsync(string secret, string response, string remoteip = null)
+        public async static Task<ReCaptcha3ResponseModel?> reCaptcha3SiteVerifyAsync(string secret, string response, string? remoteip = null)
         {
             byte[] respBytes = await ReCaptchaSiteVerify(secret, response, remoteip);
             respBytes = await RunSave(() => respBytes, Array.Empty<byte>());
@@ -46,7 +46,7 @@ namespace reCaptcha.stat
         /// <param name="response">Маркер ответа пользователя, предоставляемый клиентской интеграцией reCAPTCHA на вашем сайте</param>
         /// <param name="remoteip">IP адрес удалённого клиента (который проходит проверку)</param>
         /// <returns>Ответ/результат проверки reCaptcha</returns>
-        public static ReCaptcha2ResponseModel? reCaptcha2SiteVerify(string secret, string response, string remoteip = null)
+        public static ReCaptcha2ResponseModel? reCaptcha2SiteVerify(string secret, string response, string? remoteip = null)
         {
             byte[] respBytes = ReCaptchaSiteVerify(secret, response, remoteip).Result;
             return DeserializeFromStream(new MemoryStream(respBytes), typeof(ReCaptcha2ResponseModel)) as ReCaptcha2ResponseModel;

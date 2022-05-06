@@ -15,7 +15,7 @@ namespace SharedLib.Models
         /// Маркер сессии
         /// </summary>
         [JsonProperty("sessionMarker")]
-        public SessionMarkerLiteModel SessionMarker { get; set; }
+        public SessionMarkerLiteModel? SessionMarker { get; set; }
         //public override string ToString()
         //{
         //    return $"{(IsSuccess ? SessionMarker.Login : $"error auth: {Message}")}";

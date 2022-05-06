@@ -19,6 +19,7 @@ namespace SrvMetaApp.Repositories
         /// <summary>
         /// Отправить пользователю уведомление на Email, для подтверждения операции
         /// </summary>
+        /// <param name="confirm_db">Объект подтверждения действия пользователя</param>
         public Task<bool> SendUserConfirmationEmail(ConfirmationUserActionModelDb confirm_db);
     }
 }

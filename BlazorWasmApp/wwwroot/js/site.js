@@ -30,16 +30,6 @@ window.methods = {
         let value = window.methods.ReadCookie(name);
         console.warn(`call -> methods.UpdateCookie(name:${name}, seconds:${seconds}, path:${path}); set:${value}`);
         window.methods.CreateCookie(name, value, seconds, path);
-        //var expires;
-        //if (seconds) {
-        //    var date = new Date();
-        //    date.setTime(date.getTime() + (seconds * 1000));
-        //    expires = "; expires=" + date.toGMTString();
-        //}
-        //else {
-        //    expires = "";
-        //}
-        //document.cookie = name + "=" + value + expires + `; path=${path}`;
     },
     ReadCookie: function (cname) {
         console.warn(`call -> methods.ReadCookie(cname:${cname})`);
@@ -59,16 +49,11 @@ window.methods = {
     },
     DeleteCookie: function (name, path, domain) {
         console.warn(`call -> methods.DeleteCookie(name:${name}, path:${path}, domain:${domain})`);
-        if (get_cookie(name)) {
+        if (window.methods.ReadCookie(name)) {
             document.cookie = name + "=" +
                 ((path) ? ";path=" + path : "") +
                 ((domain) ? ";domain=" + domain : "") +
                 ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
         }
     }
-}
-function get_cookie(name) {
-    return document.cookie.split(';').some(c => {
-        return c.trim().startsWith(name + '=');
-    });
 }

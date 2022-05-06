@@ -23,7 +23,7 @@ namespace ServerLib
     /// </summary>
     public class UsersAuthenticateService : IUsersAuthenticateService
     {
-        readonly IHttpContextAccessor? _http_context;
+        readonly IHttpContextAccessor _http_context;
         readonly ILogger<UsersAuthenticateService> _logger;
         readonly IOptions<ServerConfigModel> _config;
         readonly ISessionService _session_service;
@@ -36,6 +36,9 @@ namespace ServerLib
 
         IPAddress? RemoteIpAddress => _http_context?.HttpContext?.Request.HttpContext.Connection.RemoteIpAddress;
 
+        /// <summary>
+        /// Префикс хранилища сессии в Мемкеше
+        /// </summary>
         public static readonly MemCashePrefixModel PrefRedisSessions = new MemCashePrefixModel("sessions", string.Empty);
 
         /// <summary>
@@ -62,6 +65,10 @@ namespace ServerLib
             _mail = set_mail;
         }
 
+        /// <summary>
+        /// Прочитать текущую сессию пользователя
+        /// </summary>
+        /// <returns>Сессия текущего пользователя</returns>
         public SessionReadResponseModel ReadMainSession()
         {
             SessionReadResponseModel? res = new SessionReadResponseModel() { IsSuccess = !string.IsNullOrEmpty(_session_service.SessionMarker.Login) };
@@ -74,6 +81,9 @@ namespace ServerLib
             return res;
         }
 
+        /// <summary>
+        /// Выйти из текущей сессии пользователя
+        /// </summary>
         public async Task<ResponseBaseModel> LogOutAsync()
         {
             if (_http_context?.HttpContext is null)
@@ -91,6 +101,9 @@ namespace ServerLib
             return new ResponseBaseModel() { IsSuccess = true, Message = "Выход выполнен" };
         }
 
+        /// <summary>
+        /// Найти/прочитать сессию ользователя по токену
+        /// </summary>
         public async Task<SessionMarkerModel> SessionFind(string token)
         {
             if (token == null)
@@ -105,6 +118,9 @@ namespace ServerLib
             return (SessionMarkerModel)session_json_raw;
         }
 
+        /// <summary>
+        /// Войти в учётную запись пользователя
+        /// </summary>
         public async Task<AuthUserResponseModel> UserLoginAsync(UserAuthorizationModel user, ModelStateDictionary model_state)
         {
             await LogOutAsync();
@@ -157,6 +173,9 @@ namespace ServerLib
             return res;
         }
 
+        /// <summary>
+        /// Запрос восстановления доступа к учётной записи
+        /// </summary>
         public async Task<ResponseBaseModel> RestoreUser(string user_login)
         {
             ResponseBaseModel? res = new ResponseBaseModel()
@@ -191,6 +210,9 @@ namespace ServerLib
             return res;
         }
 
+        /// <summary>
+        /// Запрос восстановления доступа к учётной записи
+        /// </summary>
         public async Task<ResponseBaseModel> RestoreUser(UserRestoreModel user)
         {
             user.Login = user.Login?.Trim() ?? string.Empty;
@@ -264,6 +286,12 @@ namespace ServerLib
             return res;
         }
 
+        /// <summary>
+        /// Регистрация нового пароля
+        /// </summary>
+        /// <param name="new_user">Пользователь для создания</param>
+        /// <param name="model_state">Состояние модели (валидация)</param>
+        /// <returns>Результат запроса авторизации пользователя</returns>
         public async Task<AuthUserResponseModel> UserRegisterationAsync(UserRegistrationModel new_user, ModelStateDictionary model_state)
         {
             await LogOutAsync();
@@ -345,7 +373,7 @@ namespace ServerLib
                 case ReCaptchaModesEnum.Version2Invisible:
                     res.reCaptcha = await ReCaptchaVerifier.reCaptcha2SiteVerifyAsync(_config.Value.ReCaptchaConfig.ReCaptchaV2InvisibleConfig.PrivateKey, ResponseReCAPTCHA, RemoteIpAddress.ToString());
 
-                    if (!res.reCaptcha.success)
+                    if (res.reCaptcha?.success != true)
                     {
                         res.Message = string.Join(";", res.reCaptcha?.ErrorСodes ?? Array.Empty<string>());
                     }
@@ -354,6 +382,9 @@ namespace ServerLib
             return res;
         }
 
+        /// <summary>
+        /// Авторизация сессии пользователя (HttpContext)
+        /// </summary>
         public async Task AuthUserAsync(int id, string login, AccessLevelsUsersEnum access_level, int seconds_session = 0)
         {
             if (seconds_session <= 0)

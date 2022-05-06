@@ -2,6 +2,8 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
+using Newtonsoft.Json;
+
 namespace SharedLib.Models
 {
     /// <summary>
@@ -13,5 +15,10 @@ namespace SharedLib.Models
         /// Профиль пользователя
         /// </summary>
         public UserMediumModel User { get; set; }
+
+        /// <summary>
+        /// Сессии пользователя
+        /// </summary>
+        public IEnumerable<SessionStorageModel> Sessions { get; set; }
     }
 }
