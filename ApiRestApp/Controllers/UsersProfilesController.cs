@@ -4,7 +4,6 @@
 
 using ApiRestApp.Filters;
 using SharedLib.Models;
-using SharedLib.Models.enums;
 using Microsoft.AspNetCore.Mvc;
 using SharedLib;
 using ServerLib;

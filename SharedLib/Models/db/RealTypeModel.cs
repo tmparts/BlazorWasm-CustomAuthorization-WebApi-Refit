@@ -5,18 +5,13 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Логические операции И/ИЛИ
+    /// Вещественная модель (базовая)
     /// </summary>
-    public enum LogicalOperationsModesEnum
+    public abstract class RealTypeModel : EntryDescriptionModel
     {
         /// <summary>
-        /// ИЛИ
+        /// Системное имя (имя типа/класса C#)
         /// </summary>
-        Or,
-
-        /// <summary>
-        /// И
-        /// </summary>
-        And
+        public string SystemCodeName { get; set; }
     }
 }

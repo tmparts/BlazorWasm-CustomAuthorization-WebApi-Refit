@@ -18,10 +18,18 @@ namespace SharedLib.Models
         /// Идентификатор пользователя
         /// </summary>
         public int UserId { get; set; }
+        /// <summary>
+        /// Пользователь
+        /// </summary>
+        public UserModelDB User { get; set; }
 
         /// <summary>
         /// Идентификатор группы
         /// </summary>
         public int GroupId { get; set; }
+        /// <summary>
+        /// Группа пользователя
+        /// </summary>
+        public UserGroupModelDB Group { get; set; }
     }
 }

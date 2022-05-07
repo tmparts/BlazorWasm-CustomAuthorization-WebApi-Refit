@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////
 
 using Microsoft.AspNetCore.Components;
-using SharedLib.Models.enums;
+using SharedLib.Models;
 
 namespace SharedLib.Services
 {

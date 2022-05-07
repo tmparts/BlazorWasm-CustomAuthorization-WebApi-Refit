@@ -13,10 +13,8 @@ namespace DbLayerLib
     /// </summary>
     public class LayerContext : DbContext
     {
-        protected DatabaseConfigModel _config;
-        protected static bool IsEnsureCreated = false;
-
-        public static string DbFileName { get; set; } = string.Empty;
+        protected DatabaseConfigModel _config { get; set; }
+        protected static bool IsEnsureCreated { get; set; } = false;
 
         /// <summary>
         /// Конструктор
@@ -81,5 +79,38 @@ namespace DbLayerLib
         /// Связи пользователей с пользовательскими проектами
         /// </summary>
         public DbSet<UserToProjectLinkModelDb> UsersToProjectsLinks { get; set; }
+
+
+        /// <summary>
+        /// Перечисления
+        /// </summary>
+        public DbSet<EnumModelDB> DesignEnums { get; set; }
+
+
+        /// <summary>
+        /// Справочники
+        /// </summary>
+        public DbSet<ReferenceBookModelDB> DesignReferenceBooks { get; set; }
+        /// <summary>
+        /// Поля справочников
+        /// </summary>
+        public DbSet<ReferenceBookPropertyModelDB> DesignReferenceBooksProperties { get; set; }
+        /// <summary>
+        /// Группы свойств полей справочников
+        /// </summary>
+        public DbSet<ReferenceBookPropertiesGroupModelDB> DesignReferenceBooksPropertiesGroups { get; set; }
+
+        /// <summary>
+        /// Документы
+        /// </summary>
+        public DbSet<DocumentModelDB> DesignDocuments { get; set; }
+        /// <summary>
+        /// Поля документов
+        /// </summary>
+        public DbSet<DocumentPropertyModelDB> DesignDocumentsProperties { get; set; }
+        /// <summary>
+        /// Группы свойств документов
+        /// </summary>
+        public DbSet<DocumentPropertiesGroupModelDB> DesignDocumentsPropertiesGroups { get; set; }
     }
 }

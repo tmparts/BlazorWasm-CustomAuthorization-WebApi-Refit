@@ -5,18 +5,13 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Логические операции И/ИЛИ
+    /// Группа свойств документа
     /// </summary>
-    public enum LogicalOperationsModesEnum
+    public class DocumentPropertiesGroupModelDB : RealTypeModel
     {
         /// <summary>
-        /// ИЛИ
+        /// Связанные свойства документа
         /// </summary>
-        Or,
-
-        /// <summary>
-        /// И
-        /// </summary>
-        And
+        public IEnumerable<DocumentPropertyModelDB> DocumentProperties { get; set; }
     }
 }

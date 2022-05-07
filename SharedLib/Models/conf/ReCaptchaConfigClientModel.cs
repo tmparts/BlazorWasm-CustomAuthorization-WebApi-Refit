@@ -2,8 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SharedLib.Models.enums;
-
 namespace SharedLib.Models
 {
     /// <summary>

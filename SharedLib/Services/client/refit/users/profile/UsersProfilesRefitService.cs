@@ -6,7 +6,6 @@ using SharedLib.Services;
 using Microsoft.Extensions.Logging;
 using Refit;
 using SharedLib.Models;
-using SharedLib.Models.enums;
 
 namespace SharedLib.ClientServices.refit
 {

@@ -2,7 +2,7 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-namespace SharedLib.Models.enums
+namespace SharedLib.Models
 {
     /// <summary>
     /// Режимы поиска текста

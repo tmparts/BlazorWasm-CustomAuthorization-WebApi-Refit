@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using SharedLib.MemCash;
 using SharedLib.Models;
-using SharedLib.Models.enums;
 
 namespace SrvMetaApp.Repositories.mail
 {

@@ -5,28 +5,23 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Режимы работы reCaptcha
+    /// Типы полей дизайн-моделей
     /// </summary>
-    public enum ReCaptchaModesEnum
+    public enum PropertyTypesEnum
     {
         /// <summary>
-        /// Отключено
+        /// Простое статическое перечисление
         /// </summary>
-        None = 0,
+        SimpleEnum,
 
         /// <summary>
-        /// v2
+        /// Справочник
         /// </summary>
-        Version2 = 1,
+        ReferenceBook,
 
         /// <summary>
-        /// v2 Invisible
+        /// Документ
         /// </summary>
-        Version2Invisible = 2,
-
-        /*/// <summary>
-        /// v3
-        /// </summary>
-        Version3 = 4,*/
+        Document
     }
 }

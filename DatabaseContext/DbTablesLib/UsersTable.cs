@@ -7,7 +7,6 @@ using SharedLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SharedLib;
-using SharedLib.Models.enums;
 
 namespace DbcMetaSqliteLib.Users
 {

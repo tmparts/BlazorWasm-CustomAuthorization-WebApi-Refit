@@ -5,18 +5,18 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Области изменения опций профиля пользователя
+    /// Расположения/размещения свойств
     /// </summary>
-    public enum UserProfileAreasEnum
+    public enum AreasPropertiesEnum
     {
         /// <summary>
-        /// Изменение пароля
+        /// Основное размещение
         /// </summary>
-        PasswordChange,
+        Main,
 
         /// <summary>
-        /// Уничтожение сессии
+        /// Табличная часть
         /// </summary>
-        KillSession
+        Table
     }
 }

@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////
 
 using SharedLib.Models;
-using SharedLib.Models.enums;
 
 namespace SharedLib.ClientServices.refit
 {

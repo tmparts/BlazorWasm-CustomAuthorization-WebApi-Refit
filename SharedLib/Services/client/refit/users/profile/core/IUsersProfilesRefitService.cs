@@ -4,7 +4,6 @@
 
 using Refit;
 using SharedLib.Models;
-using SharedLib.Models.enums;
 
 namespace SharedLib.Services
 {

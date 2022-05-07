@@ -2,7 +2,6 @@
 // © https://github.com/badhitman - @fakegov 
 ////////////////////////////////////////////////
 
-using SharedLib.Models.enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace SharedLib.Models
