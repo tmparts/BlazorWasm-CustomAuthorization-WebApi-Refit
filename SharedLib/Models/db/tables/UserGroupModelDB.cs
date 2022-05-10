@@ -30,6 +30,6 @@ namespace SharedLib.Models
         /// <summary>
         /// Пользователи, входящие в группу
         /// </summary>
-        public IEnumerable<UserModelDB>? Users { get; set; }
+        public IEnumerable<UserToGroupLinkModelDb>? Users { get; set; }
     }
 }

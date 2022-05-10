@@ -18,16 +18,32 @@ namespace SharedLib.Models
         /// Номер текущей страницы
         /// </summary>
         public int PageNum { get; set; }
-    }
 
-    /// <summary>
-    /// Базовая модель ответа с поддержкой пагинации
-    /// </summary>
-    public class PaginationResponseModel : PaginationRequestModel
-    {
         /// <summary>
-        /// Общее/всего количество элементов
+        /// Сортировка (от большего к меньшему или от меньшего к большему)
         /// </summary>
-        public int TotalCount { get; set; }
+        public VerticalDirectionsEnum SortingDirection { get; set; }
+
+        /// <summary>
+        /// Имя поля по которому должна происходить сортировка
+        /// </summary>
+        public string? SortBy { get; set; }
+
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        public PaginationRequestModel() { }
+
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="init_object">Объект инициализации пагинатора</param>
+        public PaginationRequestModel(PaginationRequestModel init_object)
+        {
+            PageSize = init_object.PageSize;
+            PageNum = init_object.PageNum;
+            SortingDirection = init_object.SortingDirection;
+            SortBy = init_object.SortBy;
+        }
     }
 }

@@ -78,6 +78,7 @@ builder.Services.AddScoped<IUsersAuthenticateService, UsersAuthenticateService>(
 builder.Services.AddScoped<IUsersProfilesService, UsersProfilesService>();
 builder.Services.AddScoped<IUsersConfirmationsService, UsersConfirmationsService>();
 builder.Services.AddScoped<IMailProviderService, MailProviderService>();
+builder.Services.AddScoped<IUsersProjectsService, UsersPrjectsService>();
 
 //builder.Services.InitAccessMinLevelHandler();
 

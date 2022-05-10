@@ -17,6 +17,11 @@ namespace SharedLib.Models
         /// </summary>
         [Key]
         public int Id { get; set; }
+
+        /// <summary>
+        /// Объект удалён
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
     }
 
     /// <summary>

@@ -39,7 +39,8 @@ namespace SharedLib.Models
                 ReCaptchaConfig = v.ReCaptchaConfig,
                 RefitHandlerLifetimeMinutes = v.RefitHandlerLifetimeMinutes,
                 EmailSenderAddress = v.SmtpConfig.Email,
-                CookiesConfig = v.CookiesConfig
+                CookiesConfig = v.CookiesConfig,
+                PaginationPageSizeMin = v.PaginationPageSizeMin,
             };
 
             return res;

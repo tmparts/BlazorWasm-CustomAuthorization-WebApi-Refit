@@ -48,7 +48,7 @@
     "Host": "smtp.yandex.ru",
     "Port": 465,
     "Login": "badhitman",
-    "Password": "xxxxxxxxx",
+    "Password": "xxxxxxx",
     "UseSsl": true
   },
   "RedisConfig": {
@@ -96,5 +96,6 @@
     },
     "ConfirmHistoryDays": 60
   },
-  "RefitHandlerLifetimeMinutes": 0
+  "RefitHandlerLifetimeMinutes": 0,
+  "PaginationPageSizeMin": 50
 }

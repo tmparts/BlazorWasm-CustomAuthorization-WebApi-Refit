@@ -11,7 +11,7 @@ namespace SharedLib.Models
     /// </summary>
     [Index(nameof(UserId))]
     [Index(nameof(GroupId))]
-    [Index(nameof(UserId), nameof(GroupId))]
+    [Index(nameof(UserId), nameof(GroupId), IsUnique = true)]
     public class UserToGroupLinkModelDb : IdModel
     {
         /// <summary>

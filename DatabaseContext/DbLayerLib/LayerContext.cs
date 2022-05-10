@@ -46,7 +46,19 @@ namespace DbLayerLib
                     new UserModelDB("Sam", AccessLevelsUsersEnum.Trusted) { Id = 3, Login = "samuel", PasswordHash = GlobalUtils.CalculateHashString("hdg6hw46s"), Email = "samuel@mail.ru" },
                     new UserModelDB("Kelly", AccessLevelsUsersEnum.Manager) { Id = 4, Login = "kiki", PasswordHash = GlobalUtils.CalculateHashString("dh6jwk45"), Email = "kiki@mail.ru" },
                     new UserModelDB("David", AccessLevelsUsersEnum.Admin) { Id = 5, Login = "diablo", PasswordHash = GlobalUtils.CalculateHashString("dfgh6qeh"), Email = "diablo@mail.ru" },
-                    new UserModelDB("Rokki", AccessLevelsUsersEnum.ROOT) { Id = 6, Login = "ronin", PasswordHash = GlobalUtils.CalculateHashString("ghyh356ust"), Email = "ronin@mail.ru" }
+                    new UserModelDB("Rokki", AccessLevelsUsersEnum.ROOT) { Id = 6, Login = "222222222", PasswordHash = GlobalUtils.CalculateHashString("222222222"), Email = "ronin@mail.ru" }
+            );
+
+            modelBuilder.Entity<UserToGroupLinkModelDb>().HasData(
+                    new UserToGroupLinkModelDb() { Id = 1, GroupId = 1, UserId = 1 },
+                    new UserToGroupLinkModelDb() { Id = 2, GroupId = 2, UserId = 1 },
+                    new UserToGroupLinkModelDb() { Id = 3, GroupId = 3, UserId = 2 }
+            );
+
+            modelBuilder.Entity<UserToProjectLinkModelDb>().HasData(
+                    new UserToProjectLinkModelDb() { Id = 1, ProjectId = 1, UserId = 1, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Owner },
+                    new UserToProjectLinkModelDb() { Id = 2, ProjectId = 2, UserId = 1, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Reader },
+                    new UserToProjectLinkModelDb() { Id = 3, ProjectId = 3, UserId = 2, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Blocked }
             );
         }
 

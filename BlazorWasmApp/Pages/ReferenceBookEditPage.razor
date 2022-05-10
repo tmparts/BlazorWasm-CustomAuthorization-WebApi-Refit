@@ -1,7 +1,11 @@
 ﻿@page "/referencesbooks/edit/{id?}"
 
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
 <h3>Справочник</h3>
 
 @code {
-
+    [Parameter] public int? id { get; set; }
 }

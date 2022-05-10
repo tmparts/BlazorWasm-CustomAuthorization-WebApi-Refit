@@ -43,7 +43,7 @@ namespace ServerLib
         /// <param name="set_http_context"></param>
         /// <param name="set_mail"></param>
         /// <param name="set_config"></param>
-        public UsersProfilesService(ISessionService set_session_service, ILogger<UsersProfilesService> set_logger, IUsersTable set_users_dt, IConfirmationsTable set_confirmations_dt, IManualMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context, IMailProviderService set_mail, IOptions<ServerConfigModel> set_config) //(, IConfirmationsTable set_confirmations_dt, IUsersConfirmationsInterface set_user_confirmation,  IUsersTable set_users_dt, SessionService set_session_service)
+        public UsersProfilesService(ISessionService set_session_service, ILogger<UsersProfilesService> set_logger, IUsersTable set_users_dt, IConfirmationsTable set_confirmations_dt, IManualMemoryCashe set_mem_cashe, IHttpContextAccessor set_http_context, IMailProviderService set_mail, IOptions<ServerConfigModel> set_config)
         {
             _logger = set_logger;
             _mem_cashe = set_mem_cashe;

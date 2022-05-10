@@ -33,5 +33,10 @@ namespace SharedLib.Models
         /// Конфигурация reCaptcha
         /// </summary>
         public ReCaptchaConfigClientModel ReCaptchaConfig { get; set; }
+
+        /// <summary>
+        /// Минимальный размер страницы в Pagination
+        /// </summary>
+        public ushort PaginationPageSizeMin { get; set; } = 10;
     }
 }

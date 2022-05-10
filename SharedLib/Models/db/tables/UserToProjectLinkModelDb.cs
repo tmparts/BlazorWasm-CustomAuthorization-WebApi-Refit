@@ -11,7 +11,7 @@ namespace SharedLib.Models
     /// </summary>
     [Index(nameof(UserId))]
     [Index(nameof(ProjectId))]
-    [Index(nameof(UserId), nameof(ProjectId))]
+    [Index(nameof(UserId), nameof(ProjectId), IsUnique = true)]
     public class UserToProjectLinkModelDb : IdModel
     {
         /// <summary>

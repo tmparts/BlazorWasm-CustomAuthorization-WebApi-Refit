@@ -50,9 +50,17 @@ namespace SharedLib
                 .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
                 .AddHttpMessageHandler<RefitHeadersDelegatingHandler>()
                 .SetHandlerLifetime(handler_lifetime);
+
+            services.AddRefitClient<IUsersProjectsRefitService>()
+                .ConfigureHttpClient(c => c.BaseAddress = conf.ApiConfig.Url)
+                .AddHttpMessageHandler<RefitHeadersDelegatingHandler>()
+                .SetHandlerLifetime(handler_lifetime);
             //
             services.AddScoped<IUsersProfilesRefitProvider, UsersProfilesRefitProvider>();
             services.AddScoped<IUsersProfilesRestService, UsersProfilesRefitService>();
+
+            services.AddScoped<IUsersProjectsRefitProvider, UsersProjectsRefitProvider>();
+            services.AddScoped<IUsersProjectsRestService, UsersProjectsRefitService>();
 
             services.AddScoped<IUsersAuthRefitProvider, UsersAuthRefitProvider>();
             services.AddScoped<IUsersAuthRestService, UsersAuthRefitService>();

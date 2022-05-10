@@ -22,10 +22,10 @@ namespace DbcLib
                 string prefix = "Data Source=";
                 string DbPath = _config.Connect.ConnectionString;
 
-                DbPath = DbPath.Substring(prefix.Length).Trim();
+                DbPath = DbPath[prefix.Length..].Trim();
                 if (DbPath.EndsWith(";"))
                 {
-                    DbPath = DbPath.Substring(0, DbPath.Length - 1);
+                    DbPath = DbPath[0..^1];
                 }
                 FileInfo? fi = new FileInfo(DbPath);
 #if DEBUG

@@ -24,5 +24,20 @@ namespace SharedLib
         /// <param name="project">Объект проекта для обновления в БД</param>
         /// <param name="auto_save">Автоматически сохранить изменения в БД</param>
         public Task UpdateAsync(ProjectModelDB project, bool auto_save = true);
+
+        /// <summary>
+        /// Удалить проект
+        /// </summary>
+        /// <param name="project_id">Идентификатор проекта</param>
+        /// <param name="auto_save">Автоматически сохранить изменения в БД</param>
+        public Task<bool> DeleteAsync(int project_id, bool auto_save = true);
+
+        /// <summary>
+        /// Получить проекты для пользователя
+        /// </summary>
+        /// <param name="user">Пользователь, для которого производится поиск</param>
+        /// <param name="pagination">Настройки пагинатора</param>
+        /// <returns>Набор проектов для пользователя</returns>
+        public Task<ProjectForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination);
     }
 }

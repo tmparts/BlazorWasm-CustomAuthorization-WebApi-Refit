@@ -1,7 +1,61 @@
 ﻿@page "/projects/list"
 
-<h3>Проекты</h3>
+@using SharedLib.Models
+@using SharedLib.Services
+@using SharedLib.ClientServices.refit
 
+@inject IUsersProjectsRestService usersProjectsRefitService
+@inject ILogger<ProjectsListPage> Logger
+
+@inherits BlazorBusyComponentBaseModel
+
+<div class="card">
+    @if (IsBusyProgress == true)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <h5 class="card-title">Проекты</h5>
+            <hr />
+            @if (UsersProjects.RowsData.Any())
+            {
+
+            }
+            else
+            {
+                <p class="card-text">У вас нет ни одного проекта. Создайте новый проект.</p>
+            }
+            <PaginationComponent AllRowsCount="1000" BaseUrlTemplate="/dir1/dir2" PageNum="1" PageSize="10" Alignment="HorizontalAlignmentsEnum.Right" />
+        </div>
+    }
+</div>
 @code {
+    ProjectForUserResponseModel UsersProjects = new ProjectForUserResponseModel() { RowsData = Array.Empty<ProjectForUserModel>() };
 
+    protected override async void OnInitialized()
+    {
+        IsBusyProgress = true;
+
+        FindUsersProjectsResponseModel rest = await usersProjectsRefitService.GetMyProjectsAsync(new PaginationRequestModel());
+        if (!rest.IsSuccess)
+        {
+            if (!string.IsNullOrEmpty(rest.Message))
+                Logger.LogError(rest.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersProjectsRefitService.GetMyProjectsAsync)}");
+        }
+        else
+        {
+
+        }
+
+        IsBusyProgress = false;
+        StateHasChanged();
+    }
 }

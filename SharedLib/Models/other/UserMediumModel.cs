@@ -38,11 +38,11 @@ namespace SharedLib.Models
         /// <summary>
         /// Группы в которых состояит пользователь
         /// </summary>
-        public IEnumerable<UserGroupModelDB>? Groups { get; set; }
+        public IEnumerable<UserToGroupLinkModelDb>? Groups { get; set; }
 
         /// <summary>
         /// Проекты в которых учавствует пользователь
         /// </summary>
-        public IEnumerable<ProjectModelDB>? Projects { get; set; }
+        public IEnumerable<UserToProjectLinkModelDb>? Projects { get; set; }
     }
 }
