@@ -56,7 +56,9 @@ namespace DbLayerLib
             var rand = new Random();
             Array values = Enum.GetValues(typeof(AccessLevelsUsersToProjectsEnum));
 
-            var rand_links = Enumerable.Range(1, 512).SelectMany(x => Enumerable.Range(1, 6).Select(y => new { project_id = x, user_id = y })).ToList();
+            var rand_links = Enumerable.Range(1, 1024).SelectMany(x => Enumerable.Range(1, 6).Select(y => new { project_id = x, user_id = y })).ToList();
+            rand_links.Shuffle();
+            rand_links.Shuffle();
             rand_links.Shuffle();
             rand_links = rand_links.Take(1024 * 3).ToList();
             int index_id = 0;

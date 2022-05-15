@@ -27,12 +27,47 @@
             @(project.Id > 0 ? "Редактирование" : "Создание") проекта
         </div>
         <div class="card-body">
+            <EditForm Model="@project" OnValidSubmit="@HandleValidSubmitAsync">
+
+                <div class="mb-3">
+                    <label for="exampleInputName" class="form-label">Имя</label>
+                    <InputText class="form-control" id="exampleInputName" @bind-Value="project.Name" aria-describedby="nameHelp" />
+                    <div id="nameHelp" class="form-text">Публичное наименование. Как видят пользователи.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputAbout" class="form-label">Информация</label>
+                    <InputRichTextComponent Id="exampleInputAbout" @bind-Value="project.Description" />
+                    <div id="nameAbout" class="form-text">Описание проекта</div>
+                </div>
+                @*<div class="input-group">
+            <span class="input-group-text">Статус</span>
+            <InputSelect id="exampleInputLevel" @bind-Value="user_profile_result.AccessLevelUser" class="form-select" aria-label="Default select example" disabled="@(!CanEditAccessLevel)">
+            <option value="@AccessLevelsUsersEnum.Blocked">Заблокирован</option>
+            <option value="@AccessLevelsUsersEnum.Auth">Без подтверждения</option>
+            <option value="@AccessLevelsUsersEnum.Confirmed">Подтверждённый</option>
+            <option value="@AccessLevelsUsersEnum.Trusted">Проверенный</option>
+            <option value="@AccessLevelsUsersEnum.Manager" disabled="@(!IsAdminLevelAccess)">Менеджер</option>
+            <option value="@AccessLevelsUsersEnum.Admin" disabled="@(!IsRootLevelAccess)">Администратор</option>
+            <option value="@AccessLevelsUsersEnum.ROOT" disabled="disabled">ROOT</option>
+            </InputSelect>
+            </div>*@
+                <br />
+                <div class="d-flex justify-content-end">
+                    @{
+                        <div class="btn-group" role="group" aria-label="Basic outlined example">
+                            <button class="btn btn-outline-success" type="submit" id="button-save-user-project">Ok</button>
+                        </div>
+                    }
+                </div>
+            </EditForm>
         </div>
     }
 </div>
 
 @code {
-    [Parameter] public int? id { get; set; }
+    [Parameter]
+    public int? id { get; set; }
+
     ProjectModelDB project { get; set; }
 
     protected override async void OnInitialized()
@@ -59,5 +94,17 @@
 
         IsBusyProgress = false;
         StateHasChanged();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        //UpdateUserProfileResponseModel rest = await usersProfilesRefitService.UpdateUserProfileAsync(user_profile_result);
+        //ModalBodyText = rest.Message;
+        //Modal.Open(rest.IsSuccess ? "Сохранено" : "Ошибка!");
+        //if (rest.IsSuccess)
+        //{
+        //    user_profile_result = rest.User;
+        //    await ReloadFormAsync();
+        //}
     }
 }

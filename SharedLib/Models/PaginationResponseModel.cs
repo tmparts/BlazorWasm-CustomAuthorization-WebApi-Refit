@@ -22,9 +22,9 @@ namespace SharedLib.Models
         public uint TotalPagesCount(uint default_page_size = 10)
         {
             if (PageSize == 0)
-                return (uint)Math.Ceiling((double)(TotalRowsCount / default_page_size));
+                return (uint)Math.Ceiling((double)TotalRowsCount / (double)default_page_size);
 
-            return (uint)Math.Ceiling((double)(TotalRowsCount / PageSize));
+            return (uint)Math.Ceiling((double)TotalRowsCount / (double)PageSize);
         }
 
         /// <summary>

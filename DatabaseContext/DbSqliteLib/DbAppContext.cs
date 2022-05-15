@@ -16,6 +16,10 @@ namespace DbcLib
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+#if DEBUG
+            options.LogTo(Console.WriteLine);
+#endif
+
             if (!IsEnsureCreated)
             {
                 IsEnsureCreated = true;
@@ -36,7 +40,11 @@ namespace DbcLib
 #endif   
                 _config.Connect.ConnectionString = $"{prefix}{fi.FullName}";
             }
-            options.UseSqlite(_config.Connect.ConnectionString);
+            options
+#if DEBUG
+                .EnableSensitiveDataLogging()
+#endif
+                .UseSqlite(_config.Connect.ConnectionString);
         }
 
         public DbAppContext(IOptions<ServerConfigModel> set_config) : base(set_config)

@@ -47,12 +47,10 @@
                     if (i == TotalPagesCount - 1)
                     {
                         <li class="page-item disabled"><span class="page-link">⁞</span></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Separator, Title = "⁞" } });*@
                     }
                     else if (i <= 5 || i == TotalPagesCount)
                     {
                         <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Numb, Title = i.ToString(), Href = Model.UrlTmpl + i.ToString(), IsActive = (PageNum == i) } });*@
                     }
                     else
                     {
@@ -64,12 +62,10 @@
                     if (i == 2)
                     {
                         <li class="page-item disabled"><span class="page-link">⁞</span></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Separator, Title = "⁞" } });*@
                     }
                     else if (i == 1 || i >= (TotalPagesCount - 4))
                     {
                         <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Numb, Title = i.ToString(), Href = Model.UrlTmpl + i.ToString(), IsActive = (PageNum == i) } });*@
                     }
                     else
                     {
@@ -81,12 +77,10 @@
                     if (i == 2 || i == TotalPagesCount - 1)
                     {
                         <li class="page-item disabled"><span class="page-link">⁞</span></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Separator, Title = "⁞" } });*@
                     }
                     else if ((i == 1 || i == TotalPagesCount) || (i == PageNum - 1 || i == PageNum || i == PageNum + 1))
                     {
                         <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
-                        @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Numb, Title = i.ToString(), Href = Model.UrlTmpl + i.ToString(), IsActive = (PageNum == i) } });*@
                     }
                     else
                     {
@@ -97,7 +91,6 @@
             else
             {
                 <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
-                @*await Component.InvokeAsync(nameof(brPaginationButton), new { buttonSet = new bmPaginationButton() { TypeButton = bmPaginationButton.PaginationTypesButton.Numb, Title = i.ToString(), Href = Model.UrlTmpl + i.ToString(), IsActive = (Model.PageNum == i) } });*@
             }
         }
 
@@ -110,12 +103,34 @@
 </nav>
 
 @code {
-    uint TotalPagesCount => (uint)Math.Ceiling((double)(AllRowsCount / PageSize));
-    [Parameter] public int PageSize { get; set; } = 10;
-    [Parameter] public int PageNum { get; set; } = 1;
-    [Parameter] public int AllRowsCount { get; set; } = 0;
-    [Parameter] public string BaseUrlTemplate { get; set; }
-    [Parameter] public HorizontalAlignmentsEnum Alignment { get; set; } = HorizontalAlignmentsEnum.Right;
-    [Parameter] public SizingsSimpleEnum Size { get; set; } = SizingsSimpleEnum.Norm;
+    uint _totalPagesCount = 0;
+    uint TotalPagesCount
+    {
+        get
+        {
+            if (_totalPagesCount > 0)
+                return _totalPagesCount;
+            _totalPagesCount = (uint)Math.Ceiling((double)TotalRowsCount / (double)PageSize);
+            return _totalPagesCount;
+        }
+    }
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    [Parameter]
+    public int PageNum { get; set; } = 1;
+
+    [Parameter]
+    public int TotalRowsCount { get; set; } = 0;
+
+    [Parameter]
+    public string BaseUrlTemplate { get; set; }
+
+    [Parameter]
+    public HorizontalAlignmentsEnum Alignment { get; set; } = HorizontalAlignmentsEnum.Right;
+
+    [Parameter]
+    public SizingsSimpleEnum Size { get; set; } = SizingsSimpleEnum.Norm;
 }
 

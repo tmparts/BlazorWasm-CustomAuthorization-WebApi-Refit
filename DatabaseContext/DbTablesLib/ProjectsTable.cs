@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SharedLib;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace DbcMetaSqliteLib.Projects
 {
@@ -121,7 +122,19 @@ namespace DbcMetaSqliteLib.Projects
 
             query = query.Skip((res.PageNum - 1) * res.PageSize).Take(res.PageSize);
             UserToProjectLinkModelDb[] projects_links = await query.ToArrayAsync();
+#if DEBUG
+            var v1 = JsonConvert.SerializeObject(projects_links,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
+
+#endif
             res.RowsData = projects_links.Select(x => (ProjectForUserModel)x).ToArray();
+
+#if DEBUG
+            var v2 = JsonConvert.SerializeObject(res);
+#endif
 
             return res;
         }

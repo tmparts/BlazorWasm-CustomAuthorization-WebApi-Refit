@@ -22,7 +22,7 @@
 else
 {
     int sequence_start_num = DataTable.SequenceStartNum;
-    <PaginationComponent BaseUrlTemplate="@($"{DataTable.TemplateUrl}/{GlobalStaticConstants.LIST_ACTION_NAME}")" AllRowsCount="@TotalRowsCount" PageNum="@PageNum" PageSize="@PageSize" Alignment="HorizontalAlignmentsEnum.Right" />
+    <PaginationComponent BaseUrlTemplate="@($"{DataTable.TemplateUrl}/{GlobalStaticConstants.LIST_ACTION_NAME}")" TotalRowsCount="@TotalRowsCount" PageNum="@PageNum" PageSize="@PageSize" Alignment="HorizontalAlignmentsEnum.Right" />
     <table class="table table-striped table-hover projects-table">
         <thead>
             <tr>
@@ -65,14 +65,14 @@ else
                     @foreach (TableDataCellModel cel in row.Cells)
                     {
                         <td>
-                            <a class="@(row.IsDeleted ? "is-delete link-secondary" : "")" href="@($"{DataTable.TemplateUrl}/{row.Id}")">@cel.DataCellValue</a>
+                            <a class="@(row.IsDeleted ? "is-delete link-secondary" : "")" href="@($"{DataTable.TemplateUrl}/{GlobalStaticConstants.EDIT_ACTION_NAME}/{row.Id}")">@cel.DataCellValue</a>
                         </td>
                     }
                 </tr>
             }
         </tbody>
     </table>
-    <PaginationComponent BaseUrlTemplate="@($"{DataTable.TemplateUrl}/{GlobalStaticConstants.LIST_ACTION_NAME}")" AllRowsCount="@TotalRowsCount" PageNum="@PageNum" PageSize="@PageSize" Alignment="HorizontalAlignmentsEnum.Right" />
+    <PaginationComponent BaseUrlTemplate="@($"{DataTable.TemplateUrl}/{GlobalStaticConstants.LIST_ACTION_NAME}")" TotalRowsCount="@TotalRowsCount" PageNum="@PageNum" PageSize="@PageSize" Alignment="HorizontalAlignmentsEnum.Right" />
 }
 
 @code {

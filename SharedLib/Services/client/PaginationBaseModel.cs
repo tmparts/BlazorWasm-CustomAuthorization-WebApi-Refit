@@ -10,7 +10,7 @@ namespace SharedLib.Services
     /// <summary>
     /// Базовыц компонент для поддержки пагинации
     /// </summary>
-    public abstract class PaginationBaseModel : BlazorBusyComponentBaseModel
+    public abstract class PaginationBaseModel : BlazorBusyComponentBaseModel, IDisposable
     {
         protected ClientConfigModel _conf;
 
@@ -27,6 +27,11 @@ namespace SharedLib.Services
 
             if (SortingDirection is null)
                 SortingDirection = VerticalDirectionsEnum.Down.ToString();
+        }
+
+        public virtual void Dispose()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

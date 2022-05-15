@@ -35,7 +35,6 @@
     else
     {
         <div class="card-body">
-            @*<h5 class="card-title">Проекты <a href="@GlobalStaticConstants.PROJECTS_CONTROLLER_NAME/@GlobalStaticConstants.EDIT_ACTION_NAME/" class="oi oi-plus"></a></h5>*@
             <nav class="navbar navbar-light bg-light">
                 <div class="container-fluid">
                     <a class="navbar-brand">Проекты</a>
@@ -100,23 +99,28 @@
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         Uri uri = new Uri(e.Location);
+        if (uri.LocalPath != $"/{GlobalStaticConstants.PROJECTS_CONTROLLER_NAME}/{GlobalStaticConstants.LIST_ACTION_NAME}")
+            return;
         string query = uri.Query;
+        if (string.IsNullOrWhiteSpace(query))
+            return;
+
         NameValueCollection parsed_query = System.Web.HttpUtility.ParseQueryString(query);
         string s_page_num = parsed_query.Get(nameof(PaginationRequestModel.PageNum));
-        if (int.TryParse(s_page_num,out int i_page_num))
+        if (int.TryParse(s_page_num, out int i_page_num))
         {
             PageNum = i_page_num;
         }
 
         string s_page_size = parsed_query.Get(nameof(PaginationRequestModel.PageSize));
-        if (int.TryParse(s_page_size,out int i_page_size))
+        if (int.TryParse(s_page_size, out int i_page_size))
         {
             PageSize = i_page_size;
         }
         Rest();
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         navigationManager.LocationChanged -= HandleLocationChanged;
     }

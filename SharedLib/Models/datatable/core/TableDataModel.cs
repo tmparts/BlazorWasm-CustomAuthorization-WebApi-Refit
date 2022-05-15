@@ -34,7 +34,7 @@ namespace SharedLib.Models
         /// <summary>
         /// Добавить строку данных в таблицу
         /// </summary>
-        /// <param name="row"></param>
+        /// <param name="row">Строка данных таблицы</param>
         public void AddRow(TableDataRowModel row)
         {
             Body.Rows.Add(row);
