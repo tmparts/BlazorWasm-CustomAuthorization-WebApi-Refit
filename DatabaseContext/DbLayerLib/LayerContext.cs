@@ -29,24 +29,22 @@ namespace DbLayerLib
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UserGroupModelDB>().HasData(
-                    new UserGroupModelDB("Test group 1", "Description group 1") { Id = 1 },
+                    new UserGroupModelDB("Test group 1", "Description group 1") { Id = 1, IsDeleted = true },
                     new UserGroupModelDB("Test group 2", "Description group 2") { Id = 2 },
                     new UserGroupModelDB("Test group 3", "Description group 3") { Id = 3 }
             );
 
             modelBuilder.Entity<ProjectModelDB>().HasData(
-                    new ProjectModelDB("Demo project 1", "Description project 1") { Id = 1 },
-                    new ProjectModelDB("Demo project 2", "Description project 2") { Id = 2 },
-                    new ProjectModelDB("Demo project 3", "Description project 3") { Id = 3 }
+                    Enumerable.Range(1, 1024).Select(x => new ProjectModelDB($"Demo project {x}", $"Description project {x}") { Id = x })
             );
 
             modelBuilder.Entity<UserModelDB>().HasData(
-                    new UserModelDB("Tom", AccessLevelsUsersEnum.Blocked) { Id = 1, Login = "tom", PasswordHash = GlobalUtils.CalculateHashString("ffsgfgggragf"), Email = "tom@mail.ru" },
+                    new UserModelDB("Tom", AccessLevelsUsersEnum.ROOT) { Id = 1, Login = "222222222", PasswordHash = GlobalUtils.CalculateHashString("222222222"), Email = "tom@mail.ru" },
                     new UserModelDB("Bob", AccessLevelsUsersEnum.Confirmed) { Id = 2, Login = "bobb", PasswordHash = GlobalUtils.CalculateHashString("gsdfghjg"), Email = "bobb@mail.ru" },
                     new UserModelDB("Sam", AccessLevelsUsersEnum.Trusted) { Id = 3, Login = "samuel", PasswordHash = GlobalUtils.CalculateHashString("hdg6hw46s"), Email = "samuel@mail.ru" },
                     new UserModelDB("Kelly", AccessLevelsUsersEnum.Manager) { Id = 4, Login = "kiki", PasswordHash = GlobalUtils.CalculateHashString("dh6jwk45"), Email = "kiki@mail.ru" },
                     new UserModelDB("David", AccessLevelsUsersEnum.Admin) { Id = 5, Login = "diablo", PasswordHash = GlobalUtils.CalculateHashString("dfgh6qeh"), Email = "diablo@mail.ru" },
-                    new UserModelDB("Rokki", AccessLevelsUsersEnum.ROOT) { Id = 6, Login = "222222222", PasswordHash = GlobalUtils.CalculateHashString("222222222"), Email = "ronin@mail.ru" }
+                    new UserModelDB("Rokki", AccessLevelsUsersEnum.Blocked) { Id = 6, Login = "tom", PasswordHash = GlobalUtils.CalculateHashString("ffsgfgggragf"), Email = "ronin@mail.ru" }
             );
 
             modelBuilder.Entity<UserToGroupLinkModelDb>().HasData(
@@ -55,10 +53,15 @@ namespace DbLayerLib
                     new UserToGroupLinkModelDb() { Id = 3, GroupId = 3, UserId = 2 }
             );
 
+            var rand = new Random();
+            Array values = Enum.GetValues(typeof(AccessLevelsUsersToProjectsEnum));
+
+            var rand_links = Enumerable.Range(1, 512).SelectMany(x => Enumerable.Range(1, 6).Select(y => new { project_id = x, user_id = y })).ToList();
+            rand_links.Shuffle();
+            rand_links = rand_links.Take(1024 * 3).ToList();
+            int index_id = 0;
             modelBuilder.Entity<UserToProjectLinkModelDb>().HasData(
-                    new UserToProjectLinkModelDb() { Id = 1, ProjectId = 1, UserId = 1, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Owner },
-                    new UserToProjectLinkModelDb() { Id = 2, ProjectId = 2, UserId = 1, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Reader },
-                    new UserToProjectLinkModelDb() { Id = 3, ProjectId = 3, UserId = 2, AccessLevelUser = AccessLevelsUsersToProjectsEnum.Blocked }
+                    rand_links.Select(x => new UserToProjectLinkModelDb() { Id = ++index_id, ProjectId = x.project_id, UserId = x.user_id, IsDeleted = rand.Next(100) <= 20, AccessLevelUser = (AccessLevelsUsersToProjectsEnum)values.GetValue(rand.Next(values.Length)) })
             );
         }
 

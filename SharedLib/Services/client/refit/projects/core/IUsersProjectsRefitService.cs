@@ -15,5 +15,8 @@ namespace SharedLib.Services
     {
         [Get("/api/usersprojects")]
         Task<ApiResponse<FindUsersProjectsResponseModel>> GetMyProjectsAsync(PaginationRequestModel pagination);
+
+        [Get("/api/usersprojects/{id}")]
+        Task<ApiResponse<UserProjectResponseModel>> GetProjectAsync(int id);
     }
 }

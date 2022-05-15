@@ -28,10 +28,26 @@ namespace ApiRestApp.Controllers
             _users_projects_service = set_users_projects_service;
         }
 
+        /// <summary>
+        /// Получить проекты пользователя
+        /// </summary>
+        /// <param name="filter">Пагинация</param>
+        /// <returns>Пользовательские проекты текущего пользователя</returns>
         [HttpGet]
         public async Task<FindUsersProjectsResponseModel> Get([FromQuery] PaginationRequestModel filter)
         {
             return await _users_projects_service.GetMyProjectsAsync(filter);
+        }
+
+        /// <summary>
+        /// Получить пользователий проект
+        /// </summary>
+        /// <param name="id">Идентификатор проекта</param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<UserProjectResponseModel> Get([FromRoute] int id)
+        {
+            return await _users_projects_service.GetProjectAsync(id);
         }
     }
 }

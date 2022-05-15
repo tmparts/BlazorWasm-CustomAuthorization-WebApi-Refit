@@ -128,7 +128,7 @@
                                 </button>
                             </EditForm>
                         </TabComponent>
-                        <TabComponent @ref="SessionsTab" Title="Сессии">
+                        <TabComponent Title="Сессии" @ref="SessionsTab">
                             <h4>Текущие/активные сессии пользователя</h4>
                             <ol class="list-group list-group-numbered">
                                 @foreach (UserSessionModel s in UserSessions)
@@ -179,11 +179,11 @@
 
     private IEnumerable<UserSessionModel> UserSessions = Array.Empty<UserSessionModel>();
     private ModalWindowComponent Modal { get; set; }
+    private string ModalBodyText { get; set; } = string.Empty;
 
     private bool SessionTabSelected = false;
     private TabComponent SessionsTab { get; set; }
 
-    private string ModalBodyText { get; set; } = string.Empty;
 
     private UserLiteModel? user_profile_result = null;
     private PasswordsPairModel change_password = new PasswordsPairModel();

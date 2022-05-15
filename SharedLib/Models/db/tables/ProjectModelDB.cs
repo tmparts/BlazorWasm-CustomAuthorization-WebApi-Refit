@@ -30,6 +30,6 @@ namespace SharedLib.Models
         /// <summary>
         /// Пользователи, связанные с проектом
         /// </summary>
-        public IEnumerable<UserModelDB>? Users { get; set; }
+        public IEnumerable<UserToProjectLinkModelDb>? UsersLinks { get; set; }
     }
 }

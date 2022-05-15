@@ -125,5 +125,32 @@ namespace DbcMetaSqliteLib.Projects
 
             return res;
         }
+
+        public async Task<ProjectModelDB?> GetProjectForUserAsync(int project_id, int user_id, bool include_sers_data)
+        {
+            if (project_id <= 0)
+            {
+                _logger.LogError("Идентификатор проекта не может быть <= 0", new ArgumentOutOfRangeException(nameof(project_id)));
+                return null;
+            }
+
+            if (user_id <= 0)
+            {
+                _logger.LogError("Идентификатор пользователя не может быть <= 0", new ArgumentOutOfRangeException(nameof(user_id)));
+                return null;
+            }
+
+            IQueryable<ProjectModelDB> query = from project in _db_context.Projects
+                                               join link in _db_context.UsersToProjectsLinks on project.Id equals link.ProjectId
+                                               where link.UserId == user_id && project.Id == project_id
+                                               select project;
+
+            if (include_sers_data)
+            {
+                query = query.Include(x => x.UsersLinks).ThenInclude(x => x.User);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
     }
 }

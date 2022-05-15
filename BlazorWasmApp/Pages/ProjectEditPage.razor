@@ -1,11 +1,63 @@
-﻿@page "/projects/edit/{id?}"
+﻿@page "/projects/edit/{id:int?}"
 
 @using Microsoft.AspNetCore.Authorization
+@using SharedLib.Services
+@using SharedLib.ClientServices.refit
+@using SharedLib.Models
+
+@inject IUsersProjectsRestService usersProjectsRefitService
+@inject ILogger<ProjectEditPage> Logger
 
 @attribute [Authorize]
 
-<h3>Проект</h3>
+@inherits BlazorBusyComponentBaseModel
+
+<div class="card">
+    @if (IsBusyProgress == true)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-header">
+            @(project.Id > 0 ? "Редактирование" : "Создание") проекта
+        </div>
+        <div class="card-body">
+        </div>
+    }
+</div>
 
 @code {
     [Parameter] public int? id { get; set; }
+    ProjectModelDB project { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        if (id.GetValueOrDefault(0) == 0)
+        {
+            project = new ProjectModelDB();
+            return;
+        }
+        IsBusyProgress = true;
+
+        UserProjectResponseModel rest = await usersProjectsRefitService.GetProjectAsync(id.Value);
+        if (!rest.IsSuccess)
+        {
+            if (!string.IsNullOrEmpty(rest.Message))
+                Logger.LogError(rest.Message);
+            else
+                Logger.LogError($"Ошибка API: {nameof(usersProjectsRefitService.GetProjectAsync)}");
+        }
+        else
+        {
+            project = rest.Project;
+        }
+
+        IsBusyProgress = false;
+        StateHasChanged();
+    }
 }

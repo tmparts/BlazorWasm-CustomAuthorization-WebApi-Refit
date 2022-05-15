@@ -21,7 +21,7 @@ namespace SharedLib.Models
         /// <summary>
         /// Пользователь
         /// </summary>
-        public UserModelDB User { get; set; }
+        public UserLiteModel User { get; set; }
 
         /// <summary>
         /// Идентификатор проекта

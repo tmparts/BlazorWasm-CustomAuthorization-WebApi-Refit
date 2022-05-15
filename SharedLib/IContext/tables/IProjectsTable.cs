@@ -39,5 +39,12 @@ namespace SharedLib
         /// <param name="pagination">Настройки пагинатора</param>
         /// <returns>Набор проектов для пользователя</returns>
         public Task<ProjectForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination);
+
+        /// <summary>
+        /// Получить проект для пользователя
+        /// </summary>
+        /// <param name="project_id">Идентификатор пользовательского проекта</param>
+        /// <returns>Пользовательский проект</returns>
+        public Task<ProjectModelDB?> GetProjectForUserAsync(int project_id, int user_id, bool include_sers_data);
     }
 }

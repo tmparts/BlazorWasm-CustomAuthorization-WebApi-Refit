@@ -39,7 +39,13 @@ builder.Services.AddScoped<IProjectsTable, ProjectsTable>();
 
 #endregion
 
+#if DEBUG
+builder.Configuration.AddJsonFile("serverconfig.Development.json");
+#else
 builder.Configuration.AddJsonFile("serverconfig.json");
+#endif
+
+
 ServerConfigModel? conf = new ServerConfigModel();
 builder.Configuration.Bind(conf);
 builder.Services.Configure<ServerConfigModel>(builder.Configuration);
@@ -85,6 +91,10 @@ builder.Services.AddScoped<IUsersProjectsService, UsersPrjectsService>();
 builder.Services.AddControllers().AddJsonOptions(opt =>
 {
     opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+#if DEBUG
+    opt.JsonSerializerOptions.WriteIndented = true;
+#endif
 });
 builder.Services.AddEndpointsApiExplorer();
 

@@ -12,5 +12,6 @@ namespace SharedLib.ClientServices.refit
     public interface IUsersProjectsRestService
     {
         public Task<FindUsersProjectsResponseModel> GetMyProjectsAsync(PaginationRequestModel pagination);
+        public Task<UserProjectResponseModel> GetProjectAsync(int id);
     }
 }

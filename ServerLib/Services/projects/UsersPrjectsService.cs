@@ -59,5 +59,39 @@ namespace ServerLib
 
             return res;
         }
+
+        public async Task<UserProjectResponseModel> GetProjectAsync(int project_id)
+        {
+            UserProjectResponseModel res = new UserProjectResponseModel() { IsSuccess = project_id > 0 };
+            if (!res.IsSuccess)
+            {
+                res.Message = "Идентификатор проекта не может быть <= 0";
+                _logger.LogError(res.Message, new ArgumentOutOfRangeException(nameof(project_id)));
+                return res;
+            }
+
+            try
+            {
+                res = new UserProjectResponseModel()
+                {
+                    Project = await _users_dt.GetProjectForUserAsync(project_id, _session_service.SessionMarker.Id, _session_service.SessionMarker.AccessLevelUser>= AccessLevelsUsersEnum.Manager)
+                };
+                res.IsSuccess = res.Project is not null;
+                if (!res.IsSuccess)
+                {
+                    res.Message = "Проект не найден";
+                }
+            }
+            catch (Exception ex)
+            {
+                res = new UserProjectResponseModel()
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+
+            return res;
+        }
     }
 }

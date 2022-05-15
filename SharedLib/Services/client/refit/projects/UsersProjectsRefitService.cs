@@ -48,5 +48,34 @@ namespace SharedLib.ClientServices.refit
 
             return result;
         }
+
+        public async Task<UserProjectResponseModel> GetProjectAsync(int id)
+        {
+            UserProjectResponseModel result = new UserProjectResponseModel();
+
+            try
+            {
+                ApiResponse<UserProjectResponseModel> rest = await _users_projects_service.GetProjectAsync(id);
+
+                if (rest.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    result.IsSuccess = false;
+                    result.Message = $"HTTP error: [code={rest.StatusCode}] {rest?.Error?.Content}";
+                    _logger.LogError(result.Message);
+
+                    return result;
+                }
+                result.IsSuccess = rest.Content.IsSuccess;
+                result = rest.Content;
+            }
+            catch (Exception ex)
+            {
+                result.IsSuccess = false;
+                result.Message = $"Exception {nameof(_users_projects_service.GetProjectAsync)}";
+                _logger.LogError(ex, result.Message);
+            }
+
+            return result;
+        }
     }
 }

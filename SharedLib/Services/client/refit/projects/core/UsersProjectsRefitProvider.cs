@@ -28,5 +28,10 @@ namespace SharedLib.Services
         {
             return await _api.GetMyProjectsAsync(pagination);
         }
+
+        public async Task<ApiResponse<UserProjectResponseModel>> GetProjectAsync(int id)
+        {
+            return await _api.GetProjectAsync(id);
+        }
     }
 }

@@ -18,5 +18,7 @@ namespace ServerLib
         /// <param name="pagination">Настройка пагинации</param>
         /// <returns>Мои проекты</returns>
         public Task<FindUsersProjectsResponseModel> GetMyProjectsAsync(PaginationRequestModel pagination);
+
+        public Task<UserProjectResponseModel> GetProjectAsync(int project_id);
     }
 }
