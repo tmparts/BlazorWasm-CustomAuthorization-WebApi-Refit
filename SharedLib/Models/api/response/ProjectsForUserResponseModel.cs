@@ -5,9 +5,9 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Проекты пользователя
+    /// Проекты пользователя (ответ api/rest)
     /// </summary>
-    public class ProjectForUserResponseModel : PaginationResponseModel
+    public class ProjectsForUserResponseModel : PaginationResponseModel
     {
         /// <summary>
         /// Проекты в которых учавствует пользователь
@@ -17,12 +17,12 @@ namespace SharedLib.Models
         /// <summary>
         /// Конструктор
         /// </summary>
-        public ProjectForUserResponseModel() { }
+        public ProjectsForUserResponseModel() { }
 
         /// <summary>
         /// Конструктор
         /// </summary>
         /// <param name="init_object">Объект инициализации пагинатора</param>
-        public ProjectForUserResponseModel(PaginationRequestModel init_object) : base(init_object) { }
+        public ProjectsForUserResponseModel(PaginationRequestModel init_object) : base(init_object) { }
     }
 }

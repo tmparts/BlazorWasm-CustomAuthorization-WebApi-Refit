@@ -7,12 +7,12 @@ namespace SharedLib.Models
     /// <summary>
     /// Абстракция для провайдера таблиц
     /// </summary>
-    public abstract class DataTableProviderAbstract
+    public abstract class TableProviderAbstract
     {
         /// <summary>
-        /// Шаблон ссылки
+        /// Имя контроллера (шаблон ссылки)
         /// </summary>
-        public string TemplateUrl { get; set; }
+        public string ControllerName { get; set; }
 
         /// <summary>
         /// Номер п/п (по порядку) строк таблицы
@@ -47,14 +47,24 @@ namespace SharedLib.Models
         public IEnumerable<TableDataRowModel> Rows() => TableData.Body.Rows;
 
         /// <summary>
+        /// Сортировка (от большего к меньшему или от меньшего к большему)
+        /// </summary>
+        public VerticalDirectionsEnum SortingDirection { get; set; }
+
+        /// <summary>
+        /// Имя поля по которому должна происходить сортировка
+        /// </summary>
+        public string SortBy { get; set; }
+
+        /// <summary>
         /// Определить сортировку колонки
         /// </summary>
         /// <param name="column_name">Имя колонки для проверки/определения</param>
         /// <returns>Направление сортировки, если в даннй момент определена сортировка по определяемой колонке, в противном случае - null</returns>
-        public VerticalDirectionsEnum? DetectSort(string column_name, string? sortBy, VerticalDirectionsEnum sortingDirection)
+        public VerticalDirectionsEnum? DetectSort(string column_name)
         {
-            if (!string.IsNullOrWhiteSpace(column_name) && !string.IsNullOrWhiteSpace(sortBy) && column_name.ToLower() == sortBy.ToLower())
-                return sortingDirection;
+            if (!string.IsNullOrWhiteSpace(column_name) && !string.IsNullOrWhiteSpace(SortBy) && column_name.ToLower() == SortBy.ToLower())
+                return SortingDirection;
 
             return null;
         }

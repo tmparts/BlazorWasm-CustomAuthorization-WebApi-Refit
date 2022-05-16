@@ -1,4 +1,5 @@
 ﻿@using SharedLib.Models
+@using SharedLib.Services
 
 <nav aria-label="Page navigation example">
     @{
@@ -34,7 +35,7 @@
     }
     <ul class="@ul_css">
         <li class="page-item@(PageNum == 1 ? " disabled" : "")">
-            <a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={PageNum - 1}&{nameof(PageSize)}={PageSize}")" aria-label="Previous">
+            <a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={PageNum - 1}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
@@ -50,7 +51,7 @@
                     }
                     else if (i <= 5 || i == TotalPagesCount)
                     {
-                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
+                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={i}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")">@i</a></li>
                     }
                     else
                     {
@@ -65,7 +66,7 @@
                     }
                     else if (i == 1 || i >= (TotalPagesCount - 4))
                     {
-                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
+                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={i}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")">@i</a></li>
                     }
                     else
                     {
@@ -80,7 +81,7 @@
                     }
                     else if ((i == 1 || i == TotalPagesCount) || (i == PageNum - 1 || i == PageNum || i == PageNum + 1))
                     {
-                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
+                        <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={i}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")">@i</a></li>
                     }
                     else
                     {
@@ -90,12 +91,12 @@
             }
             else
             {
-                <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={i}&{nameof(PageSize)}={PageSize}")">@i</a></li>
+                <li class="page-item@(PageNum == i ? " active" : "")"><a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={i}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")">@i</a></li>
             }
         }
 
         <li class="page-item@(PageNum == TotalPagesCount ? " disabled" : "")">
-            <a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PageNum)}={PageNum + 1}&{nameof(PageSize)}={PageSize}")" aria-label="Next">
+            <a class="page-link" href="@($"{BaseUrlTemplate}?{nameof(PaginationBaseModel.PageNum)}={PageNum + 1}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={SortBy}&{nameof(PaginationBaseModel.SortingDirection)}={SortingDirection}")" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>
@@ -126,6 +127,18 @@
 
     [Parameter]
     public string BaseUrlTemplate { get; set; }
+
+    /// <summary>
+    /// Сортировка (от большего к меньшему или от меньшего к большему)
+    /// </summary>
+    [Parameter]
+    public VerticalDirectionsEnum SortingDirection { get; set; }
+
+    /// <summary>
+    /// Имя поля по которому должна происходить сортировка
+    /// </summary>
+    [Parameter]
+    public string? SortBy { get; set; }
 
     [Parameter]
     public HorizontalAlignmentsEnum Alignment { get; set; } = HorizontalAlignmentsEnum.Right;

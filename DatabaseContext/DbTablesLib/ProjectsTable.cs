@@ -78,13 +78,13 @@ namespace DbcMetaSqliteLib.Projects
         /// <param name="user">Пользователь, для которого производится поиск</param>
         /// <param name="pagination">Настройки пагинатора</param>
         /// <returns>Набор проектов для пользователя</returns>
-        public async Task<ProjectForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination)
+        public async Task<ProjectsForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination)
         {
-            ProjectForUserResponseModel res;
+            ProjectsForUserResponseModel res;
             if (pagination is null)
-                res = new ProjectForUserResponseModel();
+                res = new ProjectsForUserResponseModel();
             else
-                res = new ProjectForUserResponseModel(pagination);
+                res = new ProjectsForUserResponseModel(pagination);
 
             if (res.PageSize <= _config.Value.PaginationPageSizeMin)
             {

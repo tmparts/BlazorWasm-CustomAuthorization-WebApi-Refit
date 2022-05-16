@@ -48,7 +48,7 @@ namespace ServerLib
             {
                 res = new FindUsersProjectsResponseModel()
                 {
-                    Projects = new ProjectForUserResponseModel()
+                    Projects = new ProjectsForUserResponseModel()
                     {
                         RowsData = Array.Empty<ProjectForUserModel>()
                     },

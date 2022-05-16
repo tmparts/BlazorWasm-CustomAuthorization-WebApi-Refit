@@ -46,7 +46,7 @@
             <hr />
             @if (UsersProjects.RowsData.Any())
             {
-                <DataTableComponent DataTable="@userProjectsDataTable" TotalRowsCount="@(UsersProjects.TotalRowsCount)" PageNum="@(UsersProjects.PageNum)" PageSize="@(UsersProjects.PageSize)" />
+                <DataTableComponent DataProvider="@userProjectsDataTable" TotalRowsCount="@(UsersProjects.TotalRowsCount)" PageNum="@(UsersProjects.PageNum)" PageSize="@(UsersProjects.PageSize)" />
             }
             else
             {
@@ -61,8 +61,8 @@
 </div>
 
 @code {
-    ProjectForUserResponseModel UsersProjects = new ProjectForUserResponseModel() { RowsData = Array.Empty<ProjectForUserModel>() };
-    UserProjectsDataTableProvider userProjectsDataTable => new UserProjectsDataTableProvider(UsersProjects, $"{GlobalStaticConstants.PROJECTS_CONTROLLER_NAME}");
+    ProjectsForUserResponseModel UsersProjects = new ProjectsForUserResponseModel() { RowsData = Array.Empty<ProjectForUserModel>() };
+    UserProjectsTableProvider userProjectsDataTable => new UserProjectsTableProvider(UsersProjects, GlobalStaticConstants.PROJECTS_CONTROLLER_NAME);
 
     private ModalWindowComponent Modal { get; set; }
     private string ModalBodyText { get; set; } = string.Empty;

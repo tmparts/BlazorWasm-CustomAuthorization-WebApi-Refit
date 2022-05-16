@@ -20,7 +20,7 @@ namespace SharedLib.Models
         public TableDataBodyModel Body { get; private set; }
 
         /// <summary>
-        /// Конструткор
+        /// Таблица данных: Конструткор
         /// </summary>
         /// <param name="сolumns">Колонки таблицы</param>
         public TableDataModel(IEnumerable<TableDataColumnModel> сolumns)

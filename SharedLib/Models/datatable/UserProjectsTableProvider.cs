@@ -7,42 +7,45 @@ namespace SharedLib.Models
     /// <summary>
     /// Провайдер таблицы пользовательских проектов
     /// </summary>
-    public class UserProjectsDataTableProvider : DataTableProviderAbstract
+    public class UserProjectsTableProvider : TableProviderAbstract
     {
         /// <summary>
-        /// Контруктор
+        /// Контруктор: Провайдер таблицы пользовательских проектов
         /// </summary>
-        /// <param name="data_table">Данные таблицы</param>
-        /// <param name="template_url">Шаблон URI</param>
-        public UserProjectsDataTableProvider(ProjectForUserResponseModel data_table, string template_url)
+        /// <param name="projects_for_user_api_response">Данные таблицы</param>
+        /// <param name="controller_name">Имя контроллера (Шаблон URI)</param>
+        public UserProjectsTableProvider(ProjectsForUserResponseModel projects_for_user_api_response, string controller_name)
         {
-            this.TemplateUrl = template_url;
+            ControllerName = controller_name;
+            SortingDirection = projects_for_user_api_response.SortingDirection;
+            SortBy = projects_for_user_api_response.SortBy;
+
             List<TableDataColumnModel> сolumns = new List<TableDataColumnModel>()
             {
                 new TableDataColumnModel()
                 {
                     ColumnDataName = nameof(ProjectForUserModel.Id),
-                    SortingDirection = DetectSort(nameof(ProjectForUserModel.Id), data_table.SortBy, data_table.SortingDirection),
+                    SortingDirection = DetectSort(nameof(ProjectForUserModel.Id)),
                     Title = "Id",
                     Style = " width: 1%; white-space: nowrap;"
                 },
                 new TableDataColumnModel()
                 {
                     ColumnDataName = nameof(ProjectForUserModel.Name),
-                    SortingDirection = DetectSort(nameof(ProjectForUserModel.Name), data_table.SortBy, data_table.SortingDirection),
+                    SortingDirection = DetectSort(nameof(ProjectForUserModel.Name)),
                     Title = "Название"
                 },
                 new TableDataColumnModel()
                 {
                     ColumnDataName = nameof(ProjectForUserModel.AccessLevelUser),
-                    SortingDirection = DetectSort(nameof(ProjectForUserModel.AccessLevelUser), data_table.SortBy, data_table.SortingDirection),
+                    SortingDirection = DetectSort(nameof(ProjectForUserModel.AccessLevelUser)),
                     Title = "Доступ"
                 }
             };
-            SequenceStartNum = ((data_table.PageNum - 1) * data_table.PageSize) + 1;
+            SequenceStartNum = ((projects_for_user_api_response.PageNum - 1) * projects_for_user_api_response.PageSize) + 1;
             TableData = new TableDataModel(сolumns);
             TableDataRowModel data_row;
-            foreach (ProjectForUserModel? row in data_table.RowsData)
+            foreach (ProjectForUserModel? row in projects_for_user_api_response.RowsData)
             {
                 data_row = new TableDataRowModel()
                 {

@@ -12,6 +12,6 @@ namespace SharedLib.Models
         /// <summary>
         /// Проекты пользователей
         /// </summary>
-        public ProjectForUserResponseModel Projects { get; set; }
+        public ProjectsForUserResponseModel Projects { get; set; }
     }
 }

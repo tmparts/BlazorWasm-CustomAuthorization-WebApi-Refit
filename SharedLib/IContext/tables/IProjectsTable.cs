@@ -38,7 +38,7 @@ namespace SharedLib
         /// <param name="user">Пользователь, для которого производится поиск</param>
         /// <param name="pagination">Настройки пагинатора</param>
         /// <returns>Набор проектов для пользователя</returns>
-        public Task<ProjectForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination);
+        public Task<ProjectsForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination);
 
         /// <summary>
         /// Получить проект для пользователя
