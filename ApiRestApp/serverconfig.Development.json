@@ -97,5 +97,6 @@
     "ConfirmHistoryDays": 60
   },
   "RefitHandlerLifetimeMinutes": 0,
-  "PaginationPageSizeMin": 30
+  "PaginationPageSizeMin": 30,
+  "PaginationDefaultSorting": "Down"
 }

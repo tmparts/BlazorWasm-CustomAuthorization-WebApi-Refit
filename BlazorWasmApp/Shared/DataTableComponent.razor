@@ -1,4 +1,7 @@
 ﻿@using SharedLib.Models
+@using SharedLib.Services
+
+@inject ClientConfigModel conf
 
 <style>
     .is-delete {
@@ -8,6 +11,11 @@
     tr th:first-child {
         width: 1%;
         white-space: nowrap;
+    }
+
+    thead td a {
+        text-decoration: none;
+        color: #212529;
     }
 </style>
 
@@ -35,7 +43,7 @@ else
                         <table>
                             <tr>
                                 <td>
-                                    @col.Title
+                                    <a href="@(GetHrefColumn(col))">@col.Title</a>
                                 </td>
                                 @{
                                     string sort_mode = string.Empty;
@@ -95,5 +103,20 @@ else
     /// Номер текущей страницы
     /// </summary>
     [Parameter]
-    public int PageNum { get; set; }    
+    public int PageNum { get; set; }
+
+    string GetHrefColumn(TableDataColumnModel column)
+    {
+        string query = $"{DataProvider.ControllerName}/{GlobalStaticConstants.LIST_ACTION_NAME}?{nameof(PaginationBaseModel.PageNum)}={PageNum}&{nameof(PaginationBaseModel.PageSize)}={PageSize}&{nameof(PaginationBaseModel.SortBy)}={column.ColumnDataName}&{nameof(PaginationBaseModel.SortingDirection)}=";
+
+        switch (column.SortingDirection)
+        {
+            case VerticalDirectionsEnum.Down:
+                return $"{query}{VerticalDirectionsEnum.Up}";
+            case VerticalDirectionsEnum.Up:
+                return $"{query}{VerticalDirectionsEnum.Down}";
+            default:
+                return $"{query}{conf.PaginationDefaultSorting}";
+        }
+    }
 }

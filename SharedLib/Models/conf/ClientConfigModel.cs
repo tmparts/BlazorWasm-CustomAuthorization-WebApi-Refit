@@ -41,6 +41,7 @@ namespace SharedLib.Models
                 EmailSenderAddress = v.SmtpConfig.Email,
                 CookiesConfig = v.CookiesConfig,
                 PaginationPageSizeMin = v.PaginationPageSizeMin,
+                PaginationDefaultSorting= v.PaginationDefaultSorting
             };
 
             return res;

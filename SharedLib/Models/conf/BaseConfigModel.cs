@@ -38,5 +38,10 @@ namespace SharedLib.Models
         /// Минимальный размер страницы в Pagination
         /// </summary>
         public ushort PaginationPageSizeMin { get; set; } = 10;
+
+        /// <summary>
+        /// Направление сортировки (по умолчанию) в Pagination
+        /// </summary>
+        public VerticalDirectionsEnum PaginationDefaultSorting { get; set; } =  VerticalDirectionsEnum.Down;
     }
 }

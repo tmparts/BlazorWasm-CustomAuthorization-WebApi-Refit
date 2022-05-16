@@ -26,7 +26,7 @@ namespace SharedLib.Services
                 SortBy = nameof(ProjectForUserModel.Id);
 
             if (SortingDirection is null)
-                SortingDirection = VerticalDirectionsEnum.Down.ToString();
+                SortingDirection = _conf.PaginationDefaultSorting.ToString();
         }
 
         public virtual void Dispose()
@@ -42,7 +42,7 @@ namespace SharedLib.Services
             PageNum = PageNum.Value,
             PageSize = PageSize.Value,
             SortBy = SortBy,
-            SortingDirection = SortingDirection is null ? VerticalDirectionsEnum.Up : Enum.Parse<VerticalDirectionsEnum>(SortingDirection)
+            SortingDirection = SortingDirection is null ? _conf.PaginationDefaultSorting : Enum.Parse<VerticalDirectionsEnum>(SortingDirection)
         };
 
         /// <summary>
