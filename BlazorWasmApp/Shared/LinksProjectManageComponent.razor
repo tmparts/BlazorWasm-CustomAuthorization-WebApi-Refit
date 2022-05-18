@@ -1,0 +1,121 @@
+﻿@using SharedLib.Services
+@using SharedLib.Models
+@using SharedLib.ClientServices.refit
+
+@inject SessionMarkerLiteModel sessionMarker
+@inject ILinksProjectsRestService linksProjectsRefitService
+@inject ILogger<LinksProjectManageComponent> logger
+
+@inherits BlazorBusyComponentBaseModel
+
+@if (IsBusyProgress == true)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+    </div>
+}
+else if (ProjectId.GetValueOrDefault(0) <= 0)
+{
+    <div class="alert alert-secondary" role="alert">
+        Идентификатор пользовательского проекта не может быть 0!
+    </div>
+}
+else if (Links?.Any() != true)
+{
+    <div class="alert alert-secondary" role="alert">
+        Links?.Any() != true
+    </div>
+}
+else
+{
+    <style>
+        .is-deleted-row {
+            text-decoration: line-through;
+        }
+    </style>
+    <table class="table table-sm table-light table-hover table-striped">
+        <thead>
+            <tr>
+                <th scope="col">№ п/п</th>
+                <th scope="col">Link ID</th>
+                <th scope="col">Пользователь</th>
+                <th scope="col">Уровень</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int index = 0;
+                foreach (UserToProjectLinkModelDb link in Links)
+                {
+                    index++;
+                    <tr class="@(link.IsDeleted?"is-deleted-row":"")">
+                        <th scope="row">@index</th>
+                        <td>@($"#{link.Id}")</td>
+                        <td>@($"{link.User.Name} ({link.User.Email})")</td>
+                        <td>@link.AccessLevelUser</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<ModalWindowComponent @ref="Modal">
+    <p>@ModalBodyText</p>
+</ModalWindowComponent>
+
+@code {
+    [Parameter]
+    public int? ProjectId { get; set; }
+
+    UserToProjectLinkModelDb[] Links { get; set; }
+
+    private ModalWindowComponent Modal { get; set; }
+    private string ModalBodyText { get; set; } = string.Empty;
+
+    protected override async void OnInitialized()
+    {
+        if (ProjectId.GetValueOrDefault(0) == 0)
+        {
+            return;
+        }
+        await ReloadTable(ProjectId.Value);
+    }
+
+    public async Task ReloadTable(int project_id)
+    {
+        if (project_id <= 0)
+        {
+            ModalBodyText = "Идентификатор пользовательского проекта не может быть 0";
+            logger.LogError(ModalBodyText);
+            Modal.Open("Ошибка!");
+            return;
+        }
+
+        IsBusyProgress = true;
+        GetLinksProjectsResponseModel rest = await linksProjectsRefitService.GetLinksUsersByProject(project_id);
+        if (!rest.IsSuccess)
+        {
+            if (!string.IsNullOrEmpty(rest.Message))
+            {
+                logger.LogError(rest.Message);
+                ModalBodyText = rest.Message;
+                Modal.Open("Ошибка!");
+            }
+            else
+            {
+                ModalBodyText = $"Ошибка API: {nameof(linksProjectsRefitService.GetLinksUsersByProject)}";
+                logger.LogError(ModalBodyText);
+                Modal.Open("Ошибка!");
+            }
+        }
+        else
+        {
+            Links = rest.Links;
+        }
+        IsBusyProgress = false;
+        StateHasChanged();
+    }
+}

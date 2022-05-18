@@ -84,25 +84,25 @@ else
 }
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public TableProviderAbstract DataProvider { get; set; }
 
     /// <summary>
     /// Общее/всего количество элементов
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public int TotalRowsCount { get; set; }
 
     /// <summary>
     /// Размер страницы (количество элементов на странице)
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public int PageSize { get; set; }
 
     /// <summary>
     /// Номер текущей страницы
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public int PageNum { get; set; }
 
     string GetHrefColumn(TableDataColumnModel column)

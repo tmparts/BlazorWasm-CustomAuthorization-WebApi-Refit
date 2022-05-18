@@ -1,8 +1,8 @@
 ﻿@using BlazorWasmApp.UIInterfaces
 @implements ITab
 
-<li>
-    <a @onclick="ActivateTab" class="nav-link @TitleCssClass" role="button">
+<li title="@Tooltip">
+    <a @onclick="ActivateTabHandler" class="nav-link @TitleCssClass" role="button">
         @Title
     </a>
 </li>
@@ -15,14 +15,29 @@
     public string? Title { get; set; }
 
     [Parameter]
+    public string? Tooltip { get; set; }
+
+    [Parameter]
+    public bool IsDisabled { get; set; } = false;
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    private string? TitleCssClass => 
-        ContainerTabSet?.ActiveTab == this ? "active" : null;
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClickCallback { get; set; }
+
+    private string? TitleCssClass =>
+        ContainerTabSet?.ActiveTab == this ? "active" : IsDisabled ? "disabled" : null;
 
     protected override void OnInitialized()
     {
         ContainerTabSet?.AddTab(this);
+    }
+
+    private void ActivateTabHandler(MouseEventArgs args)
+    {
+        ActivateTab();
+        OnClickCallback.InvokeAsync(args);
     }
 
     public void ActivateTab()

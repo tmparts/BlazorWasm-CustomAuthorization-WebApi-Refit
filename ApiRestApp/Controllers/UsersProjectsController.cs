@@ -14,7 +14,7 @@ namespace ApiRestApp.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    [TypeFilter(typeof(AuthFilterAttributeAsync), Arguments = new object[] { AccessLevelsUsersEnum.Auth })]
+    [TypeFilter(typeof(AuthFilterAttributeAsync), Arguments = new object[] { AccessLevelsUsersEnum.Confirmed })]
     public class UsersProjectsController : ControllerBase
     {
         ISessionService _session_service;

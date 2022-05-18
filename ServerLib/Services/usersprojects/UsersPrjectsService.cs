@@ -21,9 +21,9 @@ namespace ServerLib
         readonly IManualMemoryCashe _mem_cashe;
         readonly IMailProviderService _mail;
         readonly ISessionService _session_service;
-        readonly IProjectsTable _users_dt;
+        readonly IUsersProjectsTable _users_dt;
 
-        public UsersPrjectsService(ISessionService set_session_service, ILogger<UsersPrjectsService> set_logger, IProjectsTable set_projects_dt, IManualMemoryCashe set_mem_cashe, IMailProviderService set_mail, IOptions<ServerConfigModel> set_config)
+        public UsersPrjectsService(ISessionService set_session_service, ILogger<UsersPrjectsService> set_logger, IUsersProjectsTable set_projects_dt, IManualMemoryCashe set_mem_cashe, IMailProviderService set_mail, IOptions<ServerConfigModel> set_config)
         {
             _logger = set_logger;
             _mem_cashe = set_mem_cashe;
@@ -60,7 +60,13 @@ namespace ServerLib
             return res;
         }
 
-        public async Task<UserProjectResponseModel> GetProjectAsync(int project_id)
+        /// <summary>
+        /// Получить проект
+        /// </summary>
+        /// <param name="project_id">Идентификатор проекта</param>
+        /// <param name="load_links">Загружать ссылки</param>
+        /// <returns></returns>
+        public async Task<UserProjectResponseModel> GetProjectAsync(int project_id, bool load_links = false)
         {
             UserProjectResponseModel res = new UserProjectResponseModel() { IsSuccess = project_id > 0 };
             if (!res.IsSuccess)
@@ -74,7 +80,7 @@ namespace ServerLib
             {
                 res = new UserProjectResponseModel()
                 {
-                    Project = await _users_dt.GetProjectForUserAsync(project_id, _session_service.SessionMarker.Id, _session_service.SessionMarker.AccessLevelUser>= AccessLevelsUsersEnum.Manager)
+                    Project = await _users_dt.GetProjectAsync(project_id, load_links)
                 };
                 res.IsSuccess = res.Project is not null;
                 if (!res.IsSuccess)

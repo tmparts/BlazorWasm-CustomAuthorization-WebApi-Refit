@@ -5,106 +5,62 @@
 @using SharedLib.ClientServices.refit
 @using SharedLib.Models
 
+@inject SessionMarkerLiteModel sessionMarker
 @inject IUsersProjectsRestService usersProjectsRefitService
 @inject ILogger<ProjectEditPage> Logger
 
 @attribute [Authorize]
 
-@inherits BlazorBusyComponentBaseModel
-
 <div class="card">
-    @if (IsBusyProgress == true)
-    {
-        <div class="text-center">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Загрузка...</span>
+
+    <div class="card-header">
+        <div class="row justify-content-between">
+            <div class="col-4">
+                @(Id.GetValueOrDefault(0) > 0 ? $"Проект #{Id}" : "Создание нового проекта")
+            </div>
+            <div class="col-4 text-end">
             </div>
         </div>
-    }
-    else
-    {
-        <div class="card-header">
-            @(project.Id > 0 ? "Редактирование" : "Создание") проекта
-        </div>
-        <div class="card-body">
-            <EditForm Model="@project" OnValidSubmit="@HandleValidSubmitAsync">
+    </div>
+    <div class="card-body">
+        <TabSetComponent>
+            <TabComponent Title="Основные" Tooltip="Основные настройки" OnClickCallback="@ReloadMainSettings">
+                <UserProjectEditComponent id="@Id" @ref="userProjectEdit" />
+            </TabComponent>
+            <TabComponent Title="Ссылки" Tooltip="Ссылки на проект (пользователи, связанные с проектом)." IsDisabled="@(Id.GetValueOrDefault(0) == 0)">
+                <LinksProjectManageComponent ProjectId="@Id" />
+            </TabComponent>
+            <TabComponent Title="Структура" Tooltip="Отчёт о составе проекта." IsDisabled="@(Id.GetValueOrDefault(0) == 0)">
+                <ReportStructureProjectComponent ProjectId="@Id" />
+            </TabComponent>
+            <TabComponent Title="Активность" Tooltip="Логи редактирования." IsDisabled="@(Id.GetValueOrDefault(0) == 0)">
+                <ReportLogsProjectComponent ProjectId="@Id" />
+            </TabComponent>
+        </TabSetComponent>
+    </div>
 
-                <div class="mb-3">
-                    <label for="exampleInputName" class="form-label">Имя</label>
-                    <InputText class="form-control" id="exampleInputName" @bind-Value="project.Name" aria-describedby="nameHelp" />
-                    <div id="nameHelp" class="form-text">Публичное наименование. Как видят пользователи.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="exampleInputAbout" class="form-label">Информация</label>
-                    <InputRichTextComponent Id="exampleInputAbout" @bind-Value="project.Description" />
-                    <div id="nameAbout" class="form-text">Описание проекта</div>
-                </div>
-                @*<div class="input-group">
-            <span class="input-group-text">Статус</span>
-            <InputSelect id="exampleInputLevel" @bind-Value="user_profile_result.AccessLevelUser" class="form-select" aria-label="Default select example" disabled="@(!CanEditAccessLevel)">
-            <option value="@AccessLevelsUsersEnum.Blocked">Заблокирован</option>
-            <option value="@AccessLevelsUsersEnum.Auth">Без подтверждения</option>
-            <option value="@AccessLevelsUsersEnum.Confirmed">Подтверждённый</option>
-            <option value="@AccessLevelsUsersEnum.Trusted">Проверенный</option>
-            <option value="@AccessLevelsUsersEnum.Manager" disabled="@(!IsAdminLevelAccess)">Менеджер</option>
-            <option value="@AccessLevelsUsersEnum.Admin" disabled="@(!IsRootLevelAccess)">Администратор</option>
-            <option value="@AccessLevelsUsersEnum.ROOT" disabled="disabled">ROOT</option>
-            </InputSelect>
-            </div>*@
-                <br />
-                <div class="d-flex justify-content-end">
-                    @{
-                        <div class="btn-group" role="group" aria-label="Basic outlined example">
-                            <button class="btn btn-outline-success" type="submit" id="button-save-user-project">Ok</button>
-                        </div>
-                    }
-                </div>
-            </EditForm>
-        </div>
-    }
 </div>
 
 @code {
     [Parameter]
-    public int? id { get; set; }
+    public int? Id { get; set; }
 
-    ProjectModelDB project { get; set; }
+    private UserProjectEditComponent userProjectEdit { get; set; }
 
     protected override async void OnInitialized()
     {
-        if (id.GetValueOrDefault(0) == 0)
+        if (Id.GetValueOrDefault(0) <= 0)
         {
-            project = new ProjectModelDB();
+            //project = new ProjectModelDB();
             return;
         }
-        IsBusyProgress = true;
 
-        UserProjectResponseModel rest = await usersProjectsRefitService.GetProjectAsync(id.Value);
-        if (!rest.IsSuccess)
-        {
-            if (!string.IsNullOrEmpty(rest.Message))
-                Logger.LogError(rest.Message);
-            else
-                Logger.LogError($"Ошибка API: {nameof(usersProjectsRefitService.GetProjectAsync)}");
-        }
-        else
-        {
-            project = rest.Project;
-        }
-
-        IsBusyProgress = false;
-        StateHasChanged();
+        //await userProjectEdit.ReloadForm(id.GetValueOrDefault(0));
     }
 
-    private async Task HandleValidSubmitAsync()
+    private async Task ReloadMainSettings(MouseEventArgs e)
     {
-        //UpdateUserProfileResponseModel rest = await usersProfilesRefitService.UpdateUserProfileAsync(user_profile_result);
-        //ModalBodyText = rest.Message;
-        //Modal.Open(rest.IsSuccess ? "Сохранено" : "Ошибка!");
-        //if (rest.IsSuccess)
-        //{
-        //    user_profile_result = rest.User;
-        //    await ReloadFormAsync();
-        //}
+        Logger.LogWarning($"call > {nameof(ReloadMainSettings)}");
+        await userProjectEdit.ReloadForm(Id.GetValueOrDefault(0));
     }
 }

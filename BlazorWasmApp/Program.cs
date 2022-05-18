@@ -30,7 +30,7 @@ builder.Services.AddScoped<IClientSession, ClientSessionService>();
 //builder.Services.AddBlazoredLocalStorage();
 
 SessionMarkerLiteModel marker = new SessionMarkerLiteModel() { AccessLevelUser = AccessLevelsUsersEnum.Anonim, Login = string.Empty, Token = string.Empty };
-builder.Services.AddScoped<SessionMarkerLiteModel>(sp => marker);
+builder.Services.AddScoped(sp => marker);
 
 #region Config
 
