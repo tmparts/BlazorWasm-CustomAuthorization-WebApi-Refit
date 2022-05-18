@@ -35,7 +35,8 @@ builder.Services.AddScoped<DbAppContext>();
 builder.Services.AddScoped<IConfirmationsTable, ConfirmationsTable>();
 builder.Services.AddScoped<IUsersTable, UsersTable>();
 builder.Services.AddScoped<IUsersGroupsTable, UsersGroupsTable>();
-builder.Services.AddScoped<IProjectsTable, ProjectsTable>();
+builder.Services.AddScoped<IUsersProjectsTable, UsersProjectsTable>();
+builder.Services.AddScoped<ILinksProjectsTable, LinksProjectsTable>();
 
 #endregion
 
@@ -85,6 +86,7 @@ builder.Services.AddScoped<IUsersProfilesService, UsersProfilesService>();
 builder.Services.AddScoped<IUsersConfirmationsService, UsersConfirmationsService>();
 builder.Services.AddScoped<IMailProviderService, MailProviderService>();
 builder.Services.AddScoped<IUsersProjectsService, UsersPrjectsService>();
+builder.Services.AddScoped<ILinksUsersProjectsService, LinksUsersPrjectsService>();
 
 //builder.Services.InitAccessMinLevelHandler();
 

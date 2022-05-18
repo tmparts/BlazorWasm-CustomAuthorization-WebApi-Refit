@@ -116,22 +116,22 @@
         }
     }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int PageSize { get; set; } = 10;
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int PageNum { get; set; } = 1;
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int TotalRowsCount { get; set; } = 0;
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public string BaseUrlTemplate { get; set; }
 
     /// <summary>
     /// Сортировка (от большего к меньшему или от меньшего к большему)
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public VerticalDirectionsEnum SortingDirection { get; set; }
 
     /// <summary>
@@ -141,9 +141,9 @@
     public string? SortBy { get; set; }
 
     [Parameter]
-    public HorizontalAlignmentsEnum Alignment { get; set; } = HorizontalAlignmentsEnum.Right;
+    public HorizontalAlignmentsEnum? Alignment { get; set; } = HorizontalAlignmentsEnum.Right;
 
     [Parameter]
-    public SizingsSimpleEnum Size { get; set; } = SizingsSimpleEnum.Norm;
+    public SizingsSimpleEnum? Size { get; set; } = SizingsSimpleEnum.Norm;
 }
 

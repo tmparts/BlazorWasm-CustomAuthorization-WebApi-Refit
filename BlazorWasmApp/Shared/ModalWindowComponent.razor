@@ -19,7 +19,7 @@
 }
 
 @code {
-    [Parameter]
+    [Parameter, EditorRequired]
     public RenderFragment? ChildContent { get; set; }
     //public Guid Guid = Guid.NewGuid();
     public string ModalDisplay = "none;";

@@ -1,0 +1,119 @@
+﻿@using SharedLib.Services
+@using SharedLib.Models
+@using SharedLib.ClientServices.refit
+
+@inject SessionMarkerLiteModel sessionMarker
+@inject IUsersProjectsRestService usersProjectsRefitService
+@inject ILogger<UserProjectEditComponent> logger
+
+@inherits BlazorBusyComponentBaseModel
+
+@if (IsBusyProgress == true)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+    </div>
+}
+else if (id.GetValueOrDefault(0) <= 0)
+{
+    <div class="alert alert-secondary" role="alert">
+        Идентификатор пользовательского проекта не может быть 0!
+    </div>
+}
+else
+{
+    <EditForm Model="@project" OnValidSubmit="@HandleValidSubmitAsync">
+        <div class="mb-3">
+            <label for="exampleInputName" class="form-label">Имя</label>
+            <InputText class="form-control" id="exampleInputName" @bind-Value="project.Name" aria-describedby="nameHelp" />
+            <div id="nameHelp" class="form-text">Публичное наименование. Как видят пользователи.</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputAbout" class="form-label">Информация</label>
+            <InputRichTextComponent Id="exampleInputAbout" @bind-Value="project.Description" />
+            <div id="nameAbout" class="form-text">Описание проекта</div>
+        </div>
+        <br />
+        <div class="d-flex justify-content-end">
+            @{
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <button title="Сохранить объект в БД" class="btn btn-outline-success" type="submit">Записать</button>
+                    <a title="Перейти к списку (в справочник)" class="btn btn-outline-primary" href="@($"/{GlobalStaticConstants.PROJECTS_CONTROLLER_NAME}/{GlobalStaticConstants.LIST_ACTION_NAME}")" role="button">Выход</a>
+                    <button title="Пометить как удалённый" class="btn btn-outline-danger" type="submit">Удалить</button>
+                </div>
+            }
+        </div>
+    </EditForm>
+}
+
+<ModalWindowComponent @ref="Modal">
+    <p>@ModalBodyText</p>
+</ModalWindowComponent>
+
+@code {
+    [Parameter]
+    public int? id { get; set; }
+
+    ProjectModelDB project { get; set; } = new ProjectModelDB();
+
+    private ModalWindowComponent Modal { get; set; }
+    private string ModalBodyText { get; set; } = string.Empty;
+
+    protected override async void OnInitialized()
+    {
+        if (id.GetValueOrDefault(0) == 0)
+        {
+            return;
+        }
+        await ReloadForm(id.Value);
+    }
+
+    public async Task ReloadForm(int id)
+    {
+        if (id <= 0)
+        {
+            ModalBodyText = "Идентификатор пользовательского проекта не может быть 0";
+            logger.LogError(ModalBodyText);
+            Modal.Open("Ошибка!");
+            return;
+        }
+
+        IsBusyProgress = true;
+        UserProjectResponseModel rest = await usersProjectsRefitService.GetProjectAsync(id);
+        if (!rest.IsSuccess)
+        {
+            if (!string.IsNullOrEmpty(rest.Message))
+            {
+                logger.LogError(rest.Message);
+                ModalBodyText = rest.Message;
+                Modal.Open("Ошибка!");
+            }
+            else
+            {
+                ModalBodyText = $"Ошибка API: {nameof(usersProjectsRefitService.GetProjectAsync)}";
+                logger.LogError(ModalBodyText);
+                Modal.Open("Ошибка!");
+            }
+        }
+        else
+        {
+            project = rest.Project;
+        }
+        IsBusyProgress = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        //UpdateUserProfileResponseModel rest = await usersProfilesRefitService.UpdateUserProfileAsync(user_profile_result);
+        //ModalBodyText = rest.Message;
+        //Modal.Open(rest.IsSuccess ? "Сохранено" : "Ошибка!");
+        //if (rest.IsSuccess)
+        //{
+        //    user_profile_result = rest.User;
+        //    await ReloadFormAsync();
+        //}
+    }
+}

@@ -9,7 +9,7 @@ namespace SharedLib
     /// <summary>
     /// Интерфейс доступа к проектам
     /// </summary>
-    public interface IProjectsTable : SavingChanges
+    public interface IUsersProjectsTable : SavingChanges
     {
         /// <summary>
         /// Добавить новый проект в базу данных
@@ -41,10 +41,10 @@ namespace SharedLib
         public Task<ProjectsForUserResponseModel> GetProjectsForUserAsync((int Id, AccessLevelsUsersEnum AccessLevelUser) user, PaginationRequestModel pagination);
 
         /// <summary>
-        /// Получить проект для пользователя
+        /// Получить проект
         /// </summary>
         /// <param name="project_id">Идентификатор пользовательского проекта</param>
         /// <returns>Пользовательский проект</returns>
-        public Task<ProjectModelDB?> GetProjectForUserAsync(int project_id, int user_id, bool include_sers_data);
+        public Task<ProjectModelDB?> GetProjectAsync(int project_id, bool include_users_data);
     }
 }

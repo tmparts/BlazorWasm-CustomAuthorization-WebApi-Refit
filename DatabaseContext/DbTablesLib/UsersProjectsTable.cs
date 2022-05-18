@@ -8,17 +8,16 @@ using Microsoft.Extensions.Logging;
 using SharedLib;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace DbcMetaSqliteLib.Projects
 {
     /// <summary>
     /// Доступ к таблице проектов базы данных
     /// </summary>
-    public class ProjectsTable : IProjectsTable
+    public class UsersProjectsTable : IUsersProjectsTable
     {
         readonly DbAppContext _db_context;
-        readonly ILogger<ProjectsTable> _logger;
+        readonly ILogger<UsersProjectsTable> _logger;
         readonly IOptions<ServerConfigModel> _config;
 
         /// <summary>
@@ -26,7 +25,7 @@ namespace DbcMetaSqliteLib.Projects
         /// </summary>
         /// <param name="set_db_context"></param>
         /// <param name="set_logger"></param>
-        public ProjectsTable(DbAppContext set_db_context, ILogger<ProjectsTable> set_logger, IOptions<ServerConfigModel> set_config)
+        public UsersProjectsTable(DbAppContext set_db_context, ILogger<UsersProjectsTable> set_logger, IOptions<ServerConfigModel> set_config)
         {
             _db_context = set_db_context;
             _logger = set_logger;
@@ -97,7 +96,7 @@ namespace DbcMetaSqliteLib.Projects
                 res.PageNum = 1;
             }
 
-            IQueryable<UserToProjectLinkModelDb> query = _db_context.UsersToProjectsLinks.Where(x => x.UserId == user.Id && (user.AccessLevelUser >= AccessLevelsUsersEnum.Manager || !x.IsDeleted)).Include(x => x.Project);
+            IQueryable<UserToProjectLinkModelDb> query = _db_context.UsersToProjectsLinks.Where(x => x.UserId == user.Id && (user.AccessLevelUser >= AccessLevelsUsersEnum.Admin || !x.IsDeleted)).Include(x => x.Project);
 
             res.TotalRowsCount = query.Count();
 
@@ -122,24 +121,12 @@ namespace DbcMetaSqliteLib.Projects
 
             query = query.Skip((res.PageNum - 1) * res.PageSize).Take(res.PageSize);
             UserToProjectLinkModelDb[] projects_links = await query.ToArrayAsync();
-#if DEBUG
-            var v1 = JsonConvert.SerializeObject(projects_links,
-                        new JsonSerializerSettings()
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        });
-
-#endif
             res.RowsData = projects_links.Select(x => (ProjectForUserModel)x).ToArray();
-
-#if DEBUG
-            var v2 = JsonConvert.SerializeObject(res);
-#endif
 
             return res;
         }
 
-        public async Task<ProjectModelDB?> GetProjectForUserAsync(int project_id, int user_id, bool include_sers_data)
+        public async Task<ProjectModelDB?> GetProjectAsync(int project_id, bool include_sers_data)
         {
             if (project_id <= 0)
             {
@@ -147,15 +134,8 @@ namespace DbcMetaSqliteLib.Projects
                 return null;
             }
 
-            if (user_id <= 0)
-            {
-                _logger.LogError("Идентификатор пользователя не может быть <= 0", new ArgumentOutOfRangeException(nameof(user_id)));
-                return null;
-            }
-
             IQueryable<ProjectModelDB> query = from project in _db_context.Projects
-                                               join link in _db_context.UsersToProjectsLinks on project.Id equals link.ProjectId
-                                               where link.UserId == user_id && project.Id == project_id
+                                               where project.Id == project_id
                                                select project;
 
             if (include_sers_data)
