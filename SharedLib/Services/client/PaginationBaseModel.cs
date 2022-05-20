@@ -23,7 +23,7 @@ namespace SharedLib.Services
                 PageNum = 1;
 
             if (string.IsNullOrWhiteSpace(SortBy))
-                SortBy = nameof(ProjectForUserModel.Id);
+                SortBy = nameof(LinkToProjectForUserModel.Id);
 
             if (SortingDirection is null)
                 SortingDirection = _conf.PaginationDefaultSorting.ToString();

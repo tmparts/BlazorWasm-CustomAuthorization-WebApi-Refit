@@ -50,7 +50,7 @@ namespace ServerLib
                 {
                     Projects = new ProjectsForUserResponseModel()
                     {
-                        RowsData = Array.Empty<ProjectForUserModel>()
+                        RowsData = Array.Empty<LinkToProjectForUserModel>()
                     },
                     IsSuccess = false,
                     Message = ex.Message

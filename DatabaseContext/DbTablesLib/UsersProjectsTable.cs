@@ -96,7 +96,10 @@ namespace DbcMetaSqliteLib.Projects
                 res.PageNum = 1;
             }
 
-            IQueryable<UserToProjectLinkModelDb> query = _db_context.UsersToProjectsLinks.Where(x => x.UserId == user.Id && (user.AccessLevelUser >= AccessLevelsUsersEnum.Admin || !x.IsDeleted)).Include(x => x.Project);
+            IQueryable<UserToProjectLinkModelDb> query = _db_context.UsersToProjectsLinks.Where(x => x.UserId == user.Id)
+                .Where(x => user.AccessLevelUser >= AccessLevelsUsersEnum.Admin || !x.IsDeleted)
+                .Where(x => user.AccessLevelUser >= AccessLevelsUsersEnum.Admin || !x.Project.IsDeleted)
+                .Include(x => x.Project);
 
             res.TotalRowsCount = query.Count();
 
@@ -121,7 +124,7 @@ namespace DbcMetaSqliteLib.Projects
 
             query = query.Skip((res.PageNum - 1) * res.PageSize).Take(res.PageSize);
             UserToProjectLinkModelDb[] projects_links = await query.ToArrayAsync();
-            res.RowsData = projects_links.Select(x => (ProjectForUserModel)x).ToArray();
+            res.RowsData = projects_links.Select(x => (LinkToProjectForUserModel)x).ToArray();
 
             return res;
         }

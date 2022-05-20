@@ -61,7 +61,7 @@
 </div>
 
 @code {
-    ProjectsForUserResponseModel UsersProjects = new ProjectsForUserResponseModel() { RowsData = Array.Empty<ProjectForUserModel>() };
+    ProjectsForUserResponseModel UsersProjects = new ProjectsForUserResponseModel() { RowsData = Array.Empty<LinkToProjectForUserModel>() };
     UserProjectsTableProvider userProjectsDataTable => new UserProjectsTableProvider(UsersProjects, GlobalStaticConstants.PROJECTS_CONTROLLER_NAME);
 
     private ModalWindowComponent Modal { get; set; }
