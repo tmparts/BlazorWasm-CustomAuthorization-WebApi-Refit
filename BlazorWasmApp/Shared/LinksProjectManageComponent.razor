@@ -38,8 +38,8 @@ else
     <table class="table table-sm table-light table-hover table-striped">
         <thead>
             <tr>
-                <th scope="col">№ п/п</th>
-                <th scope="col">Link ID</th>
+                <th title="Номер по порядку" style="width: 1%; white-space: nowrap;" scope="col">№</th>
+                <th title="Идентификатор ссылки" style="width: 1%; white-space: nowrap;" scope="col">ID</th>
                 <th scope="col">Пользователь</th>
                 <th scope="col">Уровень</th>
             </tr>
@@ -49,8 +49,9 @@ else
                 int index = 0;
                 foreach (UserToProjectLinkModelDb link in Links)
                 {
+                    bool is_my_link = link.UserId == sessionMarker.Id;
                     index++;
-                    <tr class="@(link.IsDeleted?"is-deleted-row":"")">
+                    <tr title="@(is_my_link ? "ваша ссылка на проект" : "")" class="@(link.IsDeleted ? "is-deleted-row" : "") @(is_my_link ? " table-info" : "")">
                         <th scope="row">@index</th>
                         <td>@($"#{link.Id}")</td>
                         <td>@($"{link.User.Name} ({link.User.Email})")</td>

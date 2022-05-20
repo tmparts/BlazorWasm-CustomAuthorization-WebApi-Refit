@@ -34,12 +34,13 @@ namespace DbLayerLib
                     new UserGroupModelDB("Test group 3", "Description group 3") { Id = 3 }
             );
 
+            var rand = new Random();
             modelBuilder.Entity<ProjectModelDB>().HasData(
-                    Enumerable.Range(1, 1024).Select(x => new ProjectModelDB($"Demo project {x}", $"Description project {x}") { Id = x })
+                    Enumerable.Range(1, 1024).Select(x => new ProjectModelDB($"Demo project {x}", $"Description project {x}") { Id = x, IsDeleted = rand.Next(100) <= 15 })
             );
 
             modelBuilder.Entity<UserModelDB>().HasData(
-                    new UserModelDB("Tom", AccessLevelsUsersEnum.ROOT) { Id = 1, Login = "222222222", PasswordHash = GlobalUtils.CalculateHashString("222222222"), Email = "tom@mail.ru" },
+                    new UserModelDB("222", AccessLevelsUsersEnum.ROOT) { Id = 1, Login = "222222222", PasswordHash = GlobalUtils.CalculateHashString("222222222"), Email = "tom@mail.ru" },
                     new UserModelDB("Bob", AccessLevelsUsersEnum.Confirmed) { Id = 2, Login = "bobb", PasswordHash = GlobalUtils.CalculateHashString("gsdfghjg"), Email = "bobb@mail.ru" },
                     new UserModelDB("Sam", AccessLevelsUsersEnum.Trusted) { Id = 3, Login = "samuel", PasswordHash = GlobalUtils.CalculateHashString("hdg6hw46s"), Email = "samuel@mail.ru" },
                     new UserModelDB("Kelly", AccessLevelsUsersEnum.Manager) { Id = 4, Login = "kiki", PasswordHash = GlobalUtils.CalculateHashString("dh6jwk45"), Email = "kiki@mail.ru" },
@@ -53,7 +54,6 @@ namespace DbLayerLib
                     new UserToGroupLinkModelDb() { Id = 3, GroupId = 3, UserId = 2 }
             );
 
-            var rand = new Random();
             Array values = Enum.GetValues(typeof(AccessLevelsUsersToProjectsEnum));
 
             var rand_links = Enumerable.Range(1, 1024).SelectMany(x => Enumerable.Range(1, 6).Select(y => new { project_id = x, user_id = y })).ToList();

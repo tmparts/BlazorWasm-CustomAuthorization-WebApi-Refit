@@ -12,7 +12,7 @@ namespace SharedLib.Models
         /// <summary>
         /// Проекты в которых учавствует пользователь
         /// </summary>
-        public ProjectForUserModel[] RowsData { get; set; }
+        public LinkToProjectForUserModel[] RowsData { get; set; }
 
         /// <summary>
         /// Конструктор

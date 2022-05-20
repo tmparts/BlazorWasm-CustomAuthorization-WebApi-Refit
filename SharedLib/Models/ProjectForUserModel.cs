@@ -5,9 +5,9 @@
 namespace SharedLib.Models
 {
     /// <summary>
-    /// Проект пользователя
+    /// ССылка на проект пользователя
     /// </summary>
-    public class ProjectForUserModel : EntryDescriptionModel
+    public class LinkToProjectForUserModel : EntryDescriptionModel
     {
         /// <summary>
         /// Уровень доступа пользвателя к проекту
@@ -15,20 +15,29 @@ namespace SharedLib.Models
         public AccessLevelsUsersToProjectsEnum AccessLevelUser { get; set; } = AccessLevelsUsersToProjectsEnum.Blocked;
 
         /// <summary>
+        /// Ссылка помечена на удаление
+        /// </summary>
+        public bool? ProjectIsDeleted { get; set; }
+
+        public int ProjectId { get; set; }
+
+        /// <summary>
         /// Приведение типов
         /// </summary>
         /// <param name="v">Исходный объект</param>
-        public static explicit operator ProjectForUserModel(UserToProjectLinkModelDb v)
+        public static explicit operator LinkToProjectForUserModel(UserToProjectLinkModelDb v)
         {
             return v is null
                 ? null
-                : new ProjectForUserModel()
+                : new LinkToProjectForUserModel()
                 {
-                    Id = v.ProjectId,
+                    Id = v.Id,
+                    ProjectId = v.ProjectId,
                     Description = v.Project.Description,
                     Name = v.Project.Name,
                     IsDeleted = v.IsDeleted,
-                    AccessLevelUser = v.AccessLevelUser
+                    AccessLevelUser = v.AccessLevelUser,
+                    ProjectIsDeleted = v.Project?.IsDeleted
                 };
         }
     }
